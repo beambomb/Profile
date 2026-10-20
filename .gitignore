@@ -1,0 +1,22 @@
+node_modules
+.next
+out
+build
+coverage
+test-results
+playwright-report
+
+# The original CV contains a phone number and home address: never commit it
+cv_*.pdf
+
+# Raw files dropped into inbox/ stay local (only the README guides are tracked)
+inbox/*/*
+!inbox/*/README.md
+!inbox/*/*.template.md
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.env*
+!.env.example
+npm-debug.log*
+.DS_Store
