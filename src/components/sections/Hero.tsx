@@ -126,7 +126,7 @@ export function Hero() {
               {bestFinish ? (
                 <div className="flex justify-between gap-4 py-3">
                   <dt className="text-muted">Best finish</dt>
-                  <dd className="text-right font-medium text-cta">{bestFinish.title.split(" (")[0]}</dd>
+                  <dd className="text-right font-medium text-gold">{bestFinish.title.split(" (")[0]}</dd>
                 </div>
               ) : null}
             </dl>

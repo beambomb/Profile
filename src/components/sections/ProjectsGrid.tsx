@@ -40,7 +40,7 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
               className={`inline-flex min-h-11 cursor-pointer items-center rounded-md border px-5 font-mono text-sm transition-[transform,color,border-color,background-color] duration-200 hover:-translate-y-0.5 ${
                 active
                   ? "border-accent bg-accent/10 text-accent"
-                  : "border-border text-muted hover:border-accent hover:text-accent"
+                  : "border-border-strong text-muted hover:border-accent hover:text-accent"
               }`}
             >
               {name}
@@ -84,7 +84,7 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                   </h3>
 
                   {project.award ? (
-                    <p className="mt-3 inline-block self-start rounded-sm border border-cta/50 bg-cta/10 px-2.5 py-1 text-sm text-cta">
+                    <p className="mt-3 inline-block self-start rounded-sm border border-cta/50 bg-cta/10 px-2.5 py-1 text-sm text-gold">
                       {project.award}
                     </p>
                   ) : null}

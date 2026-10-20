@@ -78,7 +78,7 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
               type="button"
               onClick={close}
               aria-label="Close certificate"
-              className="absolute right-2 top-2 z-10 inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-border bg-bg/90 text-text hover:border-accent hover:text-accent"
+              className="absolute right-2 top-2 z-10 inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-border-strong bg-bg/90 text-text hover:border-accent hover:text-accent"
             >
               <CloseIcon />
             </button>

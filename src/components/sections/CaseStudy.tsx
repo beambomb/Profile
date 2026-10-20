@@ -42,7 +42,7 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
         </p>
         <h1 className="mt-3 text-balance text-4xl font-bold tracking-tight sm:text-5xl">{project.title}</h1>
         {project.award ? (
-          <p className="mt-4 inline-block rounded-sm border border-cta/50 bg-cta/10 px-3 py-1.5 text-cta">
+          <p className="mt-4 inline-block rounded-sm border border-cta/50 bg-cta/10 px-3 py-1.5 text-gold">
             {project.award}
           </p>
         ) : null}

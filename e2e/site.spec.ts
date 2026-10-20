@@ -55,6 +55,56 @@ test.describe("accessibility (axe, automated only)", () => {
   }
 });
 
+const LIGHT_BG = "rgb(247, 241, 227)";
+const DARK_BG = "rgb(11, 15, 23)";
+
+test.describe("themes", () => {
+  test("follows a light system setting when nothing is saved", async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: "light" });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator("body")).toHaveCSS("background-color", LIGHT_BG);
+    await context.close();
+  });
+
+  test("follows a dark system setting when nothing is saved", async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: "dark" });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("body")).toHaveCSS("background-color", DARK_BG);
+    await context.close();
+  });
+
+  test("the toggle switches theme and the choice survives a reload", async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: "dark" });
+    const page = await context.newPage();
+    await page.goto("/");
+    await page.getByRole("button", { name: "Switch to light theme" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator("body")).toHaveCSS("background-color", LIGHT_BG);
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
+    await context.close();
+  });
+
+  for (const path of ["/", "/projects/vanigrow", "/projects/aemads"]) {
+    test(`no serious or critical accessibility violations in light theme on ${path}`, async ({ browser }) => {
+      const context = await browser.newContext({ colorScheme: "light", reducedMotion: "reduce" });
+      const page = await context.newPage();
+      await page.goto(path);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+      const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+      const blocking = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+      expect(blocking.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
+      await context.close();
+    });
+  }
+});
+
 test.describe("responsive layout", () => {
   for (const width of [375, 768, 1024, 1440]) {
     for (const path of ["/", "/projects/aemads"]) {

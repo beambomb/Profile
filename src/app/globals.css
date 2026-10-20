@@ -2,19 +2,58 @@
 
 /* Design tokens: single source of truth (see .kiro/steering/design-system.md) */
 @theme {
+  /* Dark theme (default). */
   --color-bg: #0b0f17;
   --color-surface: #121826;
   --color-surface-2: #1a2233;
   --color-border: #2a3550;
+  /* Borders of interactive controls (buttons, chips): stronger than card borders. */
+  --color-border-strong: #4b5c86;
   --color-text: #e6eaf2;
   --color-muted: #9aa6bd;
   --color-accent: #22d3ee;
   --color-cta: #fbbf24;
+  /* Gold that is safe as TEXT on cards, and the text color to use ON the cta fill. */
+  --color-gold: #fbbf24;
+  --color-on-cta: #0b0f17;
   --color-danger: #f43f5e;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
   --font-pixel: var(--font-pixel), ui-monospace, monospace;
+}
+
+/* Light theme: beige and gold. Set by <html data-theme="light"> (see ThemeToggle + the inline script in layout.tsx).
+   Gold is split in two on purpose: pale gold is only for fills (cta), dark gold for text (accent, gold). */
+:root {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f7f1e3;
+  --color-surface: #fffbf2;
+  --color-surface-2: #efe6d2;
+  --color-border: #d8caa6;
+  --color-border-strong: #8f7d52;
+  --color-text: #2a2418;
+  --color-muted: #665a41;
+  --color-accent: #7d5700;
+  --color-cta: #d4a62a;
+  --color-gold: #7a5800;
+  --color-on-cta: #2a2418;
+  --color-danger: #be123c;
+}
+
+/* Theme toggle icons: pure CSS so they are right before JavaScript runs. */
+.theme-sun,
+.theme-moon {
+  display: none;
+}
+:root:not([data-theme="light"]) .theme-sun {
+  display: block;
+}
+:root[data-theme="light"] .theme-moon {
+  display: block;
 }
 
 html {

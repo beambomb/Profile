@@ -4,8 +4,8 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "reac
 type Variant = "primary" | "secondary" | "ghost";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-cta text-bg font-semibold hover:brightness-110 hover:shadow-[0_8px_28px_-8px_var(--color-cta)]",
-  secondary: "border border-border text-text hover:border-accent hover:text-accent",
+  primary: "bg-cta text-on-cta font-semibold hover:brightness-110 hover:shadow-[0_8px_28px_-8px_var(--color-cta)]",
+  secondary: "border border-border-strong text-text hover:border-accent hover:text-accent",
   ghost: "text-muted hover:text-accent",
 };
 

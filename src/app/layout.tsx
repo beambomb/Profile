@@ -28,15 +28,29 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+// Runs before first paint so there is no flash of the wrong theme. A saved choice wins,
+// otherwise the system setting. Static string: no user input is interpolated.
+const themeScript = `(function(){try{var s=localStorage.getItem("theme");var t=(s==="light"||s==="dark")?s:(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
+
 export const viewport: Viewport = {
-  themeColor: "#0B0F17",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0B0F17" },
+    { media: "(prefers-color-scheme: light)", color: "#F7F1E3" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable} ${pixel.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrains.variable} ${pixel.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <SkipLink />
         <ScrollProgress />

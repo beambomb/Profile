@@ -30,7 +30,7 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
         className={`inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md border px-5 font-mono text-sm transition-[transform,color,border-color,background-color] duration-200 hover:-translate-y-0.5 ${
           copied
             ? "border-accent bg-accent/10 text-accent"
-            : "border-border text-text hover:border-accent hover:text-accent"
+            : "border-border-strong text-text hover:border-accent hover:text-accent"
         }`}
       >
         <svg

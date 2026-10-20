@@ -52,6 +52,10 @@ Save it in `public/images/` and set `photo: "/images/your-photo.jpg"` in `conten
 ### Publish the CV (not yet enabled)
 The CV PDF contains a phone number and home address, so the **Download CV** button is off. To turn it on, save a public-safe copy as `public/cv.pdf` and set `published: true` in `content/socials.ts`. The test suite fails if `published` is true and the file is missing.
 
+## Themes
+
+Dark and a beige-gold light theme. New visitors get their system setting; the sun/moon button in the header saves a choice. Colors are tokens in `src/app/globals.css` (see the table in `.kiro/steering/design-system.md`).
+
 ## Design and consistency rules
 
 Project rules live in `.kiro/steering/` (tech stack, design system, UX rules, content voice) and the checklist skill in `.kiro/skills/portfolio-ui-review/`. Colors and fonts are tokens in `src/app/globals.css`. Read those files before changing the look.

@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 /** "Combo" chip. Always wraps with its siblings and never truncates its label. */
 export function Tag({ children, tone = "default" }: { children: ReactNode; tone?: "default" | "accent" }) {
   const tones = {
-    default: "border-border bg-surface-2 text-text hover:border-accent hover:text-accent",
-    accent: "border-accent/50 bg-accent/10 text-accent hover:bg-accent/20",
+    default: "border-border-strong bg-surface-2 text-text hover:border-accent hover:text-accent",
+    accent: "border-accent/50 bg-accent/10 text-accent hover:bg-accent/15",
   } as const;
   return (
     <span

@@ -3,7 +3,7 @@ import { ArrowRightIcon, GithubIcon, LinkedinIcon, MailIcon } from "@/components
 
 export function Footer({ name }: { name: string }) {
   const iconLink =
-    "inline-flex size-11 items-center justify-center rounded-md border border-border text-muted transition-[transform,color,border-color] duration-200 hover:-translate-y-0.5 hover:border-accent hover:text-accent";
+    "inline-flex size-11 items-center justify-center rounded-md border border-border-strong text-muted transition-[transform,color,border-color] duration-200 hover:-translate-y-0.5 hover:border-accent hover:text-accent";
 
   return (
     <footer className="border-t border-border">

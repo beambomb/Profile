@@ -46,3 +46,27 @@ Use tokens through Tailwind names (`bg-bg`, `text-muted`, `border-border`, ...).
 
 ## Interactions (encouraged, all reduced-motion safe)
 - Cursor spotlight and subtle tilt on cards (mouse only), count-up numbers, scroll progress bar, active-section nav, staggered reveal on scroll, copy-to-clipboard feedback.
+
+## Light theme: beige and gold
+Set with `<html data-theme="light">`. The default follows the visitor's system setting; the header toggle saves an explicit choice in `localStorage`. All values live in `src/app/globals.css`; components must use token names only, never theme-specific classes.
+
+| Token | Dark | Light | Notes |
+|---|---|---|---|
+| `bg` | `#0B0F17` | `#F7F1E3` | page |
+| `surface` | `#121826` | `#FFFBF2` | cards |
+| `surface-2` | `#1A2233` | `#EFE6D2` | raised, chips |
+| `border` | `#2A3550` | `#D8CAA6` | card borders (decorative) |
+| `border-strong` | `#4B5C86` | `#8F7D52` | borders of interactive controls (>= 3:1) |
+| `text` | `#E6EAF2` | `#2A2418` | |
+| `muted` | `#9AA6BD` | `#665A41` | >= 5:1 on every surface |
+| `accent` | `#22D3EE` | `#7D5700` | links, highlights, text |
+| `cta` | `#FBBF24` | `#D4A62A` | button FILL only |
+| `on-cta` | `#0B0F17` | `#2A2418` | text on a `cta` fill |
+| `gold` | `#FBBF24` | `#7A5800` | gold used as TEXT (awards) |
+| `danger` | `#F43F5E` | `#BE123C` | |
+
+Rules:
+- Pale gold (`cta`) is never used for text on beige: it only reaches about 2.4:1. Use `gold` or `accent` for gold text.
+- Text on a `cta` fill is `text-on-cta`, never `text-bg`.
+- Interactive controls use `border-border-strong`; cards use `border-border`.
+- New colors need a value in both themes and an axe pass in both (`e2e/site.spec.ts`, "themes").

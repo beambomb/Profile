@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/ui/Icons";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useActiveSection } from "@/components/motion/useActiveSection";
 import { navItems } from "./nav";
 
@@ -59,32 +60,36 @@ export function Header({ name }: { name: string }) {
           <span aria-hidden="true" className="caret ml-1 inline-block h-4 w-2 bg-accent" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-1">
-            {navItems.map((item) => {
-              const active = onHome && activeId === item.href.replace("/#", "");
-              return (
-                <li key={item.href}>
-                  <Link href={item.href} className={linkClass(active)} aria-current={active ? "location" : undefined}>
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        <div className="flex items-center gap-2">
+          <nav aria-label="Primary" className="hidden md:block">
+            <ul className="flex items-center gap-1">
+              {navItems.map((item) => {
+                const active = onHome && activeId === item.href.replace("/#", "");
+                return (
+                  <li key={item.href}>
+                    <Link href={item.href} className={linkClass(active)} aria-current={active ? "location" : undefined}>
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-        <button
-          ref={toggleRef}
-          type="button"
-          className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-border text-text hover:border-accent hover:text-accent md:hidden"
-          aria-expanded={open}
-          aria-controls={menuId}
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <CloseIcon /> : <MenuIcon />}
-        </button>
+          <ThemeToggle />
+
+          <button
+            ref={toggleRef}
+            type="button"
+            className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-border-strong text-text hover:border-accent hover:text-accent md:hidden"
+            aria-expanded={open}
+            aria-controls={menuId}
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
       </div>
 
       {open ? (
