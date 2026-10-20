@@ -109,6 +109,15 @@ test.describe("motion and keyboard", () => {
     await expect(page).toHaveURL(/#main$/);
   });
 
+  test("clicking the logo scrolls back to the top and clears the hash", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/#contact");
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+    await page.getByRole("banner").getByRole("link", { name: /Johannes/ }).click();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    expect(new URL(page.url()).hash).toBe("");
+  });
+
   test("mobile menu opens and Esc closes it", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto("/");

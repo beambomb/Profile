@@ -11,6 +11,17 @@ describe("Header", () => {
     }
   });
 
+  it("scrolls to the top when the logo is clicked on the home page", async () => {
+    const user = userEvent.setup();
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    render(<Header name="Johannes De Deo" />);
+
+    await user.click(screen.getByRole("link", { name: /Johannes/ }));
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+    scrollTo.mockRestore();
+  });
+
   it("opens the mobile menu, and Esc closes it and restores focus", async () => {
     const user = userEvent.setup();
     render(<Header name="Johannes De Deo" />);

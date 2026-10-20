@@ -41,7 +41,16 @@ export function Header({ name }: { name: string }) {
         <Link
           href="/"
           className="inline-flex min-h-11 items-center font-mono text-base font-semibold text-text hover:text-accent"
-          onClick={() => setOpen(false)}
+          onClick={(event) => {
+            setOpen(false);
+            // Already on the home page: Next treats "/" as the same route and will not scroll,
+            // so scroll to the top ourselves. "auto" follows the CSS scroll-behavior (and reduced motion).
+            if (onHome) {
+              event.preventDefault();
+              window.scrollTo({ top: 0, behavior: "auto" });
+              window.history.replaceState(null, "", "/");
+            }
+          }}
         >
           <span aria-hidden="true" className="mr-2 text-accent">
             &gt;
