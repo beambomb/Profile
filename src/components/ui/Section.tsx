@@ -12,7 +12,7 @@ type SectionProps = {
 
 export function Section({ id, eyebrow, title, intro, children }: SectionProps) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="mx-auto w-full max-w-7xl px-6 py-20 sm:py-28 lg:px-10">
+    <section id={id} aria-labelledby={`${id}-title`} className="mx-auto w-full max-w-7xl px-6 py-10 sm:py-14 lg:px-10">
       <Reveal>
         <p aria-hidden="true" className="font-pixel text-xs uppercase tracking-widest text-accent">
           {eyebrow}
