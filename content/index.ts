@@ -4,7 +4,7 @@ export { profile } from "./profile";
 export { skills } from "./skills";
 export { projects } from "./projects";
 export { socials, cv, certificates } from "./socials";
-export type { Project, ProjectDomain, SkillGroup, Certificate, Profile } from "./schema";
+export type { Project, ProjectDomain, ProjectScreenshot, SkillGroup, Certificate, Profile } from "./schema";
 export { projectDomains } from "./schema";
 
 /** Recursively collect string values that still contain the placeholder marker. */

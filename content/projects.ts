@@ -55,6 +55,18 @@ export const projects = projectsSchema.parse([
     ],
     limitations: ["This is a team course project with four members."],
     repoUrl: "https://github.com/beambomb/Tim8-US2",
+    screenshots: [
+      {
+        src: "/images/projects/carikos/carikos-hero.png",
+        alt: "CariKos landing page and campus search interface",
+        caption: "Landing page with verified boarding house search near campus",
+      },
+      {
+        src: "/images/projects/carikos/carikos-catalog.png",
+        alt: "CariKos recommended boarding houses catalog with filtering",
+        caption: "Curated catalog with gender filters and distance indicators",
+      },
+    ],
     needsReview: true,
   },
   {

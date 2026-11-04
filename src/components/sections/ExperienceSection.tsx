@@ -8,7 +8,7 @@ export function ExperienceSection() {
     <section id="experience" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
       {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
       <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
-        Organizational Experience
+        Organizational and Committee Experience
       </h2>
 
       {/* Experience Cards */}

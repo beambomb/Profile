@@ -89,6 +89,13 @@ export const certificateSchema = z.object({
 export const certificatesSchema = z.array(certificateSchema);
 export type Certificate = z.infer<typeof certificateSchema>;
 
+export const projectScreenshotSchema = z.object({
+  src: z.string().startsWith("/"),
+  alt: nonEmpty,
+  caption: nonEmpty.optional(),
+});
+export type ProjectScreenshot = z.infer<typeof projectScreenshotSchema>;
+
 export const projectSchema = z.object({
   slug,
   title: nonEmpty,
@@ -112,6 +119,7 @@ export const projectSchema = z.object({
   decisions: z.array(z.object({ title: nonEmpty, why: nonEmpty })).min(1),
   limitations: z.array(nonEmpty).default([]),
   repoUrl: z.url(),
+  screenshots: z.array(projectScreenshotSchema).optional(),
   needsReview: z.boolean().default(false),
 });
 export type Project = z.infer<typeof projectSchema>;

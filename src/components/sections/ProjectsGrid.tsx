@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { Project, ProjectDomain } from "@content";
-import { ArrowRightIcon, ExternalLinkIcon, MinusIcon, PlusIcon } from "@/components/ui/Icons";
+import { useMemo, useRef, useState } from "react";
+import type { Project, ProjectDomain, ProjectScreenshot } from "@content";
+import { ArrowRightIcon, CloseIcon, ExternalLinkIcon, MinusIcon, PlusIcon } from "@/components/ui/Icons";
 import { Tag, TagList } from "@/components/ui/Tag";
 
 type Filter = "All" | ProjectDomain;
@@ -11,6 +11,18 @@ type Filter = "All" | ProjectDomain;
 export function ProjectsGrid({ projects, domains }: { projects: Project[]; domains: ProjectDomain[] }) {
   const [filter, setFilter] = useState<Filter>("All");
   const [expandedSlugs, setExpandedSlugs] = useState<Record<string, boolean>>({});
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [activeScreenshot, setActiveScreenshot] = useState<ProjectScreenshot | null>(null);
+
+  const openPreview = (ss: ProjectScreenshot) => {
+    setActiveScreenshot(ss);
+    requestAnimationFrame(() => dialogRef.current?.showModal());
+  };
+
+  const closePreview = () => {
+    dialogRef.current?.close();
+    setActiveScreenshot(null);
+  };
 
   const visible = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.domain === filter)),
@@ -116,6 +128,43 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                     {project.oneLiner}
                   </p>
 
+                  {/* Screenshots preview if available (uncropped, crisp, responsive) */}
+                  {project.screenshots && project.screenshots.length > 0 ? (
+                    <div className="space-y-2 pt-1">
+                      <div className="grid gap-3 sm:grid-cols-2 max-w-3xl">
+                        {project.screenshots.map((ss) => (
+                          <button
+                            key={ss.src}
+                            type="button"
+                            onClick={() => openPreview(ss)}
+                            className="group/ss text-left overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-2 transition-all hover:border-accent hover:shadow-md cursor-pointer active:scale-[0.99]"
+                            aria-haspopup="dialog"
+                            aria-label={`View full screenshot: ${ss.caption || ss.alt}`}
+                          >
+                            <div className="overflow-hidden rounded border border-border/60 bg-bg/90">
+                              <img
+                                src={ss.src}
+                                alt={ss.alt}
+                                className="w-full h-auto object-contain transition-transform duration-300 group-hover/ss:scale-[1.02]"
+                                loading="lazy"
+                              />
+                            </div>
+                            {ss.caption ? (
+                              <div className="mt-2 flex items-center justify-between gap-2 px-1">
+                                <span className="text-xs font-medium text-text group-hover/ss:text-accent transition-colors truncate">
+                                  {ss.caption}
+                                </span>
+                                <span className="text-[10px] text-muted shrink-0">
+                                  Enlarge
+                                </span>
+                              </div>
+                            ) : null}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   {/* Problem & Solution Snapshot */}
                   <div className="grid gap-3 sm:grid-cols-2 text-xs text-muted max-w-3xl bg-surface-2 border border-border p-3.5 rounded-md">
                     <div>
@@ -171,6 +220,41 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
           );
         })}
       </div>
+
+      {/* Lightbox Modal Dialog for full-size screenshot preview */}
+      <dialog
+        ref={dialogRef}
+        onClose={() => setActiveScreenshot(null)}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) closePreview();
+        }}
+        className="fixed inset-0 m-auto max-h-[92vh] max-w-[94vw] rounded-xl border border-border bg-surface p-4 text-text shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm sm:p-6"
+      >
+        {activeScreenshot ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+              <p className="font-medium text-sm text-text truncate">
+                {activeScreenshot.caption || activeScreenshot.alt}
+              </p>
+              <button
+                type="button"
+                onClick={closePreview}
+                aria-label="Close dialog"
+                className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border border-border-strong text-muted hover:border-accent hover:text-accent transition-colors"
+              >
+                <CloseIcon className="size-4" />
+              </button>
+            </div>
+            <div className="overflow-auto max-h-[75vh] flex items-center justify-center p-1">
+              <img
+                src={activeScreenshot.src}
+                alt={activeScreenshot.alt}
+                className="max-h-[75vh] w-auto max-w-full rounded object-contain shadow-lg"
+              />
+            </div>
+          </div>
+        ) : null}
+      </dialog>
     </div>
   );
 }

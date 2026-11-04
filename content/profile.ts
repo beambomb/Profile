@@ -19,7 +19,7 @@ export const profile = profileSchema.parse({
   },
   experience: [
     {
-      organization: "KMTETI, Workshop Division",
+      organization: "KMTETI",
       role: "Member of KMTETI Workshop Division",
       period: "2026 – Present",
       points: [
