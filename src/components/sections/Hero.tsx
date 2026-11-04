@@ -6,7 +6,11 @@ import { ArrowRightIcon, DownloadIcon, LinkedinIcon } from "@/components/ui/Icon
 
 export function Hero() {
   return (
-    <section id="intro" className="relative pt-2 pb-10 sm:pb-12 border-b border-border">
+    <section id="profile" className="relative scroll-mt-20 pt-2 pb-10 sm:pb-12 border-b border-border">
+      {/* Anchor targets for intro and about to ensure smooth jump from any link */}
+      <span id="intro" className="sr-only" />
+      <span id="about" className="sr-only" />
+
       {/* Accessible screen-reader tagline to preserve SEO & tests */}
       <p className="sr-only">{profile.tagline}</p>
 

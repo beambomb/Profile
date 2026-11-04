@@ -1,7 +1,7 @@
 import { certificates } from "@content";
 
 const allItems = [
-  { label: "Profile", href: "/#about" },
+  { label: "Profile", href: "/#profile" },
   { label: "Projects", href: "/#projects" },
   { label: "Education", href: "/#education" },
   { label: "Experience", href: "/#experience" },

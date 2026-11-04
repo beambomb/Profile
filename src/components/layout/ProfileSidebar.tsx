@@ -50,7 +50,7 @@ export function ProfileSidebar() {
       </div>
 
       {/* ABOUT Section */}
-      <div id="about" className="mt-6">
+      <div className="mt-6">
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">ABOUT</h3>
         <h2 className="sr-only">About me</h2>
         <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-text">

@@ -5,7 +5,7 @@ import { AwardIcon, BriefcaseIcon } from "@/components/ui/Icons";
 
 export function ExperienceSection() {
   return (
-    <section id="experience" className="py-8 sm:py-10 border-b border-border">
+    <section id="experience" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
       {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
       <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
         Career Journey

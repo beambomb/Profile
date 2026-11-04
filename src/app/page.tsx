@@ -10,7 +10,7 @@ import { Contact } from "@/components/sections/Contact";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-bg text-text flex flex-col lg:flex-row relative selection:bg-accent/30 selection:text-text transition-colors duration-300">
+    <div id="top" className="min-h-screen bg-bg text-text flex flex-col lg:flex-row relative selection:bg-accent/30 selection:text-text transition-colors duration-300">
       {/* Left Sidebar (Desktop Fixed / Sticky, Mobile Top) */}
       <ProfileSidebar />
 

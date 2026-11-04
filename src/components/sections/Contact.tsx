@@ -10,7 +10,7 @@ function handle(url: string) {
 
 export function Contact() {
   return (
-    <section id="contact" className="py-8 sm:py-10 pb-16">
+    <section id="contact" className="scroll-mt-20 py-8 sm:py-10 pb-16">
       {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
       <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-3">
         Get in touch

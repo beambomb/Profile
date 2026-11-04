@@ -36,6 +36,26 @@ export function Header({ name }: { name: string }) {
       active ? "text-accent after:scale-x-100" : "text-muted after:scale-x-0 hover:after:scale-x-100"
     }`;
 
+  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (onHome && href.startsWith("/#")) {
+      const id = href.replace("/#", "");
+      if (id === "profile" || id === "about" || id === "intro" || id === "top") {
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.replaceState(null, "", href);
+        setOpen(false);
+        return;
+      }
+      const el = document.getElementById(id);
+      if (el) {
+        event.preventDefault();
+        el.scrollIntoView({ behavior: "smooth" });
+        window.history.replaceState(null, "", href);
+        setOpen(false);
+      }
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6 lg:px-10">
@@ -67,7 +87,12 @@ export function Header({ name }: { name: string }) {
                 const active = onHome && activeId === item.href.replace("/#", "");
                 return (
                   <li key={item.href}>
-                    <Link href={item.href} className={linkClass(active)} aria-current={active ? "location" : undefined}>
+                    <Link
+                      href={item.href}
+                      className={linkClass(active)}
+                      aria-current={active ? "location" : undefined}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                    >
                       {item.label}
                     </Link>
                   </li>
@@ -99,7 +124,14 @@ export function Header({ name }: { name: string }) {
           <ul className="mx-auto flex max-w-7xl flex-col px-4 py-2">
             {navItems.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className={`${linkClass(false)} w-full`} onClick={() => setOpen(false)}>
+                <Link
+                  href={item.href}
+                  className={`${linkClass(false)} w-full`}
+                  onClick={(e) => {
+                    handleNavClick(e, item.href);
+                    setOpen(false);
+                  }}
+                >
                   {item.label}
                 </Link>
               </li>
