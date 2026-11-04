@@ -7,23 +7,23 @@ import { GithubIcon, LinkedinIcon, MailIcon, MapPinIcon } from "@/components/ui/
 const techStackGroups = [
   {
     category: "Languages",
-    items: ["Python", "Kotlin", "SQL", "TypeScript", "JavaScript", "C++"],
+    items: ["Python", "Kotlin", "SQL", "TypeScript", "JavaScript", "C++", "PHP", "Go"],
   },
   {
     category: "Web & Mobile",
-    items: ["Next.js", "React", "Tailwind", "Express.js", "FastAPI"],
+    items: ["Next.js", "React", "Tailwind", "Express.js", "FastAPI", "Node.js"],
   },
   {
     category: "Data Engineering",
     items: ["PostgreSQL", "Kafka", "Airflow", "dbt", "Supabase", "MongoDB"],
   },
   {
-    category: "ML & Analytics",
-    items: ["PyTorch", "XGBoost", "Scikit-Learn", "Pandas"],
+    category: "AI & Computer Vision",
+    items: ["PyTorch", "Scikit-Learn", "TensorFlow", "Pandas", "OpenCV", "Pillow"],
   },
   {
     category: "IoT & Tools",
-    items: ["ESP32", "MQTT", "Docker", "Git", "VS Code"],
+    items: ["ESP32", "MQTT", "Docker", "Git", "GitHub Action"],
   },
 ];
 
@@ -54,8 +54,7 @@ export function ProfileSidebar() {
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">ABOUT</h3>
         <h2 className="sr-only">About me</h2>
         <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-text">
-          Indonesia-based software & data engineering student at Universitas Gadjah Mada, currently focused on streaming
-          data pipelines, distributed architectures, and real-world web/mobile interfaces.
+          Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering.
         </p>
       </div>
 
