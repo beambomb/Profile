@@ -55,7 +55,7 @@ export function TypedText({ text, speed = 22, className }: TypedTextProps) {
         <button
           type="button"
           onClick={() => setCount(text.length)}
-          className="mt-2 inline-flex min-h-11 cursor-pointer items-center font-mono text-sm text-muted underline-offset-4 hover:text-accent hover:underline"
+          className="mt-2 inline-flex min-h-11 cursor-pointer items-center text-sm font-medium text-muted underline-offset-4 hover:text-accent hover:underline"
         >
           Skip animation
         </button>

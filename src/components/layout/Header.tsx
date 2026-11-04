@@ -41,7 +41,7 @@ export function Header({ name }: { name: string }) {
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6 lg:px-10">
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center font-mono text-base font-semibold text-text hover:text-accent"
+          className="inline-flex min-h-11 items-center font-pixel text-xs font-bold text-text hover:text-accent"
           onClick={(event) => {
             setOpen(false);
             // Already on the home page: Next treats "/" as the same route and will not scroll,

@@ -62,7 +62,7 @@ export function FloatingDock() {
       aria-label="Quick Navigation"
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
     >
-      <div className="flex items-center gap-1 sm:gap-1.5 px-3 py-2 rounded-full backdrop-blur-2xl bg-neutral-950/80 border border-neutral-800/80 shadow-[0_12px_40px_rgba(0,0,0,0.85)] ring-1 ring-white/5">
+      <div className="flex items-center gap-1 sm:gap-1.5 px-3 py-2 rounded-full backdrop-blur-2xl bg-surface/90 border border-border-strong shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -74,10 +74,10 @@ export function FloatingDock() {
               {(isHovered || (isActive && hovered === null)) && (
                 <div
                   role="tooltip"
-                  className="absolute -top-10 px-2.5 py-1 rounded-md bg-neutral-900 border border-neutral-800 text-[11px] font-medium text-white shadow-xl pointer-events-none select-none transition-all duration-150 animate-in fade-in zoom-in-95"
+                  className="absolute -top-10 px-2.5 py-1 rounded-md bg-surface-2 border border-border-strong text-[11px] font-medium text-text shadow-xl pointer-events-none select-none transition-all duration-150 animate-in fade-in zoom-in-95"
                 >
                   {item.label}
-                  <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 size-2 rotate-45 bg-neutral-900 border-r border-b border-neutral-800" />
+                  <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 size-2 rotate-45 bg-surface-2 border-r border-b border-border-strong" />
                 </div>
               )}
 
@@ -91,8 +91,8 @@ export function FloatingDock() {
                 aria-current={isActive ? "location" : undefined}
                 className={`relative flex items-center justify-center size-10 sm:size-11 rounded-full transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-neutral-800 text-white shadow-md ring-1 ring-white/10 scale-105"
-                    : "text-neutral-400 hover:text-white hover:bg-neutral-800/60"
+                    ? "bg-surface-2 text-accent border border-accent/40 shadow-sm scale-105"
+                    : "text-muted hover:text-text hover:bg-surface-2/60"
                 }`}
               >
                 <Icon className="size-5 shrink-0" />
@@ -104,4 +104,3 @@ export function FloatingDock() {
     </nav>
   );
 }
-

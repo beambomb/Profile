@@ -22,7 +22,7 @@ export function Skills() {
               >
                 <div className="flex items-baseline justify-between gap-4">
                   <h3 className="text-xl font-semibold">{group.label}</h3>
-                  <span className="shrink-0 font-mono text-sm text-accent">
+                  <span className="shrink-0 text-sm font-semibold text-accent">
                     {String(group.items.length).padStart(2, "0")}
                   </span>
                 </div>

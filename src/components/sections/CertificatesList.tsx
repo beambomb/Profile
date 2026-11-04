@@ -24,12 +24,15 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
     <>
       <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
         {certificates.map((cert) => (
-          <li key={cert.id} className="flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 transition-all">
+          <li
+            key={cert.id}
+            className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface pixel-frame transition-all"
+          >
             {cert.image ? (
               <button
                 type="button"
                 onClick={() => open(cert)}
-                className="group relative block aspect-[4/3] w-full cursor-pointer overflow-hidden bg-surface-2"
+                className="group relative block aspect-[4/3] w-full cursor-pointer overflow-hidden bg-surface-2 border-b border-border"
                 aria-label={`View certificate image: ${cert.name}`}
                 aria-haspopup="dialog"
               >
@@ -43,15 +46,15 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
               </button>
             ) : null}
             <div className="flex flex-1 flex-col p-5">
-              <h3 className="text-lg font-semibold">{cert.name}</h3>
+              <h3 className="text-lg font-semibold text-text">{cert.name}</h3>
               <p className="mt-1 text-muted">{cert.issuer}</p>
-              <p className="mt-1 font-mono text-sm text-muted">{cert.year}</p>
+              <p className="mt-1 text-sm font-semibold text-accent">{cert.year}</p>
               {cert.verifyUrl ? (
                 <a
                   href={cert.verifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-auto inline-flex min-h-11 items-center gap-2 pt-3 font-mono text-sm text-accent hover:underline"
+                  className="mt-auto inline-flex min-h-11 items-center gap-2 pt-3 text-sm font-medium text-accent hover:underline"
                 >
                   Verify credential <ExternalLinkIcon className="size-4" />
                   <span className="sr-only">(opens in a new tab)</span>
@@ -70,7 +73,7 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
           // Clicking the backdrop (the dialog element itself) closes it.
           if (e.target === dialogRef.current) close();
         }}
-        className="m-auto max-h-[90dvh] w-[min(92vw,56rem)] rounded-md border border-border bg-surface p-0 text-text backdrop:bg-black/80"
+        className="m-auto max-h-[90dvh] w-[min(92vw,56rem)] rounded-xl border-2 border-border-strong bg-surface p-0 text-text backdrop:bg-black/80"
       >
         {active?.image ? (
           <div className="relative">

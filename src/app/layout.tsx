@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Inter, JetBrains_Mono, Press_Start_2P } from "next/font/google";
+import { Inter, Press_Start_2P } from "next/font/google";
 import { profile } from "@content";
 import { siteUrl } from "@/lib/site";
 import { Footer } from "@/components/layout/Footer";
@@ -9,8 +9,6 @@ import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", display: "swap" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
 const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel", display: "swap" });
 
 export const metadata: Metadata = {
@@ -46,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${caveat.variable} ${jetbrains.variable} ${pixel.variable}`}
+      className={`${inter.variable} ${pixel.variable}`}
       suppressHydrationWarning
     >
       <head>

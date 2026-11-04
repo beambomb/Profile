@@ -8,7 +8,7 @@ export function Tag({ children, tone = "default" }: { children: ReactNode; tone?
   } as const;
   return (
     <span
-      className={`inline-block cursor-default rounded-sm border px-3 py-1.5 font-mono text-sm leading-snug transition-[transform,color,border-color,background-color] duration-200 hover:-translate-y-0.5 ${tones[tone]}`}
+      className={`inline-block cursor-default rounded-sm border px-3 py-1 text-xs sm:text-sm font-medium leading-snug transition-[transform,color,border-color,background-color] duration-200 hover:-translate-y-0.5 ${tones[tone]}`}
     >
       {children}
     </span>

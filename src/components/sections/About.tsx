@@ -8,7 +8,7 @@ import { Tag, TagList } from "@/components/ui/Tag";
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <FxCard tilt={0} className="h-full rounded-md border border-border bg-surface p-7 hover:border-accent/60 sm:p-8">
-      <h3 className="font-mono text-sm uppercase tracking-wider text-accent">{title}</h3>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">{title}</h3>
       <div className="mt-5">{children}</div>
     </FxCard>
   );
@@ -36,7 +36,7 @@ export function About() {
             <li key={stat.label}>
               <Reveal index={i} className="h-full">
                 <FxCard tilt={0} className="flex h-full flex-col justify-between rounded-md border border-border bg-surface p-6 hover:border-accent/60">
-                  <p className="font-mono text-4xl font-bold text-accent sm:text-5xl">
+                  <p className="text-4xl font-bold text-accent sm:text-5xl">
                     <CountUp value={stat.value} suffix={stat.suffix} />
                   </p>
                   <p className="mt-4 text-sm leading-snug text-muted sm:text-base">{stat.label}</p>
@@ -56,7 +56,7 @@ export function About() {
                 <li key={item.organization} className="border-l-2 border-border pl-5">
                   <p className="text-lg font-semibold">{item.organization}</p>
                   <p className="mt-1 text-muted">{item.role}</p>
-                  <p className="mt-1 font-mono text-sm text-accent">{item.period}</p>
+                  <p className="mt-1 text-sm font-semibold text-accent">{item.period}</p>
                   <ul className="mt-3 list-disc space-y-2 pl-5 text-muted">
                     {item.points.map((point) => (
                       <li key={point}>{point}</li>
@@ -72,7 +72,7 @@ export function About() {
           <Panel title="Education">
             <p className="text-lg font-semibold">{profile.education.school}</p>
             <p className="mt-1 text-muted">{profile.education.degree}</p>
-            <p className="mt-1 font-mono text-sm text-accent">{profile.education.years}</p>
+            <p className="mt-1 text-sm font-semibold text-accent">{profile.education.years}</p>
             {profile.interests.length > 0 ? (
               <div className="mt-6 space-y-4 border-t border-border pt-5">
                 {profile.interests.map((group) => (
@@ -99,7 +99,7 @@ export function About() {
                 <li key={item.title} className="border-l-2 border-cta/60 pl-5">
                   <p className="text-lg font-semibold">{item.title}</p>
                   <p className="mt-1 text-muted">{item.detail}</p>
-                  <p className="mt-1 font-mono text-sm text-accent">{item.date}</p>
+                  <p className="mt-1 text-sm font-semibold text-accent">{item.date}</p>
                 </li>
               ))}
             </ul>

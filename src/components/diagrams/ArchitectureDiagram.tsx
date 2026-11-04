@@ -19,7 +19,7 @@ export function ArchitectureDiagram({ architecture }: { architecture: Project["a
               <span aria-hidden="true" className="font-pixel text-[10px] text-accent">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="mt-2 font-mono text-base font-semibold">{step.label}</span>
+              <span className="mt-2 text-sm sm:text-base font-semibold">{step.label}</span>
               <span className="mt-1 text-sm text-muted">{step.detail}</span>
             </div>
             {i < last ? (
