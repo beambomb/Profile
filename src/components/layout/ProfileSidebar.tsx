@@ -44,7 +44,7 @@ export function ProfileSidebar() {
         </div>
         <div className="min-w-0">
           <h2 className="font-pixel text-xs sm:text-sm font-bold tracking-wide text-text leading-snug">
-            Dimas Aryobimo
+            Johannes De Deo Dimas Aryobimo
           </h2>
         </div>
       </div>

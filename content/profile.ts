@@ -22,7 +22,7 @@ export const profile = profileSchema.parse({
   experience: [
     {
       organization: "KMTETI, Workshop Division",
-      role: "Member and Head of Organizing Committee, Bootcamp TETI 2026",
+      role: "Member of KMTETI Workshop Division",
       period: "2026 – Present",
       points: [
         "Ran a 6-session Data Science training for 60+ participants and acted as the link between participants and mentors.",
@@ -52,7 +52,7 @@ export const profile = profileSchema.parse({
     },
     {
       title: "1st Place, TETI Programming Week",
-      detail: "Data Science competition. Ranked 1st on the Kaggle public leaderboard among 30+ competitors.",
+      detail: "Data Science competition on Kaggle and deliver presentation.",
       date: "October 2025",
     },
   ],
