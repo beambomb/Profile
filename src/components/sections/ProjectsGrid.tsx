@@ -128,10 +128,16 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                     {project.oneLiner}
                   </p>
 
-                  {/* Screenshots preview if available (uncropped, clean, no captions) */}
+                  {/* Screenshots preview if available (uncropped, clean, responsive) */}
                   {project.screenshots && project.screenshots.length > 0 ? (
                     <div className="pt-1">
-                      <div className="grid gap-3 sm:grid-cols-2 max-w-3xl">
+                      <div
+                        className={`grid gap-3 ${
+                          project.screenshots.length > 2
+                            ? "grid-cols-2 sm:grid-cols-4"
+                            : "grid-cols-1 sm:grid-cols-2"
+                        } max-w-3xl`}
+                      >
                         {project.screenshots.map((ss) => (
                           <button
                             key={ss.src}

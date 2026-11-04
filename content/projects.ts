@@ -173,6 +173,16 @@ export const projects = projectsSchema.parse([
     ],
     limitations: [],
     repoUrl: "https://github.com/beambomb/ELT-Weather-Pipeline",
+    screenshots: [
+      {
+        src: "/images/projects/weather-elt-pipeline/airflow_dag_success.png",
+        alt: "Airflow DAG execution graph for Weather ELT Pipeline",
+      },
+      {
+        src: "/images/projects/weather-elt-pipeline/dbt_lineage_graph.png",
+        alt: "dbt lineage graph showing staging and star schema dimension and fact tables",
+      },
+    ],
     needsReview: true,
   },
   {
@@ -219,6 +229,24 @@ export const projects = projectsSchema.parse([
     ],
     limitations: ["Uses simulated data rather than a live factory feed."],
     repoUrl: "https://github.com/beambomb/AEMADS",
+    screenshots: [
+      {
+        src: "/images/projects/aemads/aemads-dashboard.jpeg",
+        alt: "AEMADS Technician Portal with power monitoring charts and shop heatmap",
+      },
+      {
+        src: "/images/projects/aemads/aemads-history.jpeg",
+        alt: "AEMADS anomaly events history log",
+      },
+      {
+        src: "/images/projects/aemads/aemads-login.jpeg",
+        alt: "AEMADS sign in control room screen",
+      },
+      {
+        src: "/images/projects/aemads/aemads-register.jpeg",
+        alt: "AEMADS account registration screen",
+      },
+    ],
     needsReview: true,
   },
   {
@@ -271,6 +299,16 @@ export const projects = projectsSchema.parse([
     ],
     limitations: [],
     repoUrl: "https://github.com/beambomb/VaniGrow-monitoring",
+    screenshots: [
+      {
+        src: "/images/projects/vanigrow/vanigrow-dashboard.png",
+        alt: "VaniGrow live greenhouse fungal risk monitoring dashboard and Wokwi simulation",
+      },
+      {
+        src: "/images/projects/vanigrow/vanigrow-sensors-chart.png",
+        alt: "VaniGrow VPD and sensor timeline charts with remote actuator control",
+      },
+    ],
     needsReview: true,
   },
 ]);

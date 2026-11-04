@@ -85,7 +85,11 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
           ))}
           {project.screenshots && project.screenshots.length > 0 ? (
             <div className="mt-6 pt-5 border-t border-border space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div
+                className={`grid gap-4 ${
+                  project.screenshots.length > 2 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-1 sm:grid-cols-2"
+                }`}
+              >
                 {project.screenshots.map((ss) => (
                   <div key={ss.src} className="overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-1.5">
                     <img
