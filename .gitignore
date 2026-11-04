@@ -20,3 +20,9 @@ next-env.d.ts
 !.env.example
 npm-debug.log*
 .DS_Store
+
+# Agent skills and runtime artifacts (local only)
+.agent/
+.agents/
+.taste-skill/
+.impeccable/

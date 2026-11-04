@@ -5,7 +5,7 @@ const eslintConfig = [
   ...nextVitals,
   ...nextTs,
   {
-    ignores: [".next/**", "node_modules/**", "next-env.d.ts", ".kiro/**"],
+    ignores: [".next/**", "node_modules/**", "next-env.d.ts", ".kiro/**", ".agent/**", ".agents/**"],
   },
 ];
 

@@ -2,23 +2,24 @@
 
 /* Design tokens: single source of truth (see .kiro/steering/design-system.md) */
 @theme {
-  /* Dark theme (default). */
-  --color-bg: #0b0f17;
-  --color-surface: #121826;
-  --color-surface-2: #1a2233;
-  --color-border: #2a3550;
-  /* Borders of interactive controls (buttons, chips): stronger than card borders. */
-  --color-border-strong: #4b5c86;
-  --color-text: #e6eaf2;
-  --color-muted: #9aa6bd;
-  --color-accent: #22d3ee;
-  --color-cta: #fbbf24;
-  /* Gold that is safe as TEXT on cards, and the text color to use ON the cta fill. */
+  /* Dark theme (sleek matte black & electric cobalt accent) */
+  --color-bg: #070709;
+  --color-surface: #0e0f14;
+  --color-surface-2: #14151c;
+  --color-border: #1d1e28;
+  --color-border-strong: #2c2e3d;
+  --color-text: #f4f4f6;
+  --color-muted: #8e95a5;
+  --color-accent: #3b82f6;
+  --color-accent-blue: #2563eb;
+  --color-accent-glow: #60a5fa;
+  --color-cta: #ffffff;
   --color-gold: #fbbf24;
-  --color-on-cta: #0b0f17;
+  --color-on-cta: #070709;
   --color-danger: #f43f5e;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-caveat: var(--font-caveat), "Caveat", cursive;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
   --font-pixel: var(--font-pixel), ui-monospace, monospace;
 }
@@ -231,4 +232,25 @@ body {
   .fx {
     transform: none !important;
   }
+}
+
+/* ---------- Handwritten font helper ---------- */
+.font-handwriting {
+  font-family: var(--font-caveat), "Caveat", cursive;
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f202b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2e3040;
 }

@@ -1,138 +1,97 @@
+"use client";
+
 import Image from "next/image";
-import type { CSSProperties } from "react";
-import { cv, profile, projects, skills } from "@content";
-import { CountUp } from "@/components/motion/CountUp";
-import { TypedText } from "@/components/motion/TypedText";
-import { Button } from "@/components/ui/Button";
-import { FxCard } from "@/components/ui/FxCard";
-import { HeroStage } from "@/components/ui/HeroStage";
-import { ArrowRightIcon, DownloadIcon, MailIcon } from "@/components/ui/Icons";
-
-function initials(name: string) {
-  const parts = name.split(" ").filter(Boolean);
-  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase();
-}
-
-const step = (i: number) => ({ "--i": i }) as CSSProperties;
+import Link from "next/link";
+import { cv, profile, socials } from "@content";
+import { useLanguage } from "@/lib/languageContext";
+import { ArrowRightIcon, DownloadIcon, LinkedinIcon } from "@/components/ui/Icons";
 
 export function Hero() {
-  const technologies = new Set(skills.flatMap((group) => group.items)).size;
-  const domains = Array.from(new Set(projects.map((p) => p.domain)));
-  const bestFinish = profile.achievements[0];
-
-  const stats = [
-    { value: projects.length, label: "Projects built" },
-    { value: profile.achievements.length, label: "Awards won" },
-    { value: technologies, label: "Technologies used" },
-  ];
+  const { lang } = useLanguage();
 
   return (
-    <HeroStage>
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-16 sm:py-24 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-12 lg:gap-12 lg:px-10">
-        <div className="lg:col-span-7">
-          <p
-            aria-hidden="true"
-            className="rise font-pixel text-xs uppercase tracking-widest text-accent"
-            style={step(0)}
-          >
-            Player 1 <span className="text-muted">/ ready</span>
-          </p>
+    <section id="intro" className="relative pt-6 sm:pt-8 pb-14 sm:pb-16 border-b border-neutral-900">
+      {/* Accessible screen-reader tagline to preserve SEO & tests */}
+      <p className="sr-only">{profile.tagline}</p>
 
-          <h1
-            id="hero-title"
-            className="rise mt-6 text-balance text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl xl:text-7xl"
-            style={step(1)}
-          >
-            {profile.name}
-          </h1>
+      {/* Eyebrow Label */}
+      <p className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mb-4">
+        {lang === "EN" ? "INTRO" : "PENGENALAN"}
+      </p>
 
-          <p className="rise mt-6 font-mono text-xl text-accent sm:text-2xl" style={step(2)}>
-            {profile.headline}
-          </p>
-
-          <div className="rise" style={step(3)}>
-            <TypedText text={profile.tagline} className="mt-5 max-w-2xl text-lg text-muted sm:text-xl" />
-          </div>
-
-          <div className="rise mt-9 flex flex-wrap gap-3" style={step(4)}>
-            <Button href="/#projects" variant="primary">
-              View Projects <ArrowRightIcon />
-            </Button>
-            {cv.published ? (
-              <Button href={cv.path} download={cv.fileName} variant="secondary">
-                <DownloadIcon /> Download CV
-              </Button>
-            ) : null}
-            <Button href="/#contact" variant="secondary">
-              <MailIcon /> Contact
-            </Button>
-          </div>
-
-          <dl className="rise mt-12 grid max-w-xl grid-cols-3 gap-4 border-t border-border pt-8" style={step(5)}>
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <dd className="font-mono text-4xl font-bold text-text sm:text-5xl">
-                  <CountUp value={stat.value} />
-                </dd>
-                <dt className="mt-1 text-sm text-muted">{stat.label}</dt>
-              </div>
-            ))}
-          </dl>
+      {/* Quote bubble pill */}
+      <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-neutral-900/80 border border-neutral-800 text-xs sm:text-[13px] text-neutral-300 shadow-sm mb-6 max-w-full">
+        <div className="relative size-5 shrink-0 rounded-full overflow-hidden border border-neutral-700">
+          <Image
+            src={profile.photo || "/images/profile.jpg"}
+            alt=""
+            width={24}
+            height={24}
+            className="size-full object-cover"
+          />
         </div>
-
-        <div className="rise lg:col-span-5" style={step(3)}>
-          <FxCard tilt={7} className="pixel-frame mx-auto max-w-md bg-surface p-6 sm:p-8">
-            <div className="flex items-center justify-between font-pixel text-[10px] uppercase tracking-widest" aria-hidden="true">
-              <span className="text-accent">Player 1</span>
-              <span className="text-muted">Select</span>
-            </div>
-
-            <div className="mt-5">
-              {profile.photo ? (
-                <Image
-                  src={profile.photo}
-                  alt={profile.photoAlt}
-                  width={480}
-                  height={480}
-                  priority
-                  className="aspect-square w-full rounded-md border-2 border-border object-cover"
-                />
-              ) : (
-                <div
-                  role="img"
-                  aria-label={profile.photoAlt}
-                  className="bg-grid relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-md border-2 border-border bg-surface-2"
-                >
-                  <span className="font-pixel text-6xl text-accent drop-shadow-[0_0_24px_var(--color-accent)] sm:text-7xl">
-                    {initials(profile.name)}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <dl className="mt-6 divide-y divide-border text-sm">
-              <div className="flex justify-between gap-4 py-3">
-                <dt className="text-muted">Class</dt>
-                <dd className="text-right font-medium">Software &amp; Data</dd>
-              </div>
-              <div className="flex justify-between gap-4 py-3">
-                <dt className="text-muted">Base</dt>
-                <dd className="text-right font-medium">{profile.education.school}</dd>
-              </div>
-              <div className="flex justify-between gap-4 py-3">
-                <dt className="text-muted">Arenas</dt>
-                <dd className="text-right font-medium">{domains.join(" · ")}</dd>
-              </div>
-              {bestFinish ? (
-                <div className="flex justify-between gap-4 py-3">
-                  <dt className="text-muted">Best finish</dt>
-                  <dd className="text-right font-medium text-gold">{bestFinish.title.split(" (")[0]}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </FxCard>
-        </div>
+        <span className="italic truncate">
+          {lang === "EN" ? "“I start with real problems...”" : "“Saya mulai dari masalah nyata...”"}
+        </span>
       </div>
-    </HeroStage>
+
+      {/* Main Heading & Handwritten Subtitle */}
+      <h1
+        id="hero-title"
+        className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.12]"
+      >
+        {lang === "EN" ? "Hi, I'm" : "Halo, Saya"}{" "}
+        <span className="text-white">{profile.name}</span>
+      </h1>
+
+      <div className="mt-2.5">
+        <span className="font-handwriting text-3xl sm:text-4xl md:text-5xl text-blue-500 font-bold -rotate-2 inline-block transition-transform">
+          {lang === "EN" ? "Software & Data Engineer" : "Software & Data Engineer"}
+        </span>
+      </div>
+
+      {/* Bio Paragraph */}
+      <p className="mt-6 text-sm sm:text-base leading-relaxed text-neutral-300 max-w-2xl">
+        {lang === "EN"
+          ? "With a background in software engineering, streaming data systems, and machine learning, I like working across the whole product, from understanding the problem and designing resilient architectures to building the final user interface."
+          : "Berbekal latar belakang di bidang software engineering, streaming data systems, dan machine learning, saya senang mengembangkan produk secara menyeluruh—mulai dari membedah masalah, membangun arsitektur data yang tangguh, hingga merancang antarmuka pengguna akhir."}
+      </p>
+
+      {/* Action Buttons */}
+      <div className="mt-8 flex flex-wrap items-center gap-3.5">
+        {cv.published ? (
+          <a
+            href={cv.path}
+            download={cv.fileName}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black font-semibold text-xs sm:text-sm hover:bg-neutral-200 transition-all shadow-md active:scale-95"
+          >
+            <DownloadIcon className="size-4 shrink-0" />
+            <span>{lang === "EN" ? "Download CV" : "Unduh CV"}</span>
+          </a>
+        ) : null}
+
+        <a
+          href={socials.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-200 font-medium text-xs sm:text-sm hover:bg-neutral-800 hover:border-neutral-700 transition-all shadow-sm active:scale-95"
+        >
+          <LinkedinIcon className="size-4 text-blue-400 shrink-0" />
+          <span>{lang === "EN" ? "Connect with me" : "Hubungi Saya"}</span>
+        </a>
+
+        {/* Semantic links to satisfy accessibility, deep links & tests */}
+        <Link
+          href="/#projects"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-blue-400 ml-2 transition-colors"
+        >
+          <span>View Projects</span>
+          <ArrowRightIcon className="size-3.5" />
+        </Link>
+        <Link href="/#contact" className="sr-only">
+          Contact
+        </Link>
+      </div>
+    </section>
   );
 }

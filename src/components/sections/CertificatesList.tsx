@@ -22,9 +22,9 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
 
   return (
     <>
-      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
         {certificates.map((cert) => (
-          <li key={cert.id} className="flex flex-col overflow-hidden rounded-md border border-border bg-surface">
+          <li key={cert.id} className="flex flex-col overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 transition-all">
             {cert.image ? (
               <button
                 type="button"
