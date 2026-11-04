@@ -26,9 +26,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-// Runs before first paint so there is no flash of the wrong theme. A saved choice wins,
-// otherwise the system setting. Static string: no user input is interpolated.
-const themeScript = `(function(){try{var s=localStorage.getItem("theme");var t=(s==="light"||s==="dark")?s:(window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
+// Theme toggle is hidden: enforce retro game dark theme on initial paint
+const themeScript = `(function(){try{document.documentElement.dataset.theme="dark";}catch(e){}})();`;
 
 export const viewport: Viewport = {
   themeColor: [

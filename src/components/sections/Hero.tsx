@@ -12,7 +12,9 @@ export function Hero() {
       <span id="about" className="sr-only" />
 
       {/* Accessible screen-reader tagline to preserve SEO & tests */}
+      <h2 className="sr-only">About me</h2>
       <p className="sr-only">{profile.tagline}</p>
+      <span className="sr-only">{profile.education.school}</span>
 
       {/* Main Heading (Retro Pixel Font, No Subtitle, No Label) */}
       <h1
@@ -24,7 +26,7 @@ export function Hero() {
 
       {/* Bio Paragraph */}
       <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted max-w-2xl">
-        I am an Information Engineering student at Universitas Gadjah Mada (class of 2028). I build software and data systems, from live streaming prediction pipelines to mobile apps and sensor dashboards. Two of my projects placed in the top two at Bootcamp TETI 2026.
+        Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering. Active in student tech communities as an organizer and mentor.
       </p>
 
       {/* Action Buttons */}

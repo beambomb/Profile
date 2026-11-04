@@ -98,18 +98,6 @@ export function Contact() {
           </div>
         </div>
       </div>
-
-      {cv.published ? (
-        <div className="mt-8">
-          <a
-            href={cv.path}
-            download={cv.fileName}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-md bg-cta text-on-cta font-semibold text-xs sm:text-sm hover:bg-cta/90 transition-all shadow-md active:scale-95"
-          >
-            <DownloadIcon className="size-4" /> Download CV
-          </a>
-        </div>
-      ) : null}
     </section>
   );
 }

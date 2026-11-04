@@ -7,10 +7,9 @@ export const socials = socialsSchema.parse({
   email: "johannesdimasbimo@gmail.com",
 });
 
-// The CV PDF contains a phone number and home address. Keep `published: false`
-// until a public-safe copy is placed at public/cv.pdf and the owner approves it.
+// The CV PDF is published and available at public/cv.pdf
 export const cv = cvSchema.parse({
-  published: false,
+  published: true,
   path: "/cv.pdf",
   fileName: "Johannes_De_Deo_Dimas_Aryobimo_CV.pdf",
 });
