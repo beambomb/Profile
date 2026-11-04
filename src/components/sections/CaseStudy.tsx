@@ -44,8 +44,8 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
         {/* Metadata row: Award, Domain & Period */}
         <div className="mt-4 flex flex-wrap items-center gap-2.5">
           {project.award ? (
-            <span className="inline-flex items-center gap-1.5 rounded-sm border border-cta/50 bg-cta/15 px-3 py-1 text-xs font-semibold text-gold shadow-sm">
-              🏆 {project.award}
+            <span className="inline-flex items-center rounded-sm border border-cta/50 bg-cta/15 px-3 py-1 text-xs font-semibold text-gold shadow-sm">
+              {project.award}
             </span>
           ) : null}
           <span className="inline-flex items-center rounded-sm border border-border-strong bg-surface-2 px-2.5 py-1 text-xs font-semibold text-accent">

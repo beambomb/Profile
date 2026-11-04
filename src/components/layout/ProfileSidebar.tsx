@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { profile, socials } from "@content";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { CheckBadgeIcon, GithubIcon, LinkedinIcon, MailIcon, MapPinIcon } from "@/components/ui/Icons";
+import { GithubIcon, LinkedinIcon, MailIcon, MapPinIcon } from "@/components/ui/Icons";
 
 const techStackGroups = [
   {
@@ -30,12 +29,7 @@ const techStackGroups = [
 
 export function ProfileSidebar() {
   return (
-    <aside className="w-full lg:w-[340px] xl:w-[380px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface p-6 sm:p-7 lg:p-7 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
-      {/* Top utility row: Theme switch */}
-      <div className="flex items-center justify-end mb-4">
-        <ThemeToggle />
-      </div>
-
+    <aside className="w-full lg:w-[340px] xl:w-[380px] shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-surface p-6 sm:p-7 lg:p-7 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
       {/* Profile Header */}
       <div className="flex items-start gap-4">
         <div className="relative size-16 shrink-0 rounded-full overflow-hidden border-2 border-border-strong shadow-md">
@@ -49,20 +43,14 @@ export function ProfileSidebar() {
           />
         </div>
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <h2 className="font-pixel text-xs sm:text-sm font-bold tracking-wide text-text leading-snug">
-              Dimas Aryobimo
-            </h2>
-            <span title="Verified Developer" className="text-accent inline-flex items-center">
-              <CheckBadgeIcon className="size-5 fill-accent" />
-            </span>
-          </div>
-          <p className="text-xs text-muted mt-1">he/him</p>
+          <h2 className="font-pixel text-xs sm:text-sm font-bold tracking-wide text-text leading-snug">
+            Dimas Aryobimo
+          </h2>
         </div>
       </div>
 
       {/* ABOUT Section */}
-      <div className="mt-6">
+      <div id="about" className="mt-6">
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">ABOUT</h3>
         <h2 className="sr-only">About me</h2>
         <p className="mt-2 text-xs sm:text-[13px] leading-relaxed text-text">
@@ -114,7 +102,7 @@ export function ProfileSidebar() {
       </div>
 
       {/* TECH STACK Section */}
-      <div className="mt-6 pb-4">
+      <div id="skills" className="mt-6 pb-4">
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">TECH STACK</h3>
         <div className="mt-3 space-y-3">
           {techStackGroups.map((group) => (

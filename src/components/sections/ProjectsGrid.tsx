@@ -107,8 +107,8 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
               {isExpanded ? (
                 <div className="mt-4 pt-4 border-t border-border pl-6 sm:pl-9 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                   {project.award ? (
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-cta/15 border border-cta/40 text-gold text-xs font-semibold">
-                      <span>🏆 {project.award}</span>
+                    <div className="inline-flex items-center rounded-sm bg-cta/15 border border-cta/40 px-3 py-1 text-gold text-xs font-semibold">
+                      <span>{project.award}</span>
                     </div>
                   ) : null}
 

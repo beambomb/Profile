@@ -5,7 +5,6 @@ import { siteUrl } from "@/lib/site";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { SkipLink } from "@/components/layout/SkipLink";
-import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -52,7 +51,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="flex min-h-dvh flex-col">
         <SkipLink />
-        <ScrollProgress />
         <Header name={profile.name} />
         <div className="flex-1">{children}</div>
         <Footer name={profile.name} />

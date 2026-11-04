@@ -1,7 +1,7 @@
 "use client";
 
 import { profile } from "@content";
-import { BriefcaseIcon } from "@/components/ui/Icons";
+import { AwardIcon, BriefcaseIcon } from "@/components/ui/Icons";
 
 export function ExperienceSection() {
   return (
@@ -34,7 +34,7 @@ export function ExperienceSection() {
                 </div>
 
                 <p className="text-xs sm:text-sm text-text font-medium mt-1">
-                  🏢 {item.organization}
+                  {item.organization}
                 </p>
 
                 <ul className="mt-3.5 space-y-2 text-xs sm:text-sm text-muted list-disc pl-5 leading-relaxed">
@@ -51,7 +51,7 @@ export function ExperienceSection() {
         <div className="rounded-xl border border-border bg-surface p-6 sm:p-7 pixel-frame transition-all">
           <div className="flex items-start gap-4">
             <div className="size-11 sm:size-12 rounded-md bg-cta/15 border border-cta/40 flex items-center justify-center shrink-0 shadow-inner">
-              <span className="text-lg">🏆</span>
+              <AwardIcon className="size-5 text-gold" />
             </div>
 
             <div className="min-w-0 flex-1">

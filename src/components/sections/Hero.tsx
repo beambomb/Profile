@@ -1,31 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { cv, profile, socials } from "@content";
 import { ArrowRightIcon, DownloadIcon, LinkedinIcon } from "@/components/ui/Icons";
 
 export function Hero() {
   return (
-    <section id="intro" className="relative pt-1 sm:pt-2 pb-10 sm:pb-12 border-b border-border">
+    <section id="intro" className="relative pt-2 pb-10 sm:pb-12 border-b border-border">
       {/* Accessible screen-reader tagline to preserve SEO & tests */}
       <p className="sr-only">{profile.tagline}</p>
-
-      {/* Quote bubble pill */}
-      <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface border border-border text-xs sm:text-[13px] text-muted shadow-sm mb-4 max-w-full">
-        <div className="relative size-5 shrink-0 rounded-full overflow-hidden border border-border-strong">
-          <Image
-            src={profile.photo || "/images/profile.jpg"}
-            alt=""
-            width={24}
-            height={24}
-            className="size-full object-cover"
-          />
-        </div>
-        <span className="italic truncate">
-          “I like turning messy, real-world data into tools people can actually use.”
-        </span>
-      </div>
 
       {/* Main Heading (Retro Pixel Font, No Subtitle, No Label) */}
       <h1

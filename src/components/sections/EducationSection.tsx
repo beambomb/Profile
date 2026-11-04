@@ -30,7 +30,7 @@ export function EducationSection() {
               {profile.education.degree} · Class of 2024 – 2028
             </p>
             <p className="text-xs text-muted mt-1 font-medium">
-              📅 {profile.education.years} &nbsp;·&nbsp; 📍 Yogyakarta, Indonesia
+              {profile.education.years} &nbsp;·&nbsp; Yogyakarta, Indonesia
             </p>
 
             {/* Toggle button */}

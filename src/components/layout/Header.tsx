@@ -32,12 +32,12 @@ export function Header({ name }: { name: string }) {
   }, [open]);
 
   const linkClass = (active: boolean) =>
-    `relative inline-flex min-h-11 items-center rounded-md px-3 text-base transition-colors duration-200 hover:text-accent after:absolute after:inset-x-3 after:bottom-1.5 after:h-0.5 after:origin-left after:bg-accent after:transition-transform after:duration-300 ${
+    `relative inline-flex min-h-10 items-center rounded-md px-2.5 py-1 text-xs sm:text-sm font-medium transition-colors duration-200 hover:text-accent after:absolute after:inset-x-2.5 after:bottom-1 after:h-0.5 after:origin-left after:bg-accent after:transition-transform after:duration-200 ${
       active ? "text-accent after:scale-x-100" : "text-muted after:scale-x-0 hover:after:scale-x-100"
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6 lg:px-10">
         <Link
           href="/"
@@ -60,9 +60,9 @@ export function Header({ name }: { name: string }) {
           <span aria-hidden="true" className="caret ml-1 inline-block h-4 w-2 bg-accent" />
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
           <nav aria-label="Primary" className="hidden md:block">
-            <ul className="flex items-center gap-1">
+            <ul className="flex items-center gap-0.5 sm:gap-1">
               {navItems.map((item) => {
                 const active = onHome && activeId === item.href.replace("/#", "");
                 return (
@@ -76,7 +76,9 @@ export function Header({ name }: { name: string }) {
             </ul>
           </nav>
 
-          <ThemeToggle />
+          <div className="pl-1 border-l border-border/60">
+            <ThemeToggle />
+          </div>
 
           <button
             ref={toggleRef}

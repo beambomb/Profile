@@ -1,7 +1,6 @@
 "use client";
 
 import { ProfileSidebar } from "@/components/layout/ProfileSidebar";
-import { FloatingDock } from "@/components/layout/FloatingDock";
 import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
 import { EducationSection } from "@/components/sections/EducationSection";
@@ -25,9 +24,6 @@ export default function Home() {
         <Certificates />
         <Contact />
       </main>
-
-      {/* Floating Bottom Navigation Dock */}
-      <FloatingDock />
     </div>
   );
 }
