@@ -1,10 +1,46 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { cv, profile, socials } from "@content";
 import { ArrowRightIcon, DownloadIcon, LinkedinIcon } from "@/components/ui/Icons";
 
+function useTypewriter(word = "Bimo") {
+  const [text, setText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setText(word);
+      return;
+    }
+
+    let timer: NodeJS.Timeout;
+
+    if (!isDeleting && text === word) {
+      // Pause at full word for 3.5s
+      timer = setTimeout(() => setIsDeleting(true), 3500);
+    } else if (isDeleting && text === "") {
+      // Pause empty for 400ms then retype
+      timer = setTimeout(() => setIsDeleting(false), 400);
+    } else {
+      const speed = isDeleting ? 75 : 140;
+      timer = setTimeout(() => {
+        setText((curr) =>
+          isDeleting ? word.slice(0, curr.length - 1) : word.slice(0, curr.length + 1)
+        );
+      }, speed);
+    }
+
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, word]);
+
+  return text;
+}
+
 export function Hero() {
+  const displayedName = useTypewriter("Bimo");
+
   return (
     <section id="profile" className="relative scroll-mt-20 pt-2 pb-10 sm:pb-12 border-b border-border">
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
@@ -16,12 +52,23 @@ export function Hero() {
       <p className="sr-only">{profile.tagline}</p>
       <span className="sr-only">{profile.education.school}</span>
 
-      {/* Main Heading (Retro Pixel Font, No Subtitle, No Label) */}
+      {/* Main Heading (Retro Pixel Font, No Subtitle, No Label, Animated Underlined Name) */}
       <h1
         id="hero-title"
         className="font-pixel text-xl sm:text-2xl md:text-3xl font-bold tracking-wide text-text leading-relaxed"
       >
-        Hi, I&apos;m {profile.name}
+        <span className="sr-only">Hi, I&apos;m {profile.name}</span>
+        <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-2">
+          <span>Hi, I&apos;m</span>
+          <span className="relative inline-grid grid-cols-1 grid-rows-1 text-accent border-b-2 sm:border-b-4 border-accent pb-0.5 sm:pb-1">
+            {/* Invisible ghost reserves width so underline never jumps */}
+            <span className="invisible col-start-1 row-start-1 select-none">Bimo</span>
+            <span className="col-start-1 row-start-1 inline-flex items-center">
+              <span>{displayedName}</span>
+              <span className="inline-block w-2 sm:w-2.5 h-[0.85em] bg-accent ml-1 align-baseline animate-pulse" />
+            </span>
+          </span>
+        </span>
       </h1>
 
       {/* Bio Paragraph */}

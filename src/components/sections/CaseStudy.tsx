@@ -87,16 +87,13 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
             <div className="mt-6 pt-5 border-t border-border space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 {project.screenshots.map((ss) => (
-                  <div key={ss.src} className="overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-2">
+                  <div key={ss.src} className="overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-1.5">
                     <img
                       src={ss.src}
                       alt={ss.alt}
                       className="w-full h-auto object-contain rounded border border-border/50"
                       loading="lazy"
                     />
-                    {ss.caption ? (
-                      <p className="mt-2 text-xs text-muted font-medium px-1">{ss.caption}</p>
-                    ) : null}
                   </div>
                 ))}
               </div>

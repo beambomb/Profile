@@ -128,18 +128,18 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                     {project.oneLiner}
                   </p>
 
-                  {/* Screenshots preview if available (uncropped, crisp, responsive) */}
+                  {/* Screenshots preview if available (uncropped, clean, no captions) */}
                   {project.screenshots && project.screenshots.length > 0 ? (
-                    <div className="space-y-2 pt-1">
+                    <div className="pt-1">
                       <div className="grid gap-3 sm:grid-cols-2 max-w-3xl">
                         {project.screenshots.map((ss) => (
                           <button
                             key={ss.src}
                             type="button"
                             onClick={() => openPreview(ss)}
-                            className="group/ss text-left overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-2 transition-all hover:border-accent hover:shadow-md cursor-pointer active:scale-[0.99]"
+                            className="group/ss text-left overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-1.5 transition-all hover:border-accent hover:shadow-md cursor-pointer active:scale-[0.99]"
                             aria-haspopup="dialog"
-                            aria-label={`View full screenshot: ${ss.caption || ss.alt}`}
+                            aria-label={`View full screenshot: ${ss.alt}`}
                           >
                             <div className="overflow-hidden rounded border border-border/60 bg-bg/90">
                               <img
@@ -149,16 +149,6 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                                 loading="lazy"
                               />
                             </div>
-                            {ss.caption ? (
-                              <div className="mt-2 flex items-center justify-between gap-2 px-1">
-                                <span className="text-xs font-medium text-text group-hover/ss:text-accent transition-colors truncate">
-                                  {ss.caption}
-                                </span>
-                                <span className="text-[10px] text-muted shrink-0">
-                                  Enlarge
-                                </span>
-                              </div>
-                            ) : null}
                           </button>
                         ))}
                       </div>
@@ -232,10 +222,7 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
       >
         {activeScreenshot ? (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
-              <p className="font-medium text-sm text-text truncate">
-                {activeScreenshot.caption || activeScreenshot.alt}
-              </p>
+            <div className="flex items-center justify-end border-b border-border pb-2.5">
               <button
                 type="button"
                 onClick={closePreview}
