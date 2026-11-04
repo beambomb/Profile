@@ -1,14 +1,14 @@
 "use client";
 
 import { profile } from "@content";
-import { AwardIcon, BriefcaseIcon } from "@/components/ui/Icons";
+import { BriefcaseIcon } from "@/components/ui/Icons";
 
 export function ExperienceSection() {
   return (
     <section id="experience" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
       {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
       <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
-        Career Journey
+        Organizational Experience
       </h2>
 
       {/* Experience Cards */}
@@ -46,34 +46,6 @@ export function ExperienceSection() {
             </div>
           </div>
         ))}
-
-        {/* Awards & Competitions Card */}
-        <div className="rounded-xl border border-border bg-surface p-6 sm:p-7 pixel-frame transition-all">
-          <div className="flex items-start gap-4">
-            <div className="size-11 sm:size-12 rounded-md bg-cta/15 border border-cta/40 flex items-center justify-center shrink-0 shadow-inner">
-              <AwardIcon className="size-5 text-gold" />
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
-                  Competitive Hackathons & Awards
-                </h3>
-                <span className="text-xs font-semibold text-gold shrink-0">
-                  2025 – 2026
-                </span>
-              </div>
-
-              <ul className="mt-3.5 space-y-2.5 text-xs sm:text-sm text-muted list-disc pl-5 leading-relaxed">
-                {profile.achievements.map((ach) => (
-                  <li key={ach.title}>
-                    <strong className="text-text">{ach.title}</strong> — {ach.detail}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
