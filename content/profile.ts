@@ -10,9 +10,7 @@ export const profile = profileSchema.parse({
   photo: "/images/profile.jpg",
   photoAlt: "Portrait of Johannes De Deo Dimas Aryobimo wearing a brown and gold batik shirt",
   bio: [
-    "I am an Information Engineering student at Universitas Gadjah Mada (class of 2028). I like turning messy, real-world data into tools people can actually use.",
-    "My projects range from a streaming prediction system for jet engines to an Android app for factory energy monitoring and an IoT dashboard that warns about crop disease. Two of them placed in the top two at Bootcamp TETI 2026.",
-    "Outside of coding I organize and mentor in student tech communities, running training sessions in data science for 50 to 60+ people.",
+    "Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering. Active in student tech communities as an organizer and mentor",
   ],
   education: {
     school: "Universitas Gadjah Mada",
