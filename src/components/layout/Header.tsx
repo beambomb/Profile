@@ -76,7 +76,6 @@ export function Header({ name }: { name: string }) {
             &gt;
           </span>
           {name.split(" ")[0]}
-          <span aria-hidden="true" className="caret ml-1 inline-block h-4 w-2 bg-accent" />
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
