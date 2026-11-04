@@ -123,6 +123,16 @@ export const projects = projectsSchema.parse([
       "The cost comparison uses illustrative cost figures.",
     ],
     repoUrl: "https://github.com/beambomb/turbofan-predictive-maintenance",
+    screenshots: [
+      {
+        src: "/images/projects/turbofan-predictive-maintenance/turbofan-live-stream.png",
+        alt: "NASA Turbofan RUL live telemetry stream and WebSocket prediction dashboard",
+      },
+      {
+        src: "/images/projects/turbofan-predictive-maintenance/turbofan-fleet-intelligence.png",
+        alt: "NASA Turbofan Fleet Intelligence Platform showing fleet risk and health distribution",
+      },
+    ],
     needsReview: true,
   },
   {
