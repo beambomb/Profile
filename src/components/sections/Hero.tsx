@@ -58,8 +58,8 @@ export function Hero() {
         className="font-pixel text-xl sm:text-2xl md:text-3xl font-bold tracking-wide text-text leading-relaxed"
       >
         <span className="sr-only">Hi, I&apos;m {profile.name}</span>
-        <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-2">
-          <span>Hi, I&apos; m</span>
+        <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-[1ch]">
+          <span>Hi, I&apos;m</span>
           <span className="relative inline-grid grid-cols-1 grid-rows-1 text-accent border-b-2 sm:border-b-4 border-accent pb-0.5 sm:pb-1">
             {/* Invisible ghost reserves width so underline never jumps */}
             <span className="invisible col-start-1 row-start-1 select-none">Bimo</span>
