@@ -49,7 +49,7 @@ export function ProfileSidebar() {
         </div>
       </div>
 
-      {/* ABOUT Section 
+      {/* ABOUT Section */}
       <div className="mt-6">
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">ABOUT</h3>
         <h2 className="sr-only">About me</h2>
@@ -57,7 +57,6 @@ export function ProfileSidebar() {
           Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering.
         </p>
       </div>
-      */}
 
       {/* CONTACT Section */}
       <div className="mt-6">
