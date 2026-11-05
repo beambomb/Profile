@@ -101,7 +101,7 @@ export function ProfileSidebar() {
       </div>
 
       {/* TECH STACK Section */}
-      <div id="skills" className="mt-6 pb-4">
+      <div className="mt-6 pb-4">
         <h3 className="font-pixel text-[10px] tracking-wider text-muted uppercase">TECH STACK</h3>
         <div className="mt-3 space-y-3">
           {techStackGroups.map((group) => (

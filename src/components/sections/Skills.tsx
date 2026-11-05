@@ -1,46 +1,41 @@
+"use client";
+
 import { skills } from "@content";
-import { Reveal } from "@/components/motion/Reveal";
-import { FxCard } from "@/components/ui/FxCard";
-import { Section } from "@/components/ui/Section";
 import { Tag, TagList } from "@/components/ui/Tag";
 
 export function Skills() {
   return (
-    <Section
-      id="skills"
-      eyebrow="Skills"
-      title="What I work with"
-      intro="Tools and technologies I have used in my projects, grouped by what they are for."
-    >
-      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {skills.map((group, i) => (
-          <li key={group.id}>
-            <Reveal index={i % 3} className="h-full">
-              <FxCard
-                tilt={3}
-                className="flex h-full flex-col rounded-md border border-border bg-surface p-7 hover:border-accent/60"
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-xl font-semibold">{group.label}</h3>
-                  <span className="shrink-0 text-sm font-semibold text-accent">
-                    {String(group.items.length).padStart(2, "0")}
-                  </span>
-                </div>
-                <p className="mt-2 text-muted">{group.plain}</p>
-                <div className="mt-6">
-                  <TagList label={`${group.label} skills`}>
-                    {group.items.map((item) => (
-                      <li key={item}>
-                        <Tag>{item}</Tag>
-                      </li>
-                    ))}
-                  </TagList>
-                </div>
-              </FxCard>
-            </Reveal>
-          </li>
+    <section id="skills" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
+      {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
+      <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
+        Technical Skills
+      </h2>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {skills.map((group) => (
+          <div
+            key={group.id}
+            className="flex flex-col justify-between rounded-xl border border-border bg-surface p-5 sm:p-6 pixel-frame transition-all"
+          >
+            <div>
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="text-base sm:text-lg font-bold text-text">{group.label}</h3>
+                <span className="shrink-0 font-pixel text-[10px] text-accent">
+                  {String(group.items.length).padStart(2, "0")}
+                </span>
+              </div>
+              <p className="mt-1.5 text-xs sm:text-sm text-muted leading-relaxed">{group.plain}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-border">
+              <TagList label={`${group.label} skills`}>
+                {group.items.map((item) => (
+                  <Tag key={item}>{item}</Tag>
+                ))}
+              </TagList>
+            </div>
+          </div>
         ))}
-      </ul>
-    </Section>
+      </div>
+    </section>
   );
 }
