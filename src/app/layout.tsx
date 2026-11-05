@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Press_Start_2P } from "next/font/google";
+import { Plus_Jakarta_Sans, Press_Start_2P } from "next/font/google";
 import { profile } from "@content";
 import { siteUrl } from "@/lib/site";
 import { Footer } from "@/components/layout/Footer";
@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { SkipLink } from "@/components/layout/SkipLink";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel", display: "swap" });
 
 export const metadata: Metadata = {
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${pixel.variable}`}
+      className={`${sans.variable} ${pixel.variable}`}
       suppressHydrationWarning
     >
       <head>
