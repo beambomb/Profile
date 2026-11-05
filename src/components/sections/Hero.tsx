@@ -48,7 +48,7 @@ export function Hero() {
       <span id="about" className="sr-only" />
 
       {/* Accessible screen-reader tagline to preserve SEO & tests */}
-      <h2 className="sr-only">About me</h2>
+      
       <p className="sr-only">{profile.tagline}</p>
       <span className="sr-only">{profile.education.school}</span>
 

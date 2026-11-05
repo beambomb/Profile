@@ -2,19 +2,19 @@
 
 /* Design tokens: single source of truth (see .kiro/steering/design-system.md) */
 @theme {
-  /* Dark theme: retro arcade navy, neon cyan & gold */
-  --color-bg: #0b0f17;
-  --color-surface: #121826;
-  --color-surface-2: #1a2233;
-  --color-border: #2a3550;
-  --color-border-strong: #4b5c86;
-  --color-text: #e6eaf2;
-  --color-muted: #9aa6bd;
-  --color-accent: #22d3ee;
-  --color-cta: #fbbf24;
-  --color-gold: #fbbf24;
-  --color-on-cta: #0b0f17;
-  --color-danger: #f43f5e;
+  /* Dark theme: full dark & crisp white border (anti-slop, monochrome editorial, no neon) */
+  --color-bg: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-2: #141414;
+  --color-border: #262626;
+  --color-border-strong: #4a4a4a;
+  --color-text: #ededed;
+  --color-muted: #8e8e93;
+  --color-accent: #ffffff;
+  --color-cta: #ffffff;
+  --color-gold: #ffffff;
+  --color-on-cta: #000000;
+  --color-danger: #ef4444;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -154,7 +154,7 @@ body {
   transition: opacity 300ms ease;
   background: radial-gradient(
     360px circle at var(--mx, 50%) var(--my, 50%),
-    color-mix(in srgb, var(--color-accent) 18%, transparent),
+    color-mix(in srgb, var(--color-accent) 7%, transparent),
     transparent 65%
   );
 }
@@ -179,7 +179,7 @@ body {
   pointer-events: none;
   background: radial-gradient(
     520px circle at var(--mx, 72%) var(--my, 28%),
-    color-mix(in srgb, var(--color-accent) 14%, transparent),
+    color-mix(in srgb, var(--color-accent) 4%, transparent),
     transparent 70%
   );
   /* Fade out toward the bottom edge so the glow never ends in a hard line. */
@@ -194,7 +194,7 @@ body {
   width: 72px;
   height: 4px;
   margin-top: 14px;
-  background: var(--color-cta);
+  background: var(--color-accent);
   transform-origin: left;
   transition: transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1) 250ms;
 }
