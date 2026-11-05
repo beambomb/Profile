@@ -31,8 +31,8 @@ const themeScript = `(function(){try{document.documentElement.dataset.theme="dar
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0B0F17" },
-    { media: "(prefers-color-scheme: light)", color: "#F7F1E3" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#000000" },
   ],
   width: "device-width",
   initialScale: 1,

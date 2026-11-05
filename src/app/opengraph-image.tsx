@@ -16,15 +16,15 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 80,
-          background: "#0B0F17",
-          color: "#E6EAF2",
-          border: "8px solid #2A3550",
+          background: "#000000",
+          color: "#EDEDED",
+          border: "8px solid #333333",
         }}
       >
-        <div style={{ fontSize: 28, color: "#22D3EE", letterSpacing: 6 }}>PLAYER 1</div>
+        <div style={{ fontSize: 28, color: "#FFFFFF", letterSpacing: 6 }}>SOFTWARE &amp; DATA</div>
         <div style={{ fontSize: 76, fontWeight: 700, marginTop: 24, lineHeight: 1.1 }}>{profile.name}</div>
-        <div style={{ fontSize: 36, color: "#9AA6BD", marginTop: 24 }}>{profile.headline}</div>
-        <div style={{ fontSize: 28, color: "#FBBF24", marginTop: 48 }}>Universitas Gadjah Mada</div>
+        <div style={{ fontSize: 36, color: "#A1A1AA", marginTop: 24 }}>{profile.headline}</div>
+        <div style={{ fontSize: 28, color: "#FFFFFF", marginTop: 48 }}>Universitas Gadjah Mada</div>
       </div>
     ),
     size,
