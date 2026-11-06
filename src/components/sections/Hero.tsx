@@ -75,29 +75,29 @@ export function Hero() {
         <div className="flex-1 min-w-0 pt-6 sm:pt-8">
           <h1
             id="hero-title"
-            className="font-pixel text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-wide text-text leading-relaxed"
+            className="font-pixel text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-text leading-tight sm:leading-snug"
           >
             <span className="sr-only">Hi, I&apos;m {profile.name}</span>
             <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-[1ch]">
               <span>Hi, I&apos;m</span>
-              <span className="relative inline-grid grid-cols-1 grid-rows-1 text-accent border-b-2 sm:border-b-4 border-accent pb-0.5 sm:pb-1">
+              <span className="relative inline-grid grid-cols-1 grid-rows-1 text-accent border-b-4 sm:border-b-6 border-accent pb-1 sm:pb-1.5">
                 {/* Invisible ghost reserves width so underline never jumps */}
                 <span className="invisible col-start-1 row-start-1 select-none">Bimo</span>
                 <span className="col-start-1 row-start-1 inline-flex items-center">
                   <span>{displayedName}</span>
-                  <span className="inline-block w-2 sm:w-2.5 h-[0.85em] bg-accent ml-1 align-baseline animate-pulse" />
+                  <span className="inline-block w-2.5 sm:w-3.5 h-[0.85em] bg-accent ml-1.5 align-baseline animate-pulse" />
                 </span>
               </span>
             </span>
           </h1>
 
           {/* Bio Narrative */}
-          <p className="mt-4 text-xs sm:text-sm md:text-base leading-relaxed text-muted max-w-lg text-pretty font-normal">
+          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg leading-relaxed text-muted max-w-xl text-pretty font-normal">
             Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering. Active in student tech communities as an organizer and mentor.
           </p>
 
           {/* Action Buttons */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5">
             {cv.published ? (
               <a
                 href={cv.path}

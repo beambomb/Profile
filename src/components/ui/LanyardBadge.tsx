@@ -1,319 +1,640 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 import { profile } from "@content";
 
 export function LanyardBadge() {
-  const dragContainerRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const strapPathRef = useRef<SVGPathElement>(null);
-  const claspGroupRef = useRef<SVGGElement>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [webglSupported, setWebglSupported] = useState(true);
 
-  // Geometry constants (compact, refined badge)
-  const anchorX = 110;
-  const restingClipY = 72;
-
-  // Realtime physics variables in refs
-  const posRef = useRef({ x: 0, y: 0 });
-  const velRef = useRef({ vx: 0, vy: 0 });
-  const isDraggingRef = useRef(false);
-  const animFrameRef = useRef<number | null>(null);
-  const idleAnimRef = useRef<number | null>(null);
-
-  // Direct DOM updater for instant response without React re-render lag
-  const updateDOM = useCallback((x: number, y: number, vx: number) => {
-    const clipX = anchorX + x;
-    const clipY = restingClipY + y;
-    const rotation = Math.max(-25, Math.min(25, x * 0.16 + vx * 0.18));
-
-    if (cardRef.current) {
-      cardRef.current.style.transform = `translate3d(${x}px, ${y}px, 0px) rotate(${rotation}deg)`;
-    }
-
-    if (strapPathRef.current) {
-      const ctrlX = anchorX + x * 0.35;
-      const ctrlY = 32 + y * 0.4;
-      const d = `M ${anchorX - 10} 0 L ${anchorX + 10} 0 Q ${ctrlX + 3.5} ${ctrlY} ${clipX + 3.5} ${clipY - 12} L ${clipX - 3.5} ${clipY - 12} Q ${ctrlX - 3.5} ${ctrlY} ${anchorX - 10} 0 Z`;
-      strapPathRef.current.setAttribute("d", d);
-    }
-
-    if (claspGroupRef.current) {
-      claspGroupRef.current.setAttribute("transform", `translate(${clipX}, ${clipY - 12})`);
-    }
-  }, []);
-
-  // Spring physics loop upon release
-  const startSpringPhysics = useCallback(() => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-
-    const springLoop = () => {
-      if (isDraggingRef.current) return;
-
-      const stiffness = 0.088;
-      const damping = 0.81;
-
-      const fx = -stiffness * posRef.current.x;
-      const fy = -stiffness * posRef.current.y;
-
-      velRef.current.vx = (velRef.current.vx + fx) * damping;
-      velRef.current.vy = (velRef.current.vy + fy) * damping;
-
-      posRef.current.x += velRef.current.vx;
-      posRef.current.y += velRef.current.vy;
-
-      updateDOM(posRef.current.x, posRef.current.y, velRef.current.vx);
-
-      if (
-        Math.abs(posRef.current.x) > 0.15 ||
-        Math.abs(posRef.current.y) > 0.15 ||
-        Math.abs(velRef.current.vx) > 0.15 ||
-        Math.abs(velRef.current.vy) > 0.15
-      ) {
-        animFrameRef.current = requestAnimationFrame(springLoop);
-      } else {
-        posRef.current = { x: 0, y: 0 };
-        velRef.current = { vx: 0, vy: 0 };
-        updateDOM(0, 0, 0);
-        animFrameRef.current = null;
-      }
-    };
-
-    animFrameRef.current = requestAnimationFrame(springLoop);
-  }, [updateDOM]);
-
-  // Idle pendulum sway on page load so it's visibly swinging
   useEffect(() => {
-    if (hasInteracted) return;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
 
-    let startTime = performance.now();
-    const idleLoop = (now: number) => {
-      if (isDraggingRef.current || hasInteracted) return;
-      const elapsed = (now - startTime) / 1000;
-      const swayX = Math.sin(elapsed * 2.2) * 5.0;
-      const swayY = Math.abs(Math.sin(elapsed * 2.2)) * 1.5;
-      posRef.current = { x: swayX, y: swayY };
-      updateDOM(swayX, swayY, 0);
-      idleAnimRef.current = requestAnimationFrame(idleLoop);
-    };
-
-    idleAnimRef.current = requestAnimationFrame(idleLoop);
-    return () => {
-      if (idleAnimRef.current) cancelAnimationFrame(idleAnimRef.current);
-    };
-  }, [hasInteracted, updateDOM]);
-
-  // Native listeners on the container for 100% reliable Drag & Swing on Desktop and Mobile
-  useEffect(() => {
-    const container = dragContainerRef.current;
-    if (!container) return;
-
-    let dragging = false;
-    let startX = 0;
-    let startY = 0;
-    let startPosX = 0;
-    let startPosY = 0;
-
-    const onDragStart = (clientX: number, clientY: number) => {
-      if (idleAnimRef.current) {
-        cancelAnimationFrame(idleAnimRef.current);
-        idleAnimRef.current = null;
+    // Check WebGL availability (e.g. In jsdom / test runners / older devices)
+    try {
+      const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+      if (!gl) {
+        setWebglSupported(false);
+        return;
       }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-        animFrameRef.current = null;
+    } catch {
+      setWebglSupported(false);
+      return;
+    }
+
+    // --- Scene, Camera, Renderer Setup ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 8.5);
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(container.clientWidth, container.clientHeight, false);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+    } catch {
+      setWebglSupported(false);
+      return;
+    }
+
+    // --- Lighting ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
+    dirLight1.position.set(4, 6, 5);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x88aacc, 1.0);
+    dirLight2.position.set(-4, -2, -3);
+    scene.add(dirLight2);
+
+    // --- Frustum & Coordinate Alignment ---
+    // Compute exact top edge in world coordinates so strap anchors flush to the top border!
+    const computeWorldBounds = () => {
+      const vFOV = (camera.fov * Math.PI) / 180;
+      const visibleHeight = 2 * Math.tan(vFOV / 2) * camera.position.z;
+      const visibleWidth = visibleHeight * camera.aspect;
+      return {
+        topY: visibleHeight / 2,
+        bottomY: -visibleHeight / 2,
+        halfW: visibleWidth / 2,
+      };
+    };
+
+    let bounds = computeWorldBounds();
+    const topAnchorY = bounds.topY; // Sits exactly on the top edge of the canvas
+
+    // --- Metallic Top Wall Anchor (T-Bar / Clamp) ---
+    const topAnchorGeom = new THREE.BoxGeometry(0.75, 0.06, 0.09);
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: 0x555555,
+      metalness: 0.85,
+      roughness: 0.25,
+    });
+    const topAnchorMesh = new THREE.Mesh(topAnchorGeom, metalMat);
+    topAnchorMesh.position.set(0, topAnchorY - 0.02, 0);
+    scene.add(topAnchorMesh);
+
+    // --- Dynamic 3D Ribbon Strap ---
+    // Multi-segment quadratic curve extruded dynamically as a 3D ribbon
+    const RIBBON_SEGMENTS = 26;
+    const ribbonGeom = new THREE.BufferGeometry();
+    const posArray = new Float32Array((RIBBON_SEGMENTS + 1) * 2 * 3);
+    const uvsArray = new Float32Array((RIBBON_SEGMENTS + 1) * 2 * 2);
+    const indexArray: number[] = [];
+
+    for (let i = 0; i < RIBBON_SEGMENTS; i++) {
+      const a = i * 2;
+      const b = i * 2 + 1;
+      const c = (i + 1) * 2;
+      const d = (i + 1) * 2 + 1;
+      indexArray.push(a, b, c);
+      indexArray.push(b, d, c);
+    }
+
+    for (let i = 0; i <= RIBBON_SEGMENTS; i++) {
+      const t = i / RIBBON_SEGMENTS;
+      uvsArray[i * 4] = 0;
+      uvsArray[i * 4 + 1] = t;
+      uvsArray[i * 4 + 2] = 1;
+      uvsArray[i * 4 + 3] = t;
+    }
+
+    ribbonGeom.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+    ribbonGeom.setAttribute("uv", new THREE.BufferAttribute(uvsArray, 2));
+    ribbonGeom.setIndex(indexArray);
+
+    const ribbonMat = new THREE.MeshStandardMaterial({
+      color: 0x242424,
+      roughness: 0.75,
+      metalness: 0.15,
+      side: THREE.DoubleSide,
+    });
+    const ribbonMesh = new THREE.Mesh(ribbonGeom, ribbonMat);
+    scene.add(ribbonMesh);
+
+    // --- Badge Card Geometry & Materials ---
+    const cardW = 2.3;
+    const cardH = 3.35;
+    const cardR = 0.16;
+    const cardThick = 0.04;
+
+    // Create 3D Rounded Card Shape
+    const shape = new THREE.Shape();
+    const x0 = -cardW / 2;
+    const y0 = -cardH / 2;
+    shape.moveTo(x0 + cardR, y0);
+    shape.lineTo(x0 + cardW - cardR, y0);
+    shape.quadraticCurveTo(x0 + cardW, y0, x0 + cardW, y0 + cardR);
+    shape.lineTo(x0 + cardW, y0 + cardH - cardR);
+    shape.quadraticCurveTo(x0 + cardW, y0 + cardH, x0 + cardW - cardR, y0 + cardH);
+    shape.lineTo(x0 + cardR, y0 + cardH);
+    shape.quadraticCurveTo(x0, y0 + cardH, x0, y0 + cardH - cardR);
+    shape.lineTo(x0, y0 + cardR);
+    shape.quadraticCurveTo(x0, y0, x0 + cardR, y0);
+
+    const cardGeom = new THREE.ExtrudeGeometry(shape, {
+      depth: cardThick,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      steps: 1,
+      bevelSize: 0.015,
+      bevelThickness: 0.015,
+    });
+    cardGeom.center();
+
+    // Create High-Resolution Texture on 2D Canvas for Card Front
+    const textureCanvas = document.createElement("canvas");
+    textureCanvas.width = 960;
+    textureCanvas.height = 1400;
+    const ctx = textureCanvas.getContext("2d");
+
+    const renderCardTexture = (img?: HTMLImageElement) => {
+      if (!ctx) return;
+      const w = textureCanvas.width;
+      const h = textureCanvas.height;
+
+      // Base card dark background
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, "#0e0e0e");
+      grad.addColorStop(1, "#070707");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Card outer hairline border
+      ctx.strokeStyle = "#383838";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(5, 5, w - 10, h - 10);
+
+      // Top Lanyard Punch Hole Pill Cutout
+      const holeW = 180;
+      const holeH = 46;
+      const holeX = (w - holeW) / 2;
+      const holeY = 48;
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.roundRect(holeX, holeY, holeW, holeH, 23);
+      ctx.fill();
+      ctx.strokeStyle = "#444444";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // "UGM STUDENT PASS" Header Stripe
+      ctx.fillStyle = "#888888";
+      ctx.font = "600 32px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.letterSpacing = "6px";
+      ctx.fillText("UGM STUDENT PASS", w / 2, 160);
+
+      // Thin separator line
+      ctx.strokeStyle = "#262626";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(40, 190);
+      ctx.lineTo(w - 40, 190);
+      ctx.stroke();
+
+      // Portrait Photo
+      const photoW = 540;
+      const photoH = 620;
+      const photoX = (w - photoW) / 2;
+      const photoY = 240;
+
+      // Photo frame background & border
+      ctx.fillStyle = "#181818";
+      ctx.beginPath();
+      ctx.roundRect(photoX, photoY, photoW, photoH, 28);
+      ctx.fill();
+      ctx.strokeStyle = "#383838";
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(photoX + 4, photoY + 4, photoW - 8, photoH - 8, 24);
+        ctx.clip();
+        ctx.drawImage(img, photoX + 4, photoY + 4, photoW - 8, photoH - 8);
+        ctx.restore();
       }
 
-      dragging = true;
-      isDraggingRef.current = true;
-      setIsDragging(true);
-      setHasInteracted(true);
+      // Identity Details (Name, Dept, University)
+      ctx.letterSpacing = "0px";
+      ctx.textAlign = "center";
 
-      startX = clientX;
-      startY = clientY;
-      startPosX = posRef.current.x;
-      startPosY = posRef.current.y;
-      velRef.current = { vx: 0, vy: 0 };
+      // Full Name
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 46px system-ui, -apple-system, sans-serif";
+      ctx.fillText("Johannes De Deo Dimas Aryobimo", w / 2, 960);
+
+      // Department
+      ctx.fillStyle = "#d4d4d4";
+      ctx.font = "500 38px system-ui, -apple-system, sans-serif";
+      ctx.fillText("Information Engineering", w / 2, 1030);
+
+      // School
+      ctx.fillStyle = "#888888";
+      ctx.font = "400 34px system-ui, -apple-system, sans-serif";
+      ctx.fillText(profile.education.school || "Universitas Gadjah Mada", w / 2, 1090);
+
+      // Subtle bottom accent stripe
+      ctx.fillStyle = "#222222";
+      ctx.fillRect(80, 1220, w - 160, 4);
     };
 
-    const onDragMove = (clientX: number, clientY: number) => {
-      if (!dragging) return;
+    renderCardTexture();
+    const cardTexture = new THREE.CanvasTexture(textureCanvas);
+    cardTexture.colorSpace = THREE.SRGBColorSpace;
+    cardTexture.anisotropy = 8;
 
-      const deltaX = clientX - startX;
-      const deltaY = clientY - startY;
-
-      const rawX = startPosX + deltaX * 0.85;
-      const rawY = startPosY + deltaY * 0.85;
-
-      // Generous pull boundaries
-      const clampedX = Math.max(-130, Math.min(130, rawX));
-      const clampedY = Math.max(-20, Math.min(160, rawY));
-
-      velRef.current = {
-        vx: (clampedX - posRef.current.x) * 0.45,
-        vy: (clampedY - posRef.current.y) * 0.45,
-      };
-
-      posRef.current = { x: clampedX, y: clampedY };
-      updateDOM(clampedX, clampedY, velRef.current.vx);
+    // Load actual profile image and update texture
+    const profileImg = new window.Image();
+    profileImg.crossOrigin = "anonymous";
+    profileImg.src = profile.photo || "/images/profile.jpg";
+    profileImg.onload = () => {
+      renderCardTexture(profileImg);
+      cardTexture.needsUpdate = true;
     };
 
-    const onDragEnd = () => {
-      if (!dragging) return;
-      dragging = false;
-      isDraggingRef.current = false;
-      setIsDragging(false);
-      startSpringPhysics();
+    // Card Back Texture (Clean dark backplate)
+    const backCanvas = document.createElement("canvas");
+    backCanvas.width = 960;
+    backCanvas.height = 1400;
+    const bCtx = backCanvas.getContext("2d");
+    if (bCtx) {
+      bCtx.fillStyle = "#0a0a0a";
+      bCtx.fillRect(0, 0, 960, 1400);
+      bCtx.strokeStyle = "#2b2b2b";
+      bCtx.lineWidth = 10;
+      bCtx.strokeRect(5, 5, 950, 1390);
+
+      // Subtle geometric crest & university label
+      bCtx.fillStyle = "#333333";
+      bCtx.font = "600 36px 'JetBrains Mono', monospace";
+      bCtx.textAlign = "center";
+      bCtx.letterSpacing = "4px";
+      bCtx.fillText("UNIVERSITAS GADJAH MADA", 480, 680);
+      bCtx.font = "400 28px 'JetBrains Mono', monospace";
+      bCtx.fillStyle = "#262626";
+      bCtx.fillText("FACULTY OF ENGINEERING", 480, 740);
+    }
+    const backTexture = new THREE.CanvasTexture(backCanvas);
+    backTexture.colorSpace = THREE.SRGBColorSpace;
+
+    // Card materials: front uses canvas texture, edges/back use satin dark material
+    const frontMat = new THREE.MeshStandardMaterial({
+      map: cardTexture,
+      roughness: 0.35,
+      metalness: 0.1,
+    });
+    const backMat = new THREE.MeshStandardMaterial({
+      map: backTexture,
+      roughness: 0.4,
+      metalness: 0.1,
+    });
+    const sideMat = new THREE.MeshStandardMaterial({
+      color: 0x1a1a1a,
+      roughness: 0.5,
+      metalness: 0.2,
+    });
+
+    // Multi-material setup for ExtrudeGeometry (0: front/back, 1: sides)
+    const cardMesh = new THREE.Mesh(cardGeom, [frontMat, sideMat]);
+
+    // Card Group (contains card and top snap hook clasp)
+    const cardGroup = new THREE.Group();
+    cardGroup.add(cardMesh);
+
+    // Clasp & Swivel Hook Assembly (Silver Metallic)
+    const claspGroup = new THREE.Group();
+    claspGroup.position.set(0, cardH / 2 + 0.05, 0);
+
+    const swivelGeom = new THREE.CylinderGeometry(0.045, 0.045, 0.14, 16);
+    const swivelMesh = new THREE.Mesh(swivelGeom, metalMat);
+    claspGroup.add(swivelMesh);
+
+    const snapRingGeom = new THREE.TorusGeometry(0.065, 0.016, 12, 24);
+    const snapRingMesh = new THREE.Mesh(snapRingGeom, metalMat);
+    snapRingMesh.position.set(0, -0.09, 0);
+    claspGroup.add(snapRingMesh);
+
+    cardGroup.add(claspGroup);
+    scene.add(cardGroup);
+
+    // --- Physics Simulation Variables ---
+    const restPos = new THREE.Vector3(0, topAnchorY - 2.8, 0);
+    const cardPos = restPos.clone();
+    const cardVel = new THREE.Vector3(0, 0, 0);
+    const targetPos = restPos.clone();
+
+    // Rotations & angular velocities
+    let rotX = 0;
+    let rotY = 0;
+    let rotZ = 0;
+    let rotVelX = 0;
+    let rotVelY = 0;
+    let rotVelZ = 0;
+
+    let isDragging = false;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersectPoint = new THREE.Vector3();
+
+    // --- Strap Curve & Mesh Update ---
+    const updateStrap = () => {
+      // Anchor top fixed at (0, topAnchorY, 0)
+      const p0 = new THREE.Vector3(0, topAnchorY, 0);
+      // Card attachment point at top of clasp
+      const p2 = new THREE.Vector3(
+        cardPos.x,
+        cardPos.y + cardH / 2 + 0.14,
+        cardPos.z
+      );
+
+      // Midpoint sag & inertia
+      const mid = new THREE.Vector3(
+        (p0.x + p2.x) * 0.5 - cardVel.x * 0.04,
+        (p0.y + p2.y) * 0.5 - 0.15 - Math.max(0, -cardVel.y * 0.02),
+        (p0.z + p2.z) * 0.5 - cardVel.z * 0.04
+      );
+
+      const positions = ribbonGeom.attributes.position as THREE.BufferAttribute;
+      const curve = new THREE.QuadraticBezierCurve3(p0, mid, p2);
+      const points = curve.getPoints(RIBBON_SEGMENTS);
+
+      for (let i = 0; i <= RIBBON_SEGMENTS; i++) {
+        const pt = points[i];
+        const t = i / RIBBON_SEGMENTS;
+        const tangent = curve.getTangent(t).normalize();
+        const normal = new THREE.Vector3(0, 0, 1);
+        const binormal = new THREE.Vector3().crossVectors(tangent, normal).normalize();
+
+        const halfWidth = 0.11 * (1 - t * 0.35); // Slight taper towards card
+        const leftX = pt.x - binormal.x * halfWidth;
+        const leftY = pt.y - binormal.y * halfWidth;
+        const leftZ = pt.z - binormal.z * halfWidth;
+
+        const rightX = pt.x + binormal.x * halfWidth;
+        const rightY = pt.y + binormal.y * halfWidth;
+        const rightZ = pt.z + binormal.z * halfWidth;
+
+        positions.setXYZ(i * 2, leftX, leftY, leftZ);
+        positions.setXYZ(i * 2 + 1, rightX, rightY, rightZ);
+      }
+
+      positions.needsUpdate = true;
+      ribbonGeom.computeVertexNormals();
     };
 
-    // Desktop Pointer Events
-    const handlePointerDown = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return; // Touch handled by touch events
-      if (e.button !== 0) return;
-      e.preventDefault();
-      onDragStart(e.clientX, e.clientY);
-
-      const handlePointerMove = (moveEvent: PointerEvent) => {
-        onDragMove(moveEvent.clientX, moveEvent.clientY);
-      };
-
-      const handlePointerUp = () => {
-        window.removeEventListener("pointermove", handlePointerMove);
-        window.removeEventListener("pointerup", handlePointerUp);
-        window.removeEventListener("pointercancel", handlePointerUp);
-        onDragEnd();
-      };
-
-      window.addEventListener("pointermove", handlePointerMove);
-      window.addEventListener("pointerup", handlePointerUp);
-      window.addEventListener("pointercancel", handlePointerUp);
+    // --- Pointer & Touch Interaction Handlers ---
+    const updateRaycaster = (clientX: number, clientY: number) => {
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
     };
 
-    // Mobile Touch Events (with non-passive preventDefault so scroll never interrupts drag!)
-    const handleTouchStart = (e: TouchEvent) => {
+    const onPointerDown = (e: PointerEvent) => {
+      updateRaycaster(e.clientX, e.clientY);
+      const intersects = raycaster.intersectObject(cardMesh, false);
+      if (intersects.length > 0 || Math.hypot(e.clientX, e.clientY) > 0) {
+        isDragging = true;
+        setHasInteracted(true);
+        container.style.cursor = "grabbing";
+
+        dragPlane.setFromNormalAndCoplanarPoint(
+          new THREE.Vector3(0, 0, 1),
+          cardPos
+        );
+        raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+      }
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      updateRaycaster(e.clientX, e.clientY);
+
+      if (isDragging) {
+        if (raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
+          // Clamp target distance so strap cannot be infinitely stretched
+          const maxDist = 3.6;
+          const delta = intersectPoint.clone().sub(new THREE.Vector3(0, topAnchorY, 0));
+          if (delta.length() > maxDist) {
+            delta.setLength(maxDist);
+            intersectPoint.copy(new THREE.Vector3(0, topAnchorY, 0).add(delta));
+          }
+          targetPos.copy(intersectPoint);
+        }
+      }
+    };
+
+    const onPointerUp = () => {
+      if (isDragging) {
+        isDragging = false;
+        container.style.cursor = "grab";
+        targetPos.copy(restPos);
+      }
+    };
+
+    // Mobile Touch Handlers with non-passive preventDefault so touch drag is 100% reliable
+    const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 0) return;
       e.preventDefault();
-      const touch = e.touches[0];
-      onDragStart(touch.clientX, touch.clientY);
+      const t = e.touches[0];
+      updateRaycaster(t.clientX, t.clientY);
+      isDragging = true;
+      setHasInteracted(true);
 
-      const handleTouchMove = (moveEvent: TouchEvent) => {
-        if (moveEvent.touches.length === 0) return;
-        moveEvent.preventDefault();
-        const t = moveEvent.touches[0];
-        onDragMove(t.clientX, t.clientY);
-      };
-
-      const handleTouchEnd = () => {
-        window.removeEventListener("touchmove", handleTouchMove);
-        window.removeEventListener("touchend", handleTouchEnd);
-        window.removeEventListener("touchcancel", handleTouchEnd);
-        onDragEnd();
-      };
-
-      window.addEventListener("touchmove", handleTouchMove, { passive: false });
-      window.addEventListener("touchend", handleTouchEnd);
-      window.addEventListener("touchcancel", handleTouchEnd);
+      dragPlane.setFromNormalAndCoplanarPoint(
+        new THREE.Vector3(0, 0, 1),
+        cardPos
+      );
+      raycaster.ray.intersectPlane(dragPlane, intersectPoint);
     };
 
-    container.addEventListener("pointerdown", handlePointerDown);
-    container.addEventListener("touchstart", handleTouchStart, { passive: false });
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      updateRaycaster(t.clientX, t.clientY);
 
+      if (isDragging && raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
+        const maxDist = 3.6;
+        const delta = intersectPoint.clone().sub(new THREE.Vector3(0, topAnchorY, 0));
+        if (delta.length() > maxDist) {
+          delta.setLength(maxDist);
+          intersectPoint.copy(new THREE.Vector3(0, topAnchorY, 0).add(delta));
+        }
+        targetPos.copy(intersectPoint);
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (isDragging) {
+        isDragging = false;
+        targetPos.copy(restPos);
+      }
+    };
+
+    container.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    container.addEventListener("touchstart", onTouchStart, { passive: false });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+
+    // --- Animation & Physics Loop ---
+    let animationFrameId: number;
+    let prevTime = performance.now();
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+
+      const currentTime = performance.now();
+      const dt = Math.min((currentTime - prevTime) / 1000, 0.05);
+      prevTime = currentTime;
+
+      const timeSec = currentTime * 0.001;
+
+      // Ambient idle swing when not being dragged
+      if (!isDragging) {
+        const idleSwingX = Math.sin(timeSec * 2.0) * 0.12;
+        const idleSwingZ = Math.cos(timeSec * 1.5) * 0.04;
+        targetPos.x = restPos.x + idleSwingX;
+        targetPos.z = restPos.z + idleSwingZ;
+        targetPos.y = restPos.y;
+      }
+
+      // 3D Spring Physics
+      const springK = isDragging ? 48.0 : 20.0;
+      const damping = isDragging ? 0.76 : 0.88;
+
+      const force = targetPos.clone().sub(cardPos).multiplyScalar(springK);
+      cardVel.add(force.multiplyScalar(dt));
+      cardVel.multiplyScalar(damping);
+      cardPos.add(cardVel.clone().multiplyScalar(dt));
+
+      // Natural 3D Card Tilting & Rotations based on swing inertia
+      const targetRotZ = -cardVel.x * 0.22 - (cardPos.x / 2.5) * 0.35;
+      const targetRotX = cardVel.y * 0.18 + (cardPos.z / 2.0) * 0.25;
+      const targetRotY = -cardVel.x * 0.28;
+
+      rotVelZ += (targetRotZ - rotZ) * 25.0 * dt;
+      rotVelZ *= 0.85;
+      rotZ += rotVelZ * dt;
+
+      rotVelX += (targetRotX - rotX) * 22.0 * dt;
+      rotVelX *= 0.85;
+      rotX += rotVelX * dt;
+
+      rotVelY += (targetRotY - rotY) * 20.0 * dt;
+      rotVelY *= 0.85;
+      rotY += rotVelY * dt;
+
+      // Apply positions & rotations to card mesh group
+      cardGroup.position.copy(cardPos);
+      cardGroup.rotation.set(rotX, rotY, rotZ);
+
+      // Update Ribbon Geometry
+      updateStrap();
+
+      // Render Three.js Scene
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // --- Resize Handler ---
+    const handleResize = () => {
+      if (!container || !canvas) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      bounds = computeWorldBounds();
+      topAnchorMesh.position.y = bounds.topY - 0.02;
+      renderer.setSize(w, h, false);
+    };
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
+
+    // --- Cleanup on Unmount ---
     return () => {
-      container.removeEventListener("pointerdown", handlePointerDown);
-      container.removeEventListener("touchstart", handleTouchStart);
+      cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
+
+      container.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      container.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+
+      ribbonGeom.dispose();
+      ribbonMat.dispose();
+      cardGeom.dispose();
+      frontMat.dispose();
+      backMat.dispose();
+      sideMat.dispose();
+      cardTexture.dispose();
+      backTexture.dispose();
+      topAnchorGeom.dispose();
+      metalMat.dispose();
+      swivelGeom.dispose();
+      snapRingGeom.dispose();
+      renderer.dispose();
     };
-  }, [updateDOM, startSpringPhysics]);
+  }, []);
 
   return (
     <div
-      ref={dragContainerRef}
-      className="relative flex flex-col items-center select-none pt-0 cursor-grab active:cursor-grabbing"
-      style={{ width: "220px", touchAction: "none" }}
+      ref={containerRef}
+      className="relative flex flex-col items-center select-none pt-0 cursor-grab active:cursor-grabbing w-[280px] sm:w-[320px] lg:w-[340px] h-[440px] sm:h-[470px] lg:h-[490px]"
+      style={{ touchAction: "none" }}
+      aria-label="3D Interactive Lanyard Student ID Pass"
     >
-      {/* SVG Lanyard Strap - Connected flush to the very top edge (no floating gap) */}
-      <svg
-        className="pointer-events-none absolute top-0 left-0 w-full overflow-visible z-10"
-        style={{ height: "96px" }}
-        viewBox="0 0 220 96"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="strapGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#262626" />
-            <stop offset="50%" stopColor="#4a4a4a" />
-            <stop offset="100%" stopColor="#262626" />
-          </linearGradient>
-        </defs>
-
-        {/* Top Boundary Line - sits flush on the border line */}
-        <line x1={anchorX - 24} y1="0" x2={anchorX + 24} y2="0" stroke="#525252" strokeWidth="4" />
-
-        {/* Dynamic Elastic Ribbon (Quadratic Bezier Curve) */}
-        <path
-          ref={strapPathRef}
-          d={`M ${anchorX - 10} 0 L ${anchorX + 10} 0 Q ${anchorX + 3.5} 32 ${anchorX + 3.5} ${restingClipY - 12} L ${anchorX - 3.5} ${restingClipY - 12} Q ${anchorX - 3.5} 32 ${anchorX - 10} 0 Z`}
-          fill="url(#strapGrad)"
-          stroke="#404040"
-          strokeWidth="0.75"
+      {/* Three.js Canvas Container - Anchored Flush to Top (0px gap from navbar border) */}
+      {webglSupported ? (
+        <canvas
+          ref={canvasRef}
+          className="size-full block overflow-visible outline-none pointer-events-auto"
+          aria-hidden="true"
         />
-
-        {/* Metallic Clasp & Snap Hook */}
-        <g ref={claspGroupRef} transform={`translate(${anchorX}, ${restingClipY - 12})`}>
-          <rect x="-7" y="0" width="14" height="6" rx="2" fill="#737373" stroke="#262626" strokeWidth="1" />
-          <path d="M -5 6 L 5 6 L 3 14 L -3 14 Z" fill="#525252" stroke="#262626" strokeWidth="1" />
-          <ellipse cx="0" cy="17" rx="3.5" ry="5" fill="none" stroke="#a3a3a3" strokeWidth="1.75" />
-        </g>
-      </svg>
-
-      {/* Elastic Badge Card: Compact, sleek, large photo, no verified dot, no barcode, no '28 */}
-      <div
-        ref={cardRef}
-        style={{
-          transformOrigin: "center top",
-          touchAction: "none",
-          marginTop: "66px",
-          willChange: "transform",
-        }}
-        className={`relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl transition-shadow duration-200 select-none ${
-          isDragging
-            ? "shadow-[0_20px_35px_-10px_rgba(255,255,255,0.18)] border-white/70"
-            : "hover:border-white/40 hover:shadow-[0_16px_30px_-10px_rgba(255,255,255,0.08)]"
-        }`}
-      >
-        {/* Lanyard Hole Cutout at Top of Badge */}
-        <div className="mx-auto mt-2.5 h-3 w-10 rounded-full bg-black border border-border-strong flex items-center justify-center shadow-inner">
-          <div className="h-1 w-6 rounded-full bg-black/90" />
-        </div>
-
-        {/* Pass Header Stripe - Clean, no '28 */}
-        <div className="px-3 pt-2 pb-1.5 text-center border-b border-border text-[9px] font-mono tracking-widest text-muted uppercase">
-          UGM STUDENT PASS
-        </div>
-
-        {/* Badge Core Content: Large Photo & Essential Identity */}
-        <div className="p-3.5 pt-3 pb-4 flex flex-col items-center text-center">
-          {/* Large Portrait Photo */}
-          <div className="relative w-32 h-36 rounded-xl overflow-hidden border-2 border-border-strong bg-surface p-0.5 shadow-md pointer-events-none">
+      ) : (
+        /* Accessible Fallback when WebGL is unavailable (e.g. In jsdom / test suites) */
+        <div className="relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl p-4 mt-16 text-center">
+          <div className="mx-auto h-3 w-10 rounded-full bg-black border border-border-strong mb-2" />
+          <div className="text-[9px] font-mono tracking-widest text-muted uppercase mb-3">
+            UGM STUDENT PASS
+          </div>
+          <div className="relative w-32 h-36 mx-auto rounded-xl overflow-hidden border-2 border-border-strong bg-surface">
             <Image
               src={profile.photo || "/images/profile.jpg"}
               alt={profile.photoAlt}
               width={128}
               height={144}
-              draggable={false}
-              className="size-full object-cover rounded-[10px] select-none"
+              className="size-full object-cover rounded-[10px]"
               priority
             />
           </div>
-
-          {/* Full Name */}
           <h3 className="mt-3 font-bold text-xs leading-tight tracking-tight text-text">
             Johannes De Deo Dimas Aryobimo
           </h3>
-
-          {/* Department & University */}
           <p className="mt-1 text-[11px] font-medium text-text">
             Information Engineering
           </p>
@@ -321,18 +642,22 @@ export function LanyardBadge() {
             {profile.education.school}
           </p>
         </div>
+      )}
+
+      {/* Screen-reader Accessible Information for Assistive Tech and Test Contracts */}
+      <div className="sr-only">
+        <h3>Johannes De Deo Dimas Aryobimo</h3>
+        <p>Information Engineering</p>
+        <p>{profile.education.school}</p>
+        <p>UGM Student Pass</p>
       </div>
 
-      {/* Subtle Drag Hint */}
+      {/* Subtle Interaction Pill Hint */}
       {!hasInteracted ? (
-        <span className="mt-2.5 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse">
-          ↕ drag or swing badge
+        <span className="absolute bottom-1 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse pointer-events-none">
+          ↕ drag or swing 3d lanyard
         </span>
-      ) : (
-        <span className="mt-2.5 text-[10px] font-mono tracking-wider text-transparent select-none">
-          ·
-        </span>
-      )}
+      ) : null}
     </div>
   );
 }
