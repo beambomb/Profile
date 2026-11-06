@@ -11,6 +11,7 @@ import {
   MailIcon,
 } from "@/components/ui/Icons";
 import { LanyardBadge, LanyardFallback } from "@/components/ui/LanyardBadge";
+import { FloatingPass3D } from "@/components/ui/FloatingPass3D";
 
 function useTypewriter(word = "Bimo") {
   // Start with full word so heading is never blank on mount or SSR
@@ -49,6 +50,16 @@ function useTypewriter(word = "Bimo") {
 export function Hero() {
   const displayedName = useTypewriter("Bimo");
   const badgeTargetRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const scrollToProjects = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -65,8 +76,10 @@ export function Hero() {
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
 
-      {/* Full-width 3D Lanyard Canvas */}
-      <LanyardBadge targetRef={badgeTargetRef} />
+      {/* Desktop-only Full-width 3D Lanyard Canvas with Hanging Strap */}
+      {mounted && isDesktop ? (
+        <LanyardBadge targetRef={badgeTargetRef} />
+      ) : null}
 
       {/* Accessible screen-reader tagline and about data to preserve SEO & test contracts */}
       <h2 className="sr-only">About me</h2>
@@ -159,13 +172,20 @@ export function Hero() {
               <MailIcon className="size-[18px]" />
             </a>
           </div>
+
+          {/* Mobile Position: Floating 3D Pass */}
+          {mounted && !isDesktop ? (
+            <div className="mt-8 mb-4 flex justify-center">
+              <FloatingPass3D />
+            </div>
+          ) : null}
         </div>
 
-        {/* Right Column: Elastic Interactive Lanyard Badge target / placeholder */}
-        <div className="shrink-0 flex justify-center lg:justify-end overflow-visible mt-4 sm:mt-6 lg:mt-0">
+        {/* Right Column (Desktop only): Elastic Interactive Lanyard Badge target */}
+        <div className="hidden lg:flex shrink-0 justify-end overflow-visible">
           <div
             ref={badgeTargetRef}
-            className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[420px] sm:h-[450px] lg:h-[480px] z-20 overflow-visible"
+            className="relative flex flex-col items-center select-none pt-0 w-[340px] h-[480px] z-20 overflow-visible"
             aria-label="Interactive 3D Physics Lanyard Pass"
           >
             <LanyardFallback />
