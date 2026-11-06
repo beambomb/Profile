@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { profile } from "@content";
 
 export function LanyardBadge() {
+  const dragContainerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const strapPathRef = useRef<SVGPathElement>(null);
   const claspGroupRef = useRef<SVGGElement>(null);
@@ -12,18 +13,18 @@ export function LanyardBadge() {
   const [isDragging, setIsDragging] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  // Geometry constants
-  const anchorX = 135;
-  const restingClipY = 96;
+  // Geometry constants (compact, refined badge)
+  const anchorX = 110;
+  const restingClipY = 72;
 
-  // Realtime physics variables in refs for 60-120fps direct DOM manipulation
+  // Realtime physics variables in refs
   const posRef = useRef({ x: 0, y: 0 });
   const velRef = useRef({ vx: 0, vy: 0 });
   const isDraggingRef = useRef(false);
   const animFrameRef = useRef<number | null>(null);
   const idleAnimRef = useRef<number | null>(null);
 
-  // Direct DOM updater for instant response without React render lag
+  // Direct DOM updater for instant response without React re-render lag
   const updateDOM = useCallback((x: number, y: number, vx: number) => {
     const clipX = anchorX + x;
     const clipY = restingClipY + y;
@@ -35,51 +36,56 @@ export function LanyardBadge() {
 
     if (strapPathRef.current) {
       const ctrlX = anchorX + x * 0.35;
-      const ctrlY = 44 + y * 0.4;
-      const d = `M ${anchorX - 4} 0 Q ${ctrlX - 4} ${ctrlY} ${clipX - 4} ${clipY - 14} L ${clipX + 4} ${clipY - 14} Q ${ctrlX + 4} ${ctrlY} ${anchorX + 4} 0 Z`;
+      const ctrlY = 32 + y * 0.4;
+      const d = `M ${anchorX - 10} 0 L ${anchorX + 10} 0 Q ${ctrlX + 3.5} ${ctrlY} ${clipX + 3.5} ${clipY - 12} L ${clipX - 3.5} ${clipY - 12} Q ${ctrlX - 3.5} ${ctrlY} ${anchorX - 10} 0 Z`;
       strapPathRef.current.setAttribute("d", d);
     }
 
     if (claspGroupRef.current) {
-      claspGroupRef.current.setAttribute("transform", `translate(${clipX}, ${clipY - 14})`);
+      claspGroupRef.current.setAttribute("transform", `translate(${clipX}, ${clipY - 12})`);
     }
   }, []);
 
   // Spring physics loop upon release
-  const runPhysics = useCallback(() => {
-    if (isDraggingRef.current) return;
+  const startSpringPhysics = useCallback(() => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
 
-    const stiffness = 0.088;
-    const damping = 0.81;
+    const springLoop = () => {
+      if (isDraggingRef.current) return;
 
-    const fx = -stiffness * posRef.current.x;
-    const fy = -stiffness * posRef.current.y;
+      const stiffness = 0.088;
+      const damping = 0.81;
 
-    velRef.current.vx = (velRef.current.vx + fx) * damping;
-    velRef.current.vy = (velRef.current.vy + fy) * damping;
+      const fx = -stiffness * posRef.current.x;
+      const fy = -stiffness * posRef.current.y;
 
-    posRef.current.x += velRef.current.vx;
-    posRef.current.y += velRef.current.vy;
+      velRef.current.vx = (velRef.current.vx + fx) * damping;
+      velRef.current.vy = (velRef.current.vy + fy) * damping;
 
-    updateDOM(posRef.current.x, posRef.current.y, velRef.current.vx);
+      posRef.current.x += velRef.current.vx;
+      posRef.current.y += velRef.current.vy;
 
-    // Continue until settled
-    if (
-      Math.abs(posRef.current.x) > 0.15 ||
-      Math.abs(posRef.current.y) > 0.15 ||
-      Math.abs(velRef.current.vx) > 0.15 ||
-      Math.abs(velRef.current.vy) > 0.15
-    ) {
-      animFrameRef.current = requestAnimationFrame(runPhysics);
-    } else {
-      posRef.current = { x: 0, y: 0 };
-      velRef.current = { vx: 0, vy: 0 };
-      updateDOM(0, 0, 0);
-      animFrameRef.current = null;
-    }
+      updateDOM(posRef.current.x, posRef.current.y, velRef.current.vx);
+
+      if (
+        Math.abs(posRef.current.x) > 0.15 ||
+        Math.abs(posRef.current.y) > 0.15 ||
+        Math.abs(velRef.current.vx) > 0.15 ||
+        Math.abs(velRef.current.vy) > 0.15
+      ) {
+        animFrameRef.current = requestAnimationFrame(springLoop);
+      } else {
+        posRef.current = { x: 0, y: 0 };
+        velRef.current = { vx: 0, vy: 0 };
+        updateDOM(0, 0, 0);
+        animFrameRef.current = null;
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(springLoop);
   }, [updateDOM]);
 
-  // Idle gentle pendulum sway before user touch
+  // Idle pendulum sway on page load so it's visibly swinging
   useEffect(() => {
     if (hasInteracted) return;
 
@@ -87,8 +93,8 @@ export function LanyardBadge() {
     const idleLoop = (now: number) => {
       if (isDraggingRef.current || hasInteracted) return;
       const elapsed = (now - startTime) / 1000;
-      const swayX = Math.sin(elapsed * 2.2) * 4.5;
-      const swayY = Math.abs(Math.sin(elapsed * 2.2)) * 1.8;
+      const swayX = Math.sin(elapsed * 2.2) * 5.0;
+      const swayY = Math.abs(Math.sin(elapsed * 2.2)) * 1.5;
       posRef.current = { x: swayX, y: swayY };
       updateDOM(swayX, swayY, 0);
       idleAnimRef.current = requestAnimationFrame(idleLoop);
@@ -100,129 +106,138 @@ export function LanyardBadge() {
     };
   }, [hasInteracted, updateDOM]);
 
-  // Universal Drag Initiation (Mouse, Touch, Pen)
-  const startDrag = (clientX: number, clientY: number) => {
-    if (idleAnimRef.current) {
-      cancelAnimationFrame(idleAnimRef.current);
-      idleAnimRef.current = null;
-    }
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
+  // Native listeners on the container for 100% reliable Drag & Swing on Desktop and Mobile
+  useEffect(() => {
+    const container = dragContainerRef.current;
+    if (!container) return;
 
-    isDraggingRef.current = true;
-    setIsDragging(true);
-    setHasInteracted(true);
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startPosX = 0;
+    let startPosY = 0;
 
-    const startX = clientX;
-    const startY = clientY;
-    const startPos = { ...posRef.current };
-    velRef.current = { vx: 0, vy: 0 };
+    const onDragStart = (clientX: number, clientY: number) => {
+      if (idleAnimRef.current) {
+        cancelAnimationFrame(idleAnimRef.current);
+        idleAnimRef.current = null;
+      }
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
 
-    const onMove = (moveX: number, moveY: number) => {
-      if (!isDraggingRef.current) return;
+      dragging = true;
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      setHasInteracted(true);
 
-      const deltaX = moveX - startX;
-      const deltaY = moveY - startY;
+      startX = clientX;
+      startY = clientY;
+      startPosX = posRef.current.x;
+      startPosY = posRef.current.y;
+      velRef.current = { vx: 0, vy: 0 };
+    };
 
-      // Elastic resistance
-      const rawX = startPos.x + deltaX * 0.85;
-      const rawY = startPos.y + deltaY * 0.85;
+    const onDragMove = (clientX: number, clientY: number) => {
+      if (!dragging) return;
 
-      const clampedX = Math.max(-150, Math.min(150, rawX));
-      const clampedY = Math.max(-25, Math.min(190, rawY));
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
+
+      const rawX = startPosX + deltaX * 0.85;
+      const rawY = startPosY + deltaY * 0.85;
+
+      // Generous pull boundaries
+      const clampedX = Math.max(-130, Math.min(130, rawX));
+      const clampedY = Math.max(-20, Math.min(160, rawY));
 
       velRef.current = {
-        vx: (clampedX - posRef.current.x) * 0.5,
-        vy: (clampedY - posRef.current.y) * 0.5,
+        vx: (clampedX - posRef.current.x) * 0.45,
+        vy: (clampedY - posRef.current.y) * 0.45,
       };
 
       posRef.current = { x: clampedX, y: clampedY };
       updateDOM(clampedX, clampedY, velRef.current.vx);
     };
 
-    const onPointerMove = (e: PointerEvent) => {
-      e.preventDefault();
-      onMove(e.clientX, e.clientY);
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
-      onMove(e.clientX, e.clientY);
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        onMove(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    const onEnd = () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onEnd);
-      window.removeEventListener("pointercancel", onEnd);
-
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onEnd);
-
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onEnd);
-      window.removeEventListener("touchcancel", onEnd);
-
+    const onDragEnd = () => {
+      if (!dragging) return;
+      dragging = false;
       isDraggingRef.current = false;
       setIsDragging(false);
-
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = requestAnimationFrame(runPhysics);
+      startSpringPhysics();
     };
 
-    // Attach listeners to window for unbreakable tracking
-    window.addEventListener("pointermove", onPointerMove, { passive: false });
-    window.addEventListener("pointerup", onEnd);
-    window.addEventListener("pointercancel", onEnd);
+    // Desktop Pointer Events
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return; // Touch handled by touch events
+      if (e.button !== 0) return;
+      e.preventDefault();
+      onDragStart(e.clientX, e.clientY);
 
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onEnd);
+      const handlePointerMove = (moveEvent: PointerEvent) => {
+        onDragMove(moveEvent.clientX, moveEvent.clientY);
+      };
 
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-    window.addEventListener("touchend", onEnd);
-    window.addEventListener("touchcancel", onEnd);
-  };
+      const handlePointerUp = () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerUp);
+        onDragEnd();
+      };
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.preventDefault();
-    startDrag(e.clientX, e.clientY);
-  };
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
+    };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    startDrag(e.clientX, e.clientY);
-  };
+    // Mobile Touch Events (with non-passive preventDefault so scroll never interrupts drag!)
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      onDragStart(touch.clientX, touch.clientY);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length > 0) {
-      startDrag(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        if (moveEvent.touches.length === 0) return;
+        moveEvent.preventDefault();
+        const t = moveEvent.touches[0];
+        onDragMove(t.clientX, t.clientY);
+      };
 
-  useEffect(() => {
+      const handleTouchEnd = () => {
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("touchend", handleTouchEnd);
+        window.removeEventListener("touchcancel", handleTouchEnd);
+        onDragEnd();
+      };
+
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("touchend", handleTouchEnd);
+      window.addEventListener("touchcancel", handleTouchEnd);
+    };
+
+    container.addEventListener("pointerdown", handlePointerDown);
+    container.addEventListener("touchstart", handleTouchStart, { passive: false });
+
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      if (idleAnimRef.current) cancelAnimationFrame(idleAnimRef.current);
+      container.removeEventListener("pointerdown", handlePointerDown);
+      container.removeEventListener("touchstart", handleTouchStart);
     };
-  }, []);
+  }, [updateDOM, startSpringPhysics]);
 
   return (
     <div
-      className="relative flex flex-col items-center select-none -mt-4 sm:-mt-6"
-      style={{ width: "270px" }}
+      ref={dragContainerRef}
+      className="relative flex flex-col items-center select-none pt-0 cursor-grab active:cursor-grabbing"
+      style={{ width: "220px", touchAction: "none" }}
     >
-      {/* SVG Elastic Lanyard Strap & Clip - Hanging from top edge */}
+      {/* SVG Lanyard Strap - Connected flush to the very top edge (no floating gap) */}
       <svg
-        className="pointer-events-none absolute -top-4 left-0 w-full overflow-visible z-10"
-        style={{ height: "130px" }}
-        viewBox="0 0 270 130"
+        className="pointer-events-none absolute top-0 left-0 w-full overflow-visible z-10"
+        style={{ height: "96px" }}
+        viewBox="0 0 220 96"
         aria-hidden="true"
       >
         <defs>
@@ -233,64 +248,60 @@ export function LanyardBadge() {
           </linearGradient>
         </defs>
 
-        {/* Ceiling Mount / Lanyard Neck loop anchor */}
+        {/* Top Boundary Line - sits flush on the border line */}
         <line x1={anchorX - 24} y1="0" x2={anchorX + 24} y2="0" stroke="#525252" strokeWidth="4" />
-        <circle cx={anchorX} cy="0" r="5" fill="#737373" stroke="#262626" strokeWidth="2" />
 
         {/* Dynamic Elastic Ribbon (Quadratic Bezier Curve) */}
         <path
           ref={strapPathRef}
-          d={`M ${anchorX - 4} 0 Q ${anchorX - 4} 44 ${anchorX - 4} ${restingClipY - 14} L ${anchorX + 4} ${restingClipY - 14} Q ${anchorX + 4} 44 ${anchorX + 4} 0 Z`}
+          d={`M ${anchorX - 10} 0 L ${anchorX + 10} 0 Q ${anchorX + 3.5} 32 ${anchorX + 3.5} ${restingClipY - 12} L ${anchorX - 3.5} ${restingClipY - 12} Q ${anchorX - 3.5} 32 ${anchorX - 10} 0 Z`}
           fill="url(#strapGrad)"
           stroke="#404040"
           strokeWidth="0.75"
         />
 
         {/* Metallic Clasp & Snap Hook */}
-        <g ref={claspGroupRef} transform={`translate(${anchorX}, ${restingClipY - 14})`}>
-          <rect x="-8" y="0" width="16" height="7" rx="2" fill="#737373" stroke="#262626" strokeWidth="1" />
-          <path d="M -6 7 L 6 7 L 3.5 17 L -3.5 17 Z" fill="#525252" stroke="#262626" strokeWidth="1" />
-          <ellipse cx="0" cy="20" rx="4" ry="6" fill="none" stroke="#a3a3a3" strokeWidth="2" />
+        <g ref={claspGroupRef} transform={`translate(${anchorX}, ${restingClipY - 12})`}>
+          <rect x="-7" y="0" width="14" height="6" rx="2" fill="#737373" stroke="#262626" strokeWidth="1" />
+          <path d="M -5 6 L 5 6 L 3 14 L -3 14 Z" fill="#525252" stroke="#262626" strokeWidth="1" />
+          <ellipse cx="0" cy="17" rx="3.5" ry="5" fill="none" stroke="#a3a3a3" strokeWidth="1.75" />
         </g>
       </svg>
 
-      {/* Elastic Badge Card: Minimal, larger photo, no verified dot, no barcode, no '28 */}
+      {/* Elastic Badge Card: Compact, sleek, large photo, no verified dot, no barcode, no '28 */}
       <div
         ref={cardRef}
-        onPointerDown={handlePointerDown}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
         style={{
           transformOrigin: "center top",
           touchAction: "none",
-          marginTop: "88px",
+          marginTop: "66px",
           willChange: "transform",
         }}
-        className={`relative w-[256px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl transition-shadow duration-200 select-none ${
+        className={`relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl transition-shadow duration-200 select-none ${
           isDragging
-            ? "cursor-grabbing shadow-[0_25px_40px_-10px_rgba(255,255,255,0.18)] border-white/70"
-            : "cursor-grab hover:border-white/40 hover:shadow-[0_20px_35px_-10px_rgba(255,255,255,0.08)]"
+            ? "shadow-[0_20px_35px_-10px_rgba(255,255,255,0.18)] border-white/70"
+            : "hover:border-white/40 hover:shadow-[0_16px_30px_-10px_rgba(255,255,255,0.08)]"
         }`}
       >
         {/* Lanyard Hole Cutout at Top of Badge */}
-        <div className="mx-auto mt-3 h-3.5 w-12 rounded-full bg-black border border-border-strong flex items-center justify-center shadow-inner">
-          <div className="h-1.5 w-8 rounded-full bg-black/90" />
+        <div className="mx-auto mt-2.5 h-3 w-10 rounded-full bg-black border border-border-strong flex items-center justify-center shadow-inner">
+          <div className="h-1 w-6 rounded-full bg-black/90" />
         </div>
 
         {/* Pass Header Stripe - Clean, no '28 */}
-        <div className="px-4 pt-2.5 pb-2 text-center border-b border-border text-[10px] font-mono tracking-widest text-muted uppercase">
+        <div className="px-3 pt-2 pb-1.5 text-center border-b border-border text-[9px] font-mono tracking-widest text-muted uppercase">
           UGM STUDENT PASS
         </div>
 
         {/* Badge Core Content: Large Photo & Essential Identity */}
-        <div className="p-4 pt-4 pb-6 flex flex-col items-center text-center">
-          {/* Prominent Large Portrait Photo */}
-          <div className="relative w-40 h-44 rounded-xl overflow-hidden border-2 border-border-strong bg-surface p-0.5 shadow-md pointer-events-none">
+        <div className="p-3.5 pt-3 pb-4 flex flex-col items-center text-center">
+          {/* Large Portrait Photo */}
+          <div className="relative w-32 h-36 rounded-xl overflow-hidden border-2 border-border-strong bg-surface p-0.5 shadow-md pointer-events-none">
             <Image
               src={profile.photo || "/images/profile.jpg"}
               alt={profile.photoAlt}
-              width={160}
-              height={176}
+              width={128}
+              height={144}
               draggable={false}
               className="size-full object-cover rounded-[10px] select-none"
               priority
@@ -298,15 +309,15 @@ export function LanyardBadge() {
           </div>
 
           {/* Full Name */}
-          <h3 className="mt-4 font-bold text-sm leading-tight tracking-tight text-text">
+          <h3 className="mt-3 font-bold text-xs leading-tight tracking-tight text-text">
             Johannes De Deo Dimas Aryobimo
           </h3>
 
           {/* Department & University */}
-          <p className="mt-1.5 text-xs font-medium text-text">
+          <p className="mt-1 text-[11px] font-medium text-text">
             Information Engineering
           </p>
-          <p className="mt-0.5 text-[11px] text-muted">
+          <p className="mt-0.5 text-[10px] text-muted">
             {profile.education.school}
           </p>
         </div>
@@ -314,11 +325,11 @@ export function LanyardBadge() {
 
       {/* Subtle Drag Hint */}
       {!hasInteracted ? (
-        <span className="mt-3 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse">
-          ↕ drag or pull lanyard
+        <span className="mt-2.5 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse">
+          ↕ drag or swing badge
         </span>
       ) : (
-        <span className="mt-3 text-[10px] font-mono tracking-wider text-transparent select-none">
+        <span className="mt-2.5 text-[10px] font-mono tracking-wider text-transparent select-none">
           ·
         </span>
       )}

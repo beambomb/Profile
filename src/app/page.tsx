@@ -11,8 +11,8 @@ import { Contact } from "@/components/sections/Contact";
 export default function Home() {
   return (
     <div id="top" className="min-h-screen bg-bg text-text relative selection:bg-accent/30 selection:text-text transition-colors duration-300">
-      {/* Centered Expansive Container - Fully utilizes screen width matching Header max-w-7xl */}
-      <main id="main" className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-16 py-6 sm:py-10">
+      {/* Centered Expansive Container: pt-0 ensures Lanyard anchors flush to the top header border */}
+      <main id="main" className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-16 pt-0 pb-10 sm:pb-14">
         <Hero />
         <Projects />
         <EducationSection />
