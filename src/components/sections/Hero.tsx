@@ -70,7 +70,7 @@ export function Hero() {
       <span className="sr-only">{profile.education.school}</span>
 
       {/* Hero Layout: Centered vertical alignment between left narrative and right 3D badge */}
-      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 min-h-[480px] overflow-visible">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 min-h-[480px] overflow-visible">
         {/* Left Column: Centered vertically */}
         <div className="flex-1 min-w-0 py-6 sm:py-8 flex flex-col justify-center">
           <h1

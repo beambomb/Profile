@@ -22,11 +22,11 @@ export function LanyardBadge() {
 
   return (
     <div
-      className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[430px] sm:h-[460px] lg:h-[480px] z-40 overflow-visible"
+      className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[430px] sm:h-[460px] lg:h-[480px] z-20 overflow-visible"
       aria-label="Interactive 3D Physics Lanyard Pass"
     >
       {mounted && hasWebgl ? (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1800px] max-w-none h-[430px] sm:h-[460px] lg:h-[480px] pointer-events-none z-50 overflow-visible flex justify-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1800px] max-w-none h-[430px] sm:h-[460px] lg:h-[480px] pointer-events-none z-20 overflow-visible flex justify-center">
           <Lanyard
             frontImage="/images/card-front.png"
             backImage="/images/card-back.png"
