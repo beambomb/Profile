@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cv, profile, socials } from "@content";
@@ -11,6 +10,7 @@ import {
   LinkedinIcon,
   MailIcon,
 } from "@/components/ui/Icons";
+import { LanyardBadge } from "@/components/ui/LanyardBadge";
 
 function useTypewriter(word = "Bimo") {
   const [text, setText] = useState("");
@@ -49,7 +49,7 @@ export function Hero() {
   const displayedName = useTypewriter("Bimo");
 
   return (
-    <section id="profile" className="relative scroll-mt-20 pt-4 pb-10 sm:pb-14 border-b border-border">
+    <section id="profile" className="relative scroll-mt-20 pt-4 pb-12 sm:pb-16 border-b border-border">
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
@@ -59,10 +59,11 @@ export function Hero() {
       <p className="sr-only">{profile.tagline}</p>
       <span className="sr-only">{profile.education.school}</span>
 
-      {/* Editorial Hero Layout: Natural flow without bento grid or nested cards */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-6 sm:gap-8">
+      {/* Hero Layout: Editorial narrative on the left, Interactive Lanyard Badge on the right */}
+      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
+        {/* Left Column: Typography & Intent */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs sm:text-sm font-medium text-muted tracking-wide mb-2.5">
+          <p className="text-xs sm:text-sm font-medium text-muted tracking-wide mb-3">
             {profile.name}
           </p>
 
@@ -74,6 +75,7 @@ export function Hero() {
             <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-[1ch]">
               <span>Hi, I&apos;m</span>
               <span className="relative inline-grid grid-cols-1 grid-rows-1 text-accent border-b-2 sm:border-b-4 border-accent pb-0.5 sm:pb-1">
+                {/* Invisible ghost reserves width so underline never jumps */}
                 <span className="invisible col-start-1 row-start-1 select-none">Bimo</span>
                 <span className="col-start-1 row-start-1 inline-flex items-center">
                   <span>{displayedName}</span>
@@ -83,94 +85,74 @@ export function Hero() {
             </span>
           </h1>
 
-          {/* Abstracted Narrative: High signal, concise prose */}
-          <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted max-w-2xl text-pretty">
+          {/* Abstracted Narrative (No boilerplate, no emojis, pure substance) */}
+          <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted max-w-xl text-pretty">
             Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering. Active in student tech communities as an organizer and mentor.
           </p>
 
-          {/* Minimalist Typographic Metadata (No boxes, no bento grid) */}
-          <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted">
-            <span>📍 Yogyakarta, Indonesia</span>
-            <span className="text-border-strong">•</span>
-            <span>🎓 {profile.education.school} (&apos;28)</span>
-            <span className="text-border-strong">•</span>
-            <span>⚡ Software &amp; Data Systems</span>
-          </div>
-        </div>
+          {/* Action Buttons & Social Channels */}
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {cv.published ? (
+              <a
+                href={cv.path}
+                download={cv.fileName}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cta text-on-cta font-semibold text-xs sm:text-sm hover:bg-cta/90 transition-all shadow-md active:scale-95"
+              >
+                <DownloadIcon className="size-4 shrink-0" />
+                <span>Download CV</span>
+              </a>
+            ) : null}
 
-        {/* Clean Portrait Avatar */}
-        <div className="shrink-0 self-start sm:self-center">
-          <div className="relative size-20 sm:size-24 rounded-2xl overflow-hidden border border-border-strong bg-surface p-0.5 shadow-md transition-transform duration-300 hover:scale-105 hover:border-white/40">
-            <Image
-              src={profile.photo || "/images/profile.jpg"}
-              alt={profile.photoAlt}
-              width={96}
-              height={96}
-              className="size-full object-cover rounded-[14px]"
-              priority
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons & Social Channels */}
-      <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          {cv.published ? (
-            <a
-              href={cv.path}
-              download={cv.fileName}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cta text-on-cta font-semibold text-xs sm:text-sm hover:bg-cta/90 transition-all shadow-md active:scale-95"
+            <Link
+              href="/#contact"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface border border-border-strong text-text font-medium text-xs sm:text-sm hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95"
             >
-              <DownloadIcon className="size-4 shrink-0" />
-              <span>Download CV</span>
+              <MailIcon className="size-4 text-muted shrink-0" />
+              <span>Contact</span>
+            </Link>
+
+            <Link
+              href="/#projects"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-muted hover:text-accent transition-colors font-medium group"
+            >
+              <span>View Projects</span>
+              <ArrowRightIcon className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+
+          {/* Direct Social Links */}
+          <div className="mt-6 flex items-center gap-2">
+            <a
+              href={socials.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub Profile"
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+            >
+              <GithubIcon className="size-4" />
             </a>
-          ) : null}
-
-          <Link
-            href="/#contact"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface border border-border-strong text-text font-medium text-xs sm:text-sm hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95"
-          >
-            <MailIcon className="size-4 text-muted shrink-0" />
-            <span>Contact</span>
-          </Link>
-
-          <Link
-            href="/#projects"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-muted hover:text-accent transition-colors font-medium group"
-          >
-            <span>View Projects</span>
-            <ArrowRightIcon className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-          </Link>
+            <a
+              href={socials.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn Profile"
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+            >
+              <LinkedinIcon className="size-4" />
+            </a>
+            <a
+              href={`mailto:${socials.email}`}
+              aria-label="Email Johannes"
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+            >
+              <MailIcon className="size-4" />
+            </a>
+          </div>
         </div>
 
-        {/* Direct Social Links */}
-        <div className="flex items-center gap-2">
-          <a
-            href={socials.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub Profile"
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
-          >
-            <GithubIcon className="size-4" />
-          </a>
-          <a
-            href={socials.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn Profile"
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
-          >
-            <LinkedinIcon className="size-4" />
-          </a>
-          <a
-            href={`mailto:${socials.email}`}
-            aria-label="Email Johannes"
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
-          >
-            <MailIcon className="size-4" />
-          </a>
+        {/* Right Column: Elastic Interactive Lanyard Badge */}
+        <div className="shrink-0 flex justify-center lg:justify-end">
+          <LanyardBadge />
         </div>
       </div>
     </section>
