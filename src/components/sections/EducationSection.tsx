@@ -1,36 +1,48 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { profile } from "@content";
-import { ChevronDownIcon, GraduationCapIcon } from "@/components/ui/Icons";
+import { ChevronDownIcon } from "@/components/ui/Icons";
 
 export function EducationSection() {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <section id="education" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
-      {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
+    <section id="education" className="scroll-mt-20 py-8 sm:py-12 border-b border-border">
+      {/* Title (Retro Pixel Font) */}
       <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
         Academic Path
       </h2>
 
-      {/* Main Education Card */}
-      <div className="rounded-xl border border-border bg-surface p-6 sm:p-7 pixel-frame transition-all">
+      {/* Main Education Stream with UGM Logo */}
+      <div className="border-y border-border py-6">
         <div className="flex items-start gap-4 sm:gap-5">
-          {/* Institution Shield / Seal Icon */}
-          <div className="size-12 sm:size-14 rounded-md bg-accent/10 border border-accent/30 flex items-center justify-center shrink-0 shadow-inner">
-            <GraduationCapIcon className="size-6 text-accent" />
+          <div className="relative size-12 sm:size-14 shrink-0 rounded-xl overflow-hidden border border-border-strong bg-surface p-1 shadow-sm">
+            <Image
+              src="/images/academic/ugm.jpg"
+              alt="Universitas Gadjah Mada Logo"
+              width={56}
+              height={56}
+              className="size-full object-contain rounded-lg"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
-              {profile.education.school}
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+              <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
+                {profile.education.school}
+              </h3>
+              <span className="text-xs font-semibold text-accent shrink-0">
+                {profile.education.years}
+              </span>
+            </div>
+
             <p className="text-xs sm:text-sm text-text mt-1 font-medium">
               {profile.education.degree} · Class of 2024 – 2028
             </p>
-            <p className="text-xs text-muted mt-1 font-medium">
-              {profile.education.years} &nbsp;·&nbsp; Yogyakarta, Indonesia
+            <p className="text-xs text-muted mt-0.5">
+              Yogyakarta, Indonesia
             </p>
 
             {/* Toggle button */}
@@ -40,7 +52,7 @@ export function EducationSection() {
               aria-expanded={showDetails}
               className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline cursor-pointer transition-colors"
             >
-              <span>{showDetails ? "Hide details" : "Show details"}</span>
+              <span>{showDetails ? "Hide focus & coursework" : "View focus & coursework"}</span>
               <ChevronDownIcon
                 className={`size-3.5 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
               />
@@ -59,7 +71,7 @@ export function EducationSection() {
                 {profile.interests.map((interest) => (
                   <span
                     key={interest.label}
-                    className="inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium bg-surface-2 border border-border-strong text-text"
+                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-surface border border-border-strong text-text"
                   >
                     <strong className="text-accent mr-1.5">{interest.label}:</strong> {interest.items.join(", ")}
                   </span>

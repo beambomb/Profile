@@ -13,23 +13,39 @@ describe("ProjectsGrid", () => {
     }
   });
 
-  it("filters by area and reports the count", async () => {
+  it("navigates slides using pagination dots", async () => {
     const user = userEvent.setup();
     render(<ProjectsGrid projects={projects} domains={domains} />);
 
-    await user.click(screen.getByRole("button", { name: "Data" }));
-    const expected = projects.filter((p) => p.domain === "Data");
-    expect(screen.getByRole("button", { name: "Data" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("article")).toHaveLength(expected.length);
-    expect(screen.getByRole("status")).toHaveTextContent(`Showing ${expected.length} of ${projects.length}`);
-
-    await user.click(screen.getByRole("button", { name: "All" }));
-    expect(screen.getAllByRole("article")).toHaveLength(projects.length);
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+    const secondDot = screen.getByRole("button", { name: new RegExp(projects[1].title, "i") });
+    await user.click(secondDot);
+    expect(screen.getByText("02 / 05")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(`Showing project 2 of ${projects.length}: ${projects[1].title}`);
   });
 
   it("labels each technology list for assistive tech", () => {
     render(<ProjectsGrid projects={projects} domains={domains} />);
     const first = screen.getAllByRole("article")[0];
     expect(within(first).getByRole("list", { name: /technologies/i })).toBeInTheDocument();
+  });
+
+  it("navigates slides using next and previous buttons", async () => {
+    const user = userEvent.setup();
+    render(<ProjectsGrid projects={projects} domains={domains} />);
+
+    // Initially at slide 01 / 05
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+
+    const nextBtn = screen.getByRole("button", { name: /Next project/i });
+    const prevBtn = screen.getByRole("button", { name: /Previous project/i });
+
+    // Click next -> 02 / 05
+    await user.click(nextBtn);
+    expect(screen.getByText("02 / 05")).toBeInTheDocument();
+
+    // Click prev -> 01 / 05
+    await user.click(prevBtn);
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
   });
 });

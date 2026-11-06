@@ -5,7 +5,6 @@ const allItems = [
   { label: "Projects", href: "/#projects" },
   { label: "Education", href: "/#education" },
   { label: "Experience", href: "/#experience" },
-  { label: "Competitions", href: "/#competitions" },
   { label: "Skills", href: "/#skills" },
   { label: "Certificates", href: "/#certificates" },
   { label: "Contact", href: "/#contact" },

@@ -1,52 +1,90 @@
 "use client";
 
 import { profile } from "@content";
-import { BriefcaseIcon } from "@/components/ui/Icons";
 
 export function ExperienceSection() {
   return (
-    <section id="experience" className="scroll-mt-20 py-8 sm:py-10 border-b border-border">
-      {/* Title (Retro Pixel Font, No Label, No Subtitle) */}
-      <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-6">
-        Organizational and Committee Experience
+    <section id="experience" className="scroll-mt-20 py-8 sm:py-12 border-b border-border">
+      {/* Title (Retro Pixel Font) */}
+      <h2 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-wide text-text mb-8">
+        Experience
       </h2>
 
-      {/* Experience Cards */}
-      <div className="space-y-5">
-        {profile.experience.map((item) => (
-          <div
-            key={item.organization}
-            className="rounded-xl border border-border bg-surface p-6 sm:p-7 pixel-frame transition-all"
-          >
-            <div className="flex items-start gap-4">
-              <div className="size-11 sm:size-12 rounded-md bg-accent/10 border border-accent/30 flex items-center justify-center shrink-0 shadow-inner">
-                <BriefcaseIcon className="size-5 text-accent" />
+      {/* Subsection 1: Organizational and Committee Experience */}
+      <div>
+        <h3 className="flex items-center gap-2.5 text-sm sm:text-base font-bold text-accent mb-4 uppercase tracking-wider font-mono">
+          <span aria-hidden="true" className="text-accent text-base select-none shrink-0 font-bold">▸</span>
+          <span>Organizational and Committee Experience</span>
+        </h3>
+
+        <div className="divide-y divide-border border-y border-border">
+          {profile.experience.map((item) => (
+            <div
+              key={item.organization}
+              className="py-5 sm:py-6 -mx-3 px-3 rounded-lg transition-colors hover:bg-surface/30"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                <h4 className="text-base sm:text-lg font-bold text-text leading-tight">
+                  {item.role}
+                </h4>
+                <span className="text-xs font-semibold text-accent shrink-0">
+                  {item.period}
+                </span>
               </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                  <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
-                    {item.role}
-                  </h3>
-                  <span className="text-xs font-semibold text-accent shrink-0">
-                    {item.period}
-                  </span>
+              <p className="text-xs sm:text-sm font-medium text-muted mt-1">
+                {item.organization}
+              </p>
+
+              <ul className="mt-3.5 space-y-2 text-xs sm:text-sm text-muted leading-relaxed">
+                {item.points.map((point) => (
+                  <li key={point} className="flex items-start gap-2.5">
+                    <span aria-hidden="true" className="text-accent/80 shrink-0 mt-0.5 text-[11px] select-none">▸</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Subsection 2: Competitions and Awards */}
+      {profile.achievements && profile.achievements.length > 0 ? (
+        <div className="mt-12">
+          {/* Preserves deep link & test target */}
+          <span id="competitions" className="sr-only" />
+
+          <h3 className="flex items-center gap-2.5 text-sm sm:text-base font-bold text-accent mb-4 uppercase tracking-wider font-mono">
+            <span aria-hidden="true" className="text-accent text-base select-none shrink-0 font-bold">▸</span>
+            <span>Competitions and Awards</span>
+          </h3>
+
+          <div className="divide-y divide-border border-y border-border">
+            {profile.achievements.map((ach) => (
+              <div
+                key={ach.title}
+                className="py-4 sm:py-5 -mx-3 px-3 rounded-lg transition-colors hover:bg-surface/30"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                  <h4 className="text-sm sm:text-base font-bold text-text leading-tight">
+                    {ach.title}
+                  </h4>
+                  {ach.date ? (
+                    <span className="text-xs font-semibold text-accent shrink-0">
+                      {ach.date}
+                    </span>
+                  ) : null}
                 </div>
 
-                <p className="text-xs sm:text-sm text-text font-medium mt-1">
-                  {item.organization}
+                <p className="mt-1.5 text-xs sm:text-sm text-muted leading-relaxed">
+                  {ach.detail}
                 </p>
-
-                <ul className="mt-3.5 space-y-2 text-xs sm:text-sm text-muted list-disc pl-5 leading-relaxed">
-                  {item.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

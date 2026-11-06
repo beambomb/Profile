@@ -1,18 +1,49 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Project, ProjectDomain, ProjectScreenshot } from "@content";
-import { ArrowRightIcon, CloseIcon, ExternalLinkIcon, MinusIcon, PlusIcon } from "@/components/ui/Icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CloseIcon,
+  ExternalLinkIcon,
+} from "@/components/ui/Icons";
 import { Tag, TagList } from "@/components/ui/Tag";
 
-type Filter = "All" | ProjectDomain;
-
-export function ProjectsGrid({ projects, domains }: { projects: Project[]; domains: ProjectDomain[] }) {
-  const [filter, setFilter] = useState<Filter>("All");
-  const [expandedSlugs, setExpandedSlugs] = useState<Record<string, boolean>>({});
+export function ProjectsGrid({
+  projects,
+  domains: _domains,
+}: {
+  projects: Project[];
+  domains?: ProjectDomain[];
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [activeScreenshot, setActiveScreenshot] = useState<ProjectScreenshot | null>(null);
+
+  const visible = projects;
+
+  // Safe slide navigation with cycling
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? visible.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === visible.length - 1 ? 0 : prev + 1));
+  };
+
+  // Keyboard navigation when user interacts with carousel
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      prevSlide();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      nextSlide();
+    }
+  };
 
   const openPreview = (ss: ProjectScreenshot) => {
     setActiveScreenshot(ss);
@@ -24,200 +55,238 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
     setActiveScreenshot(null);
   };
 
-  const visible = useMemo(
-    () => (filter === "All" ? projects : projects.filter((p) => p.domain === filter)),
-    [filter, projects],
-  );
-
-  const filters: Filter[] = ["All", ...domains];
-
-  const toggleExpand = (slug: string) => {
-    setExpandedSlugs((prev) => ({
-      ...prev,
-      [slug]: !prev[slug],
-    }));
-  };
+  const currentProject = visible[currentIndex] || visible[0];
 
   return (
-    <div>
-      {/* Category Filter Pills */}
-      <div role="group" aria-label="Filter projects by area" className="flex flex-wrap gap-2.5 mb-6">
-        {filters.map((name) => {
-          const active = filter === name;
-          return (
-            <button
-              key={name}
-              type="button"
-              aria-pressed={active}
-              onClick={() => setFilter(name)}
-              className={`inline-flex items-center px-3.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all duration-150 ${
-                active
-                  ? "border-2 border-accent bg-accent/15 text-accent shadow-sm"
-                  : "border border-border-strong bg-surface text-muted hover:border-accent hover:text-accent"
-              }`}
-            >
-              {name}
-            </button>
-          );
-        })}
-      </div>
-
+    <div onKeyDown={handleKeyDown}>
       {/* Accessible Status */}
       <p className="sr-only" role="status" aria-live="polite">
-        Showing {visible.length} of {projects.length}
+        Showing project {currentIndex + 1} of {projects.length}: {currentProject?.title}
       </p>
 
-      {/* Projects Accordion Rows */}
-      <div className="divide-y divide-border border-t border-b border-border">
-        {visible.map((project, i) => {
-          const indexNum = String(i + 1).padStart(2, "0");
-          const isExpanded = Boolean(expandedSlugs[project.slug]);
+      {/* Retro Console Horizontal Carousel Container */}
+      <div
+        className="relative rounded-2xl border border-border-strong bg-[#090909] overflow-hidden shadow-2xl focus-visible:outline-accent"
+        tabIndex={0}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Featured projects carousel"
+        onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchStart === null) return;
+          const touchEnd = e.changedTouches[0].clientX;
+          const diff = touchStart - touchEnd;
+          if (diff > 45) nextSlide();
+          else if (diff < -45) prevSlide();
+          setTouchStart(null);
+        }}
+      >
+        {/* Top Console Bar: Index Counter, Domain, Period, and Navigation Controls */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <span className="font-pixel text-xs sm:text-sm text-accent font-bold tracking-wider shrink-0">
+              {String(currentIndex + 1).padStart(2, "0")} / {String(visible.length).padStart(2, "0")}
+            </span>
+            <span className="text-border-strong text-xs shrink-0">•</span>
+            <span className="px-2.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono tracking-wider uppercase font-semibold bg-surface border border-border-strong text-muted shrink-0">
+              {currentProject?.domain}
+            </span>
+            <span className="text-xs text-muted/60 hidden md:inline truncate">
+              {currentProject?.period}
+            </span>
+          </div>
 
-          return (
-            <article
-              key={project.slug}
-              className="group py-4 sm:py-5 transition-colors duration-150 hover:bg-surface-2/40 -mx-3 px-3 sm:-mx-4 sm:px-4 rounded-lg"
+          {/* Navigation Controls: Prev Button, Dot Indicators, Next Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={prevSlide}
+              aria-label="Previous project"
+              className="size-8 sm:size-9 rounded-lg border border-border-strong bg-surface flex items-center justify-center text-text hover:border-accent hover:text-accent hover:bg-surface-2 transition-all cursor-pointer active:scale-95 shadow-sm"
             >
-              {/* Row Header (Number, Title, Domain, Year, Expand Button) */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-baseline gap-4 sm:gap-6 min-w-0">
-                  <span className="font-pixel text-[10px] text-accent shrink-0 select-none">
-                    {indexNum}
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="text-base sm:text-lg font-bold text-text group-hover:text-accent transition-colors">
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        className="hover:underline focus-visible:outline-accent"
-                      >
-                        {project.title}
-                      </Link>
-                    </h3>
-                  </div>
-                </div>
+              <ArrowLeftIcon className="size-4" />
+            </button>
 
-                <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-                  <span className="hidden md:inline-block text-xs sm:text-sm text-muted truncate max-w-[220px]">
-                    {project.oneLiner}
-                  </span>
-                  <span className="text-xs text-muted font-medium shrink-0">
-                    {project.period.split(" ").pop()}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => toggleExpand(project.slug)}
-                    aria-expanded={isExpanded}
-                    aria-label={`Toggle details for ${project.title}`}
-                    className="size-8 rounded-md border border-border-strong bg-surface flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all cursor-pointer active:scale-90"
-                  >
-                    {isExpanded ? <MinusIcon className="size-4" /> : <PlusIcon className="size-4" />}
-                  </button>
-                </div>
-              </div>
+            {/* Pagination Dots (clickable) */}
+            <div className="flex items-center gap-1 sm:gap-1.5 px-1 sm:px-2" role="group" aria-label="Slide indicators">
+              {visible.map((p, idx) => (
+                <button
+                  key={p.slug}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                  aria-current={idx === currentIndex ? "true" : undefined}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentIndex
+                      ? "w-5 sm:w-6 bg-accent"
+                      : "w-1.5 sm:w-2 bg-border-strong hover:bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
 
-              {/* Expandable Details Container */}
-              {isExpanded ? (
-                <div className="mt-4 pt-4 border-t border-border pl-6 sm:pl-9 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
-                  {project.award ? (
-                    <div className="inline-flex items-center rounded-sm bg-cta/15 border border-cta/40 px-3 py-1 text-gold text-xs font-semibold">
-                      <span>{project.award}</span>
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Next project"
+              className="size-8 sm:size-9 rounded-lg border border-border-strong bg-surface flex items-center justify-center text-text hover:border-accent hover:text-accent hover:bg-surface-2 transition-all cursor-pointer active:scale-95 shadow-sm"
+            >
+              <ArrowRightIcon className="size-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel Slide Track with Smooth Horizontal Slide Transition */}
+        <div className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {visible.map((project, i) => {
+              const primaryScreenshot = project.screenshots?.[0];
+
+              return (
+                <article
+                  key={project.slug}
+                  className="w-full shrink-0 p-5 sm:p-7 lg:p-9"
+                  aria-roledescription="slide"
+                  aria-label={`${i + 1} of ${visible.length}: ${project.title}`}
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+                    {/* Left Column: Full Project Narrative, Problem/Solution, Tech Tags, and CTAs */}
+                    <div className="lg:col-span-7 flex flex-col justify-center min-w-0">
+                      {project.award ? (
+                        <div className="mb-3 inline-flex items-center gap-1.5 rounded bg-cta/15 border border-cta/40 px-3 py-1 text-gold text-xs font-semibold w-fit">
+                          <span>🏆</span>
+                          <span>{project.award}</span>
+                        </div>
+                      ) : null}
+
+                      {/* Project Title */}
+                      <h3 className="font-pixel text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-text leading-snug">
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          className="hover:text-accent transition-colors focus-visible:outline-accent"
+                        >
+                          {project.title}
+                        </Link>
+                      </h3>
+
+                      {/* Plain-English One-Liner Summary */}
+                      <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-muted font-normal text-pretty">
+                        {project.oneLiner}
+                      </p>
+
+                      {/* Problem & Solution Snapshot Box */}
+                      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#111111] border border-border p-3.5 rounded-xl shadow-inner">
+                        <div>
+                          <span className="font-mono text-[10px] uppercase font-bold text-accent tracking-wider block mb-1">
+                            Problem
+                          </span>
+                          <p className="text-text/90 line-clamp-3 leading-relaxed">
+                            {project.problem[0]}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-mono text-[10px] uppercase font-bold text-accent tracking-wider block mb-1">
+                            Solution &amp; Results
+                          </span>
+                          <p className="text-text/90 line-clamp-3 leading-relaxed">
+                            {project.results ? project.results[0] : project.solution[0]}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Technologies Tag List */}
+                      <div className="mt-5">
+                        <TagList label={`${project.title} technologies`}>
+                          {project.tags.map((tag) => (
+                            <Tag key={tag}>{tag}</Tag>
+                          ))}
+                        </TagList>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-6 flex flex-wrap items-center gap-3">
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cta text-on-cta font-semibold text-xs sm:text-sm hover:bg-cta/90 transition-all shadow-md active:scale-95 cursor-pointer"
+                        >
+                          <span>Read Case Study</span>
+                          <ArrowRightIcon className="size-4" />
+                        </Link>
+
+                        <a
+                          href={project.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface border border-border-strong text-text font-medium text-xs sm:text-sm hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95 cursor-pointer"
+                        >
+                          <span>Source Code</span>
+                          <ExternalLinkIcon className="size-4 text-muted" />
+                        </a>
+                      </div>
                     </div>
-                  ) : null}
 
-                  <p className="text-sm text-text leading-relaxed max-w-2xl">
-                    {project.oneLiner}
-                  </p>
-
-                  {/* Screenshots preview if available (uncropped, clean, responsive) */}
-                  {project.screenshots && project.screenshots.length > 0 ? (
-                    <div className="pt-1">
-                      <div
-                        className={`grid gap-3 ${
-                          project.screenshots.length > 2
-                            ? "grid-cols-2 sm:grid-cols-4"
-                            : "grid-cols-1 sm:grid-cols-2"
-                        } max-w-3xl`}
-                      >
-                        {project.screenshots.map((ss) => (
+                    {/* Right Column: 1 Featured High-Res Project Screenshot */}
+                    <div className="lg:col-span-5 flex flex-col justify-center">
+                      {primaryScreenshot ? (
+                        <div className="relative group/ss">
                           <button
-                            key={ss.src}
                             type="button"
-                            onClick={() => openPreview(ss)}
-                            className="group/ss text-left overflow-hidden rounded-lg border border-border-strong bg-surface-2 p-1.5 transition-all hover:border-accent hover:shadow-md cursor-pointer active:scale-[0.99]"
+                            onClick={() => openPreview(primaryScreenshot)}
+                            className="w-full text-left rounded-xl overflow-hidden border border-border-strong bg-[#030303] p-1.5 transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/10 cursor-pointer block focus-visible:outline-accent active:scale-[0.99]"
                             aria-haspopup="dialog"
-                            aria-label={`View full screenshot: ${ss.alt}`}
+                            aria-label={`View full screenshot: ${primaryScreenshot.alt}`}
                           >
-                            <div className="overflow-hidden rounded border border-border/60 bg-bg/90">
+                            {/* Browser Mockup Header */}
+                            <div className="flex items-center justify-between px-3 py-1.5 bg-[#121212] border-b border-border/80 rounded-t-lg mb-1 select-none">
+                              <div className="flex items-center gap-1.5">
+                                <span className="size-2 rounded-full bg-border-strong" />
+                                <span className="size-2 rounded-full bg-border-strong" />
+                                <span className="size-2 rounded-full bg-border-strong" />
+                              </div>
+                              <span className="text-[10px] font-mono text-muted/60 truncate max-w-[140px] sm:max-w-[200px]">
+                                {project.slug}.local
+                              </span>
+                              <span className="text-[10px] font-mono text-accent/80 hover:text-accent">
+                                🔍 Zoom
+                              </span>
+                            </div>
+
+                            {/* Screenshot Image Container */}
+                            <div className="relative overflow-hidden rounded bg-black aspect-[16/10] flex items-center justify-center">
                               <img
-                                src={ss.src}
-                                alt={ss.alt}
-                                className="w-full h-auto object-contain transition-transform duration-300 group-hover/ss:scale-[1.02]"
+                                src={primaryScreenshot.src}
+                                alt={primaryScreenshot.alt}
+                                className="w-full h-full object-cover sm:object-contain transition-transform duration-500 group-hover/ss:scale-[1.03]"
                                 loading="lazy"
                               />
                             </div>
+
+                            {/* Caption */}
+                            {primaryScreenshot.caption ? (
+                              <p className="mt-2 text-[11px] font-mono text-muted/70 text-center truncate px-2 select-none">
+                                {primaryScreenshot.caption}
+                              </p>
+                            ) : null}
                           </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {/* Problem & Solution Snapshot */}
-                  <div className="grid gap-3 sm:grid-cols-2 text-xs text-muted max-w-3xl bg-surface-2 border border-border p-3.5 rounded-md">
-                    <div>
-                      <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Problem</p>
-                      <p className="text-text">{project.problem[0]}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Solution</p>
-                      <p className="text-text">{project.solution[0]}</p>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-border-strong p-8 text-center text-muted text-xs font-mono">
+                          No preview screenshot available
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  {/* Technologies tag list */}
-                  <div>
-                    <TagList label={`${project.title} technologies`}>
-                      {project.tags.map((tag) => (
-                        <Tag key={tag}>{tag}</Tag>
-                      ))}
-                    </TagList>
-                  </div>
-
-                  {/* Action links */}
-                  <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-medium">
-                    <Link
-                      href={`/projects/${project.slug}`}
-                      className="inline-flex items-center gap-1.5 text-accent hover:underline transition-colors"
-                    >
-                      <span>Read Case Study</span>
-                      <ArrowRightIcon className="size-3.5" />
-                    </Link>
-                    <a
-                      href={project.repoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-muted hover:text-accent transition-colors"
-                    >
-                      <span>Source Code</span>
-                      <ExternalLinkIcon className="size-3.5" />
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                /* Hidden tech list when collapsed to preserve assistive tech testing */
-                <div className="sr-only">
-                  <TagList label={`${project.title} technologies`}>
-                    {project.tags.map((tag) => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </TagList>
-                </div>
-              )}
-            </article>
-          );
-        })}
+                </article>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Lightbox Modal Dialog for full-size screenshot preview */}
+      {/* Lightbox Modal Dialog for Full-size Screenshot Preview */}
       <dialog
         ref={dialogRef}
         onClose={() => setActiveScreenshot(null)}
@@ -228,7 +297,10 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
       >
         {activeScreenshot ? (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-end border-b border-border pb-2.5">
+            <div className="flex items-center justify-between border-b border-border pb-2.5">
+              <span className="text-xs font-mono text-muted truncate max-w-[70vw]">
+                {activeScreenshot.caption || activeScreenshot.alt}
+              </span>
               <button
                 type="button"
                 onClick={closePreview}

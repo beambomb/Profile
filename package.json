@@ -15,9 +15,11 @@
     "validate:content": "vitest --run content"
   },
   "dependencies": {
+    "@types/three": "^0.187.0",
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "three": "^0.187.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
