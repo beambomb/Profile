@@ -86,11 +86,6 @@ export function LanyardBadge() {
         <p>{profile.education.school}</p>
         <p>UGM Student Pass</p>
       </div>
-
-      {/* Subtle Hint positioned gracefully under the badge */}
-      <span className="mt-2 text-[10px] font-mono tracking-wider text-muted/50 select-none pointer-events-none">
-        ↕ drag or click to flip
-      </span>
     </div>
   );
 }
