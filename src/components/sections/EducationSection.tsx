@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { profile } from "@content";
 import { ChevronDownIcon } from "@/components/ui/Icons";
@@ -14,36 +15,50 @@ export function EducationSection() {
         Academic Path
       </h2>
 
-      {/* Main Education Stream: Clean typography without icon-in-a-box */}
+      {/* Main Education Stream with UGM Logo */}
       <div className="border-y border-border py-6">
-        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-          <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
-            {profile.education.school}
-          </h3>
-          <span className="text-xs font-semibold text-accent shrink-0">
-            {profile.education.years}
-          </span>
+        <div className="flex items-start gap-4 sm:gap-5">
+          <div className="relative size-12 sm:size-14 shrink-0 rounded-xl overflow-hidden border border-border-strong bg-surface p-1 shadow-sm">
+            <Image
+              src="/images/academic/ugm.jpg"
+              alt="Universitas Gadjah Mada Logo"
+              width={56}
+              height={56}
+              className="size-full object-contain rounded-lg"
+            />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+              <h3 className="text-base sm:text-lg font-bold text-text leading-tight">
+                {profile.education.school}
+              </h3>
+              <span className="text-xs font-semibold text-accent shrink-0">
+                {profile.education.years}
+              </span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-text mt-1 font-medium">
+              {profile.education.degree} · Class of 2024 – 2028
+            </p>
+            <p className="text-xs text-muted mt-0.5">
+              Yogyakarta, Indonesia
+            </p>
+
+            {/* Toggle button */}
+            <button
+              type="button"
+              onClick={() => setShowDetails((v) => !v)}
+              aria-expanded={showDetails}
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline cursor-pointer transition-colors"
+            >
+              <span>{showDetails ? "Hide focus & coursework" : "View focus & coursework"}</span>
+              <ChevronDownIcon
+                className={`size-3.5 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
+              />
+            </button>
+          </div>
         </div>
-
-        <p className="text-xs sm:text-sm text-text mt-1 font-medium">
-          {profile.education.degree} · Class of 2024 – 2028
-        </p>
-        <p className="text-xs text-muted mt-0.5">
-          Yogyakarta, Indonesia
-        </p>
-
-        {/* Toggle button */}
-        <button
-          type="button"
-          onClick={() => setShowDetails((v) => !v)}
-          aria-expanded={showDetails}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline cursor-pointer transition-colors"
-        >
-          <span>{showDetails ? "Hide focus & coursework" : "View focus & coursework"}</span>
-          <ChevronDownIcon
-            className={`size-3.5 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
-          />
-        </button>
 
         {/* Expandable Academic Details */}
         {showDetails ? (

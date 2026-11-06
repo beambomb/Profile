@@ -13,7 +13,8 @@ import {
 import { LanyardBadge } from "@/components/ui/LanyardBadge";
 
 function useTypewriter(word = "Bimo") {
-  const [text, setText] = useState("");
+  // Start with full word so heading is never blank on mount or SSR
+  const [text, setText] = useState(word);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -25,13 +26,13 @@ function useTypewriter(word = "Bimo") {
     let timer: NodeJS.Timeout;
 
     if (!isDeleting && text === word) {
-      // Pause at full word for 3.5s
-      timer = setTimeout(() => setIsDeleting(true), 3500);
+      // Pause at full word for 4s before retyping
+      timer = setTimeout(() => setIsDeleting(true), 4000);
     } else if (isDeleting && text === "") {
-      // Pause empty for 400ms then retype
-      timer = setTimeout(() => setIsDeleting(false), 400);
+      // Short pause when erased then type in immediately
+      timer = setTimeout(() => setIsDeleting(false), 300);
     } else {
-      const speed = isDeleting ? 75 : 140;
+      const speed = isDeleting ? 75 : 130;
       timer = setTimeout(() => {
         setText((curr) =>
           isDeleting ? word.slice(0, curr.length - 1) : word.slice(0, curr.length + 1)
@@ -48,8 +49,17 @@ function useTypewriter(word = "Bimo") {
 export function Hero() {
   const displayedName = useTypewriter("Bimo");
 
+  const scrollToProjects = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById("projects");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      window.history.pushState(null, "", "/#projects");
+    }
+  };
+
   return (
-    <section id="profile" className="relative scroll-mt-20 pt-4 pb-12 sm:pb-16 border-b border-border">
+    <section id="profile" className="relative scroll-mt-20 pt-2 pb-12 sm:pb-16 border-b border-border">
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
@@ -59,10 +69,10 @@ export function Hero() {
       <p className="sr-only">{profile.tagline}</p>
       <span className="sr-only">{profile.education.school}</span>
 
-      {/* Hero Layout: Editorial narrative on the left, Interactive Lanyard Badge on the right */}
-      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
+      {/* Hero Layout: Editorial narrative on the left, Hanging Elastic Lanyard on the right */}
+      <div className="flex flex-col-reverse lg:flex-row lg:items-start lg:justify-between gap-8 lg:gap-14">
         {/* Left Column: Typography & Intent */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pt-2 sm:pt-4">
           <p className="text-xs sm:text-sm font-medium text-muted tracking-wide mb-3">
             {profile.name}
           </p>
@@ -113,7 +123,8 @@ export function Hero() {
 
             <Link
               href="/#projects"
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-muted hover:text-accent transition-colors font-medium group"
+              onClick={scrollToProjects}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-muted hover:text-accent transition-colors font-medium group cursor-pointer"
             >
               <span>View Projects</span>
               <ArrowRightIcon className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -150,7 +161,7 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right Column: Elastic Interactive Lanyard Badge */}
+        {/* Right Column: Elastic Interactive Hanging Lanyard Badge */}
         <div className="shrink-0 flex justify-center lg:justify-end">
           <LanyardBadge />
         </div>

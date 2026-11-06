@@ -97,9 +97,6 @@ export function ProjectsGrid({ projects, domains }: { projects: Project[]; domai
                 </div>
 
                 <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-                  <span className="hidden md:inline-block text-xs sm:text-sm text-muted truncate max-w-[220px]">
-                    {project.oneLiner}
-                  </span>
                   <span className="text-xs text-muted font-medium shrink-0">
                     {project.period.split(" ").pop()}
                   </span>

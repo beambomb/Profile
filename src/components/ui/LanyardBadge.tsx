@@ -23,10 +23,9 @@ export function LanyardBadge() {
   // Physics animation state
   const posRef = useRef<Point>({ x: 0, y: 0 });
   const velRef = useRef<Velocity>({ vx: 0, vy: 0 });
-  const dragStartRef = useRef<Point>({ x: 0, y: 0 });
-  const initialPosRef = useRef<Point>({ x: 0, y: 0 });
   const isDraggingRef = useRef(false);
   const animFrameRef = useRef<number | null>(null);
+  const idleAnimRef = useRef<number | null>(null);
 
   // Check prefers-reduced-motion
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -41,11 +40,11 @@ export function LanyardBadge() {
     }
   }, []);
 
+  // Spring physics loop upon release
   const runPhysics = useCallback(() => {
     if (isDraggingRef.current) return;
 
-    // Spring physics constants
-    const stiffness = 0.085;
+    const stiffness = 0.09;
     const damping = 0.82;
 
     const fx = -stiffness * posRef.current.x;
@@ -59,12 +58,12 @@ export function LanyardBadge() {
 
     setPos({ x: posRef.current.x, y: posRef.current.y });
 
-    // Continue running until velocity and position settle close to 0
+    // Continue until settled
     if (
-      Math.abs(posRef.current.x) > 0.05 ||
-      Math.abs(posRef.current.y) > 0.05 ||
-      Math.abs(velRef.current.vx) > 0.05 ||
-      Math.abs(velRef.current.vy) > 0.05
+      Math.abs(posRef.current.x) > 0.1 ||
+      Math.abs(posRef.current.y) > 0.1 ||
+      Math.abs(velRef.current.vx) > 0.1 ||
+      Math.abs(velRef.current.vy) > 0.1
     ) {
       animFrameRef.current = requestAnimationFrame(runPhysics);
     } else {
@@ -75,17 +74,39 @@ export function LanyardBadge() {
     }
   }, []);
 
+  // Idle gentle pendulum sway before interaction
+  useEffect(() => {
+    if (prefersReducedMotion || hasInteracted) return;
+
+    let startTime = performance.now();
+    const idleLoop = (now: number) => {
+      if (isDraggingRef.current || hasInteracted) return;
+      const elapsed = (now - startTime) / 1000;
+      // Gentle sway of ~3px and ~1.5deg
+      const swayX = Math.sin(elapsed * 2.2) * 3.5;
+      const swayY = Math.abs(Math.sin(elapsed * 2.2)) * 1.5;
+      posRef.current = { x: swayX, y: swayY };
+      setPos({ x: swayX, y: swayY });
+      idleAnimRef.current = requestAnimationFrame(idleLoop);
+    };
+
+    idleAnimRef.current = requestAnimationFrame(idleLoop);
+    return () => {
+      if (idleAnimRef.current) cancelAnimationFrame(idleAnimRef.current);
+    };
+  }, [hasInteracted, prefersReducedMotion]);
+
+  // Bulletproof Drag Handling on Window
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (prefersReducedMotion) return;
 
+    // Prevent text selection & default dragging
     e.preventDefault();
-    e.stopPropagation();
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {
-      // Ignore if pointer capture fails
-    }
 
+    if (idleAnimRef.current) {
+      cancelAnimationFrame(idleAnimRef.current);
+      idleAnimRef.current = null;
+    }
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -95,129 +116,128 @@ export function LanyardBadge() {
     setIsDragging(true);
     setHasInteracted(true);
 
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    initialPosRef.current = { ...posRef.current };
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startPos = { ...posRef.current };
     velRef.current = { vx: 0, vy: 0 };
-  };
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || prefersReducedMotion) return;
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      if (!isDraggingRef.current) return;
+      moveEvent.preventDefault();
 
-    const deltaX = e.clientX - dragStartRef.current.x;
-    const deltaY = e.clientY - dragStartRef.current.y;
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
 
-    // Rubber-band resistance
-    const rawX = initialPosRef.current.x + deltaX * 0.75;
-    const rawY = initialPosRef.current.y + deltaY * 0.75;
+      // Elastic resistance
+      const rawX = startPos.x + deltaX * 0.85;
+      const rawY = startPos.y + deltaY * 0.85;
 
-    // Clamping: max sideways ±90px, max downward 120px, max upward -25px
-    const clampedX = Math.max(-90, Math.min(90, rawX));
-    const clampedY = Math.max(-25, Math.min(130, rawY));
+      // Allow generous movement: ±140px sideways, up to 180px down, -25px up
+      const clampedX = Math.max(-140, Math.min(140, rawX));
+      const clampedY = Math.max(-25, Math.min(180, rawY));
 
-    // Approximate velocity
-    velRef.current = {
-      vx: (clampedX - posRef.current.x) * 0.5,
-      vy: (clampedY - posRef.current.y) * 0.5,
+      velRef.current = {
+        vx: (clampedX - posRef.current.x) * 0.5,
+        vy: (clampedY - posRef.current.y) * 0.5,
+      };
+
+      posRef.current = { x: clampedX, y: clampedY };
+      setPos({ x: clampedX, y: clampedY });
     };
 
-    posRef.current = { x: clampedX, y: clampedY };
-    setPos({ x: clampedX, y: clampedY });
-  };
+    const onPointerUp = () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || prefersReducedMotion) return;
+      isDraggingRef.current = false;
+      setIsDragging(false);
 
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // Ignore
-    }
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = requestAnimationFrame(runPhysics);
+    };
 
-    isDraggingRef.current = false;
-    setIsDragging(false);
-
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    animFrameRef.current = requestAnimationFrame(runPhysics);
+    window.addEventListener("pointermove", onPointerMove, { passive: false });
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
   };
 
   useEffect(() => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (idleAnimRef.current) cancelAnimationFrame(idleAnimRef.current);
     };
   }, []);
 
-  // Geometry calculations
+  // Geometry: Hanging strap coming down from top boundary
   const anchorX = 130;
   const clipX = anchorX + pos.x;
-  const clipY = 46 + pos.y;
-  const rotation = Math.max(-22, Math.min(22, pos.x * 0.18 + velRef.current.vx * 0.15));
+  const clipY = 100 + pos.y; // Longer hanging distance so it visibly hangs
+  const rotation = Math.max(-25, Math.min(25, pos.x * 0.16 + velRef.current.vx * 0.18));
 
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col items-center select-none pt-1 pb-4"
+      className="relative flex flex-col items-center select-none -mt-6 sm:-mt-8"
       style={{ width: "260px" }}
     >
-      {/* SVG Elastic Lanyard Strap & Clip */}
+      {/* SVG Elastic Lanyard Strap & Clip - Hanging from top edge */}
       <svg
-        className="pointer-events-none absolute top-0 left-0 w-full overflow-visible z-10"
-        style={{ height: "70px" }}
-        viewBox="0 0 260 70"
+        className="pointer-events-none absolute -top-4 left-0 w-full overflow-visible z-10"
+        style={{ height: "130px" }}
+        viewBox="0 0 260 130"
         aria-hidden="true"
       >
         <defs>
           <linearGradient id="strapGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#1a1a1a" />
-            <stop offset="50%" stopColor="#383838" />
-            <stop offset="100%" stopColor="#1a1a1a" />
+            <stop offset="0%" stopColor="#262626" />
+            <stop offset="50%" stopColor="#4a4a4a" />
+            <stop offset="100%" stopColor="#262626" />
           </linearGradient>
         </defs>
 
-        {/* Hanging Anchor Grommet at Top */}
-        <line x1={anchorX - 16} y1="0" x2={anchorX + 16} y2="0" stroke="#404040" strokeWidth="3" />
-        <circle cx={anchorX} cy="0" r="4.5" fill="#525252" stroke="#262626" strokeWidth="1.5" />
+        {/* Ceiling Mount / Lanyard Neck loop anchor */}
+        <line x1={anchorX - 22} y1="0" x2={anchorX + 22} y2="0" stroke="#525252" strokeWidth="4" />
+        <circle cx={anchorX} cy="0" r="5" fill="#737373" stroke="#262626" strokeWidth="2" />
 
-        {/* Dynamic Curved Elastic Lanyard Ribbon */}
+        {/* Dynamic Elastic Ribbon (Quadratic Bezier Curve) */}
         <path
-          d={`M ${anchorX - 3.5} 0 Q ${anchorX + pos.x * 0.35 - 3.5} ${22 + pos.y * 0.45} ${clipX - 3.5} ${clipY - 14} L ${clipX + 3.5} ${clipY - 14} Q ${anchorX + pos.x * 0.35 + 3.5} ${22 + pos.y * 0.45} ${anchorX + 3.5} 0 Z`}
+          d={`M ${anchorX - 4} 0 Q ${anchorX + pos.x * 0.35 - 4} ${45 + pos.y * 0.4} ${clipX - 4} ${clipY - 14} L ${clipX + 4} ${clipY - 14} Q ${anchorX + pos.x * 0.35 + 4} ${45 + pos.y * 0.4} ${anchorX + 4} 0 Z`}
           fill="url(#strapGrad)"
           stroke="#404040"
           strokeWidth="0.75"
         />
 
-        {/* Metallic Lanyard Hook / Clip Assembly */}
+        {/* Metallic Clasp & Snap Hook */}
         <g transform={`translate(${clipX}, ${clipY - 14})`}>
           {/* Metal Ring */}
-          <rect x="-7" y="0" width="14" height="6" rx="2" fill="#737373" stroke="#262626" strokeWidth="0.75" />
-          {/* Clasp body */}
-          <path d="M -5 6 L 5 6 L 3 15 L -3 15 Z" fill="#525252" stroke="#262626" strokeWidth="0.75" />
-          {/* Snap Hook through the badge hole */}
-          <ellipse cx="0" cy="18" rx="3.5" ry="5.5" fill="none" stroke="#8a8a8a" strokeWidth="1.75" />
+          <rect x="-8" y="0" width="16" height="7" rx="2" fill="#737373" stroke="#262626" strokeWidth="1" />
+          {/* Swivel Body */}
+          <path d="M -6 7 L 6 7 L 3.5 17 L -3.5 17 Z" fill="#525252" stroke="#262626" strokeWidth="1" />
+          {/* Snap Ring through badge slot */}
+          <ellipse cx="0" cy="20" rx="4" ry="6" fill="none" stroke="#a3a3a3" strokeWidth="2" />
         </g>
       </svg>
 
       {/* Elastic Badge Card */}
       <div
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
         style={{
           transform: `translate3d(${pos.x}px, ${pos.y}px, 0px) rotate(${rotation}deg)`,
           transformOrigin: "center top",
           touchAction: "none",
-          marginTop: "48px",
+          marginTop: "92px",
           willChange: "transform",
         }}
-        className={`relative w-[240px] rounded-2xl bg-[#0d0d0d] border-2 border-border-strong text-text shadow-2xl transition-shadow duration-200 ${
+        className={`relative w-[240px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl transition-shadow duration-200 select-none ${
           isDragging
-            ? "cursor-grabbing shadow-[0_20px_35px_-10px_rgba(255,255,255,0.12)] border-white/60"
-            : "cursor-grab hover:border-white/40 hover:shadow-[0_16px_30px_-10px_rgba(255,255,255,0.08)]"
+            ? "cursor-grabbing shadow-[0_25px_40px_-10px_rgba(255,255,255,0.15)] border-white/70"
+            : "cursor-grab hover:border-white/40 hover:shadow-[0_20px_35px_-10px_rgba(255,255,255,0.08)]"
         }`}
       >
         {/* Lanyard Hole Cutout at Top of Badge */}
-        <div className="mx-auto mt-2.5 h-3.5 w-11 rounded-full bg-bg border border-border-strong flex items-center justify-center shadow-inner">
-          <div className="h-1.5 w-8 rounded-full bg-black/80" />
+        <div className="mx-auto mt-2.5 h-3.5 w-11 rounded-full bg-black border border-border-strong flex items-center justify-center shadow-inner">
+          <div className="h-1.5 w-8 rounded-full bg-black/90" />
         </div>
 
         {/* Pass Header Stripe */}
@@ -229,13 +249,14 @@ export function LanyardBadge() {
         {/* Badge Core Content */}
         <div className="p-4 pt-3 flex flex-col items-center text-center">
           {/* Portrait Photo inside ID frame */}
-          <div className="relative size-20 rounded-xl overflow-hidden border border-border-strong bg-surface p-0.5 shadow-md">
+          <div className="relative size-20 rounded-xl overflow-hidden border border-border-strong bg-surface p-0.5 shadow-md pointer-events-none">
             <Image
               src={profile.photo || "/images/profile.jpg"}
               alt={profile.photoAlt}
               width={80}
               height={80}
-              className="size-full object-cover rounded-[10px]"
+              draggable={false}
+              className="size-full object-cover rounded-[10px] select-none"
               priority
             />
             {/* Holographic accent indicator */}
@@ -314,11 +335,11 @@ export function LanyardBadge() {
 
       {/* Subtle Drag Hint */}
       {!hasInteracted && !prefersReducedMotion ? (
-        <span className="mt-2 text-[10px] font-mono tracking-wider text-muted/80 animate-pulse">
-          ↕ drag or pull lanyard
+        <span className="mt-3 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse">
+          ↕ drag or swing lanyard
         </span>
       ) : (
-        <span className="mt-2 text-[10px] font-mono tracking-wider text-transparent select-none">
+        <span className="mt-3 text-[10px] font-mono tracking-wider text-transparent select-none">
           ·
         </span>
       )}
