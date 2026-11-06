@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cv, profile, socials } from "@content";
 import {
   ArrowRightIcon,
@@ -10,7 +10,7 @@ import {
   LinkedinIcon,
   MailIcon,
 } from "@/components/ui/Icons";
-import { LanyardBadge } from "@/components/ui/LanyardBadge";
+import { LanyardBadge, LanyardFallback } from "@/components/ui/LanyardBadge";
 
 function useTypewriter(word = "Bimo") {
   // Start with full word so heading is never blank on mount or SSR
@@ -48,6 +48,7 @@ function useTypewriter(word = "Bimo") {
 
 export function Hero() {
   const displayedName = useTypewriter("Bimo");
+  const badgeTargetRef = useRef<HTMLDivElement>(null);
 
   const scrollToProjects = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -63,6 +64,9 @@ export function Hero() {
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
+
+      {/* Full-width 3D Lanyard Canvas */}
+      <LanyardBadge targetRef={badgeTargetRef} />
 
       {/* Accessible screen-reader tagline and about data to preserve SEO & test contracts */}
       <h2 className="sr-only">About me</h2>
@@ -157,9 +161,15 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right Column: Elastic Interactive Lanyard Badge (Anchors directly to the top edge) */}
+        {/* Right Column: Elastic Interactive Lanyard Badge target / placeholder */}
         <div className="shrink-0 flex justify-center lg:justify-end overflow-visible">
-          <LanyardBadge />
+          <div
+            ref={badgeTargetRef}
+            className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[430px] sm:h-[460px] lg:h-[480px] z-20 overflow-visible"
+            aria-label="Interactive 3D Physics Lanyard Pass"
+          >
+            <LanyardFallback />
+          </div>
         </div>
       </div>
     </section>

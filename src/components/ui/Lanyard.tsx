@@ -13,7 +13,8 @@ export interface LanyardProps {
   finish?: "glossy" | "matte" | "holographic" | "metallic";
   cornerRadius?: number;
   size?: number;
-  anchor?: "left" | "center" | "right";
+  anchor?: "left" | "center" | "right" | number;
+  anchorRef?: React.RefObject<HTMLElement | null>;
   strapLength?: number;
   strapImage?: string;
   strapColor?: string;
@@ -821,6 +822,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
   cornerRadius = 0.3,
   size = 0.6,
   anchor = "center",
+  anchorRef,
   strapLength = 0.5,
   strapImage,
   strapColor = "#111111",
@@ -846,6 +848,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
     cornerRadius,
     size,
     anchor,
+    anchorRef,
     strapLength,
     strapImage,
     strapColor,
@@ -870,6 +873,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
     cornerRadius,
     size,
     anchor,
+    anchorRef,
     strapLength,
     strapImage,
     strapColor,
@@ -1066,7 +1070,19 @@ export const Lanyard: React.FC<LanyardProps> = ({
       foilUniforms.foilKey.value.set(-2.5, 4, 6).normalize().transformDirection(camera.matrixWorldInverse);
       foilUniforms.foilFill.value.set(3, -1, 4).normalize().transformDirection(camera.matrixWorldInverse);
       foilUniforms.foilTop.value.set(0.5, 4.5, 8).normalize().transformDirection(camera.matrixWorldInverse);
-      const anchorX = ((ANCHORS[s.anchor || "center"] ?? 0.5) - 0.5) * viewWidth;
+      let anchorFraction = 0.5;
+      if (s.anchorRef?.current && container) {
+        const targetRect = s.anchorRef.current.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        if (containerRect.width > 0) {
+          anchorFraction = (targetRect.left + targetRect.width / 2 - containerRect.left) / containerRect.width;
+        }
+      } else if (typeof s.anchor === "number") {
+        anchorFraction = clamp(s.anchor, 0.05, 0.95);
+      } else {
+        anchorFraction = ANCHORS[s.anchor || "center"] ?? 0.5;
+      }
+      const anchorX = (anchorFraction - 0.5) * viewWidth;
       const anchorY = viewHeight / 2 + 0.2;
       const cardTop = viewHeight / 2 - viewHeight * mix(0.12, 0.42, clamp(s.strapLength ?? 0.5, 0, 1));
       const hangTop = cardTop + (layout.hangY - layout.height / 2);
@@ -1381,15 +1397,6 @@ export const Lanyard: React.FC<LanyardProps> = ({
       }
     };
 
-    canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
-    canvas.addEventListener("lostpointercapture", onPointerUp);
-    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
-    window.addEventListener("pointermove", onWindowPointerMove, { passive: true });
-    window.addEventListener("pointerdown", onWindowPointerDown, { passive: false });
-
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
@@ -1399,8 +1406,21 @@ export const Lanyard: React.FC<LanyardProps> = ({
       render();
     };
 
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("lostpointercapture", onPointerUp);
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    window.addEventListener("pointermove", onWindowPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onWindowPointerDown, { passive: false });
+    window.addEventListener("resize", resize);
+
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
+    if (settingsRef.current.anchorRef?.current) {
+      resizeObserver.observe(settingsRef.current.anchorRef.current);
+    }
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible) start();
@@ -1413,6 +1433,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
 
     applyRef.current = apply;
     resize();
+    requestAnimationFrame(resize);
 
     return () => {
       alive = false;
@@ -1421,6 +1442,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onWindowPointerMove);
       window.removeEventListener("pointerdown", onWindowPointerDown);
       canvas.removeEventListener("pointerdown", onPointerDown);
