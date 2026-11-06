@@ -41,11 +41,11 @@ export function FloatingPass3D({
 
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const width = container.clientWidth || 200;
-    const height = container.clientHeight || 270;
+    const width = container.clientWidth || 240;
+    const height = container.clientHeight || 330;
 
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 0, 3.8);
+    camera.position.set(0, 0, 3.65);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -79,11 +79,11 @@ export function FloatingPass3D({
     movingLight.position.set(0, 0, 3);
     scene.add(movingLight);
 
-    // Build Card Geometry (Compact & balanced for mobile viewports)
-    const cardWidth = 1.35;
-    const cardHeight = 1.95;
-    const radius = 0.14;
-    const depth = 0.035;
+    // Build Card Geometry (Goldilocks medium size - clear photo & comfortable spacing)
+    const cardWidth = 1.52;
+    const cardHeight = 2.18;
+    const radius = 0.16;
+    const depth = 0.038;
 
     const shape = new THREE.Shape();
     const x = -cardWidth / 2;
@@ -322,8 +322,8 @@ export function FloatingPass3D({
     // Resize Handler
     const handleResize = () => {
       if (!container || !alive) return;
-      const newW = container.clientWidth || 200;
-      const newH = container.clientHeight || 270;
+      const newW = container.clientWidth || 240;
+      const newH = container.clientHeight || 330;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
@@ -357,17 +357,17 @@ export function FloatingPass3D({
 
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`.trim()}>
-      {/* 3D Floating Canvas Container (Compact & responsive with touch-pan-y) */}
+      {/* 3D Floating Canvas Container (Balanced medium size with touch-pan-y) */}
       <div
         ref={mountRef}
-        className="relative w-[210px] sm:w-[230px] h-[280px] sm:h-[300px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y"
+        className="relative w-[240px] sm:w-[260px] h-[330px] sm:h-[355px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y"
         aria-label="Interactive 3D Floating Student Pass. Drag sideways to rotate 360 degrees or tap to flip."
       />
 
       {/* Dynamic Floor Shadow */}
       <div
         aria-hidden="true"
-        className="w-36 sm:w-40 h-3 rounded-full bg-white/10 blur-md -mt-3 transition-all duration-300"
+        className="w-40 sm:w-44 h-3.5 rounded-full bg-white/10 blur-md -mt-3 transition-all duration-300"
       />
 
       {/* Screen reader info for assistive tech */}
