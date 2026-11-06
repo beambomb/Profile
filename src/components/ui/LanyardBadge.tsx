@@ -22,11 +22,11 @@ export function LanyardBadge() {
 
   return (
     <div
-      className="relative flex flex-col items-center select-none pt-0 w-[300px] sm:w-[340px] lg:w-[380px] h-[440px] sm:h-[480px] lg:h-[500px] z-40 overflow-visible"
+      className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[430px] sm:h-[460px] lg:h-[480px] z-40 overflow-visible"
       aria-label="Interactive 3D Physics Lanyard Pass"
     >
       {mounted && hasWebgl ? (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] sm:w-[950px] lg:w-[1100px] max-w-[98vw] h-[560px] sm:h-[600px] lg:h-[640px] pointer-events-none z-50 overflow-visible flex justify-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[540px] sm:w-[600px] lg:w-[660px] max-w-[95vw] h-[430px] sm:h-[460px] lg:h-[480px] pointer-events-none z-50 overflow-visible flex justify-center">
           <Lanyard
             frontImage="/images/card-front.png"
             backImage="/images/card-back.png"
@@ -36,9 +36,9 @@ export function LanyardBadge() {
             orientation="portrait"
             finish="glossy"
             cornerRadius={0.3}
-            size={0.7}
+            size={0.58}
             anchor="center"
-            strapLength={0.42}
+            strapLength={0.44}
             strapColor="#111111"
             strapWidth={0.65}
             metal="silver"
