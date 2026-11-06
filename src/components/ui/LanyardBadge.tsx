@@ -26,7 +26,7 @@ export function LanyardBadge() {
       aria-label="Interactive 3D Physics Lanyard Pass"
     >
       {mounted && hasWebgl ? (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[540px] sm:w-[600px] lg:w-[660px] max-w-[95vw] h-[430px] sm:h-[460px] lg:h-[480px] pointer-events-none z-50 overflow-visible flex justify-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1800px] max-w-none h-[430px] sm:h-[460px] lg:h-[480px] pointer-events-none z-50 overflow-visible flex justify-center">
           <Lanyard
             frontImage="/images/card-front.png"
             backImage="/images/card-back.png"
