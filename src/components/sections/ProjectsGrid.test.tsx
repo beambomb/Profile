@@ -18,7 +18,7 @@ describe("ProjectsGrid", () => {
     render(<ProjectsGrid projects={projects} domains={domains} />);
 
     expect(screen.getByText("01 / 05")).toBeInTheDocument();
-    const secondDot = screen.getByRole("button", { name: new RegExp(projects[1].title, "i") });
+    const secondDot = screen.getAllByRole("button", { name: new RegExp(projects[1].title, "i") })[0];
     await user.click(secondDot);
     expect(screen.getByText("02 / 05")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(`Showing project 2 of ${projects.length}: ${projects[1].title}`);

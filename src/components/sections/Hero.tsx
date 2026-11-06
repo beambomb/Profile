@@ -162,10 +162,10 @@ export function Hero() {
         </div>
 
         {/* Right Column: Elastic Interactive Lanyard Badge target / placeholder */}
-        <div className="shrink-0 flex justify-center lg:justify-end overflow-visible">
+        <div className="shrink-0 flex justify-center lg:justify-end overflow-visible mt-4 sm:mt-6 lg:mt-0">
           <div
             ref={badgeTargetRef}
-            className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[430px] sm:h-[460px] lg:h-[480px] z-20 overflow-visible"
+            className="relative flex flex-col items-center select-none pt-0 w-[280px] sm:w-[320px] lg:w-[340px] h-[420px] sm:h-[450px] lg:h-[480px] z-20 overflow-visible"
             aria-label="Interactive 3D Physics Lanyard Pass"
           >
             <LanyardFallback />
