@@ -91,7 +91,7 @@ export function LanyardBadge({ targetRef }: { targetRef?: React.RefObject<HTMLEl
         size={0.58}
         anchor="center"
         anchorRef={targetRef}
-        strapLength={0.44}
+        strapLength={0.26}
         strapColor="#111111"
         strapWidth={0.65}
         metal="silver"
