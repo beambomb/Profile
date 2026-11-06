@@ -63,6 +63,8 @@ export function LanyardFallback() {
 export function LanyardBadge({ targetRef }: { targetRef?: React.RefObject<HTMLElement | null> } = {}) {
   const [mounted, setMounted] = useState(false);
   const [hasWebgl, setHasWebgl] = useState(true);
+  const [topOffset, setTopOffset] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -73,12 +75,42 @@ export function LanyardBadge({ targetRef }: { targetRef?: React.RefObject<HTMLEl
     } catch {
       setHasWebgl(false);
     }
-  }, []);
+
+    const updatePosition = () => {
+      if (typeof window !== "undefined" && targetRef?.current) {
+        const mobile = window.innerWidth < 1024;
+        setIsMobile(mobile);
+        if (mobile) {
+          const section = targetRef.current.closest("#profile");
+          if (section) {
+            const sectionRect = section.getBoundingClientRect();
+            const targetRect = targetRef.current.getBoundingClientRect();
+            // Account for any scroll offset
+            setTopOffset(Math.max(0, targetRect.top - sectionRect.top));
+            return;
+          }
+        }
+        setTopOffset(0);
+      }
+    };
+
+    updatePosition();
+    // Allow DOM to settle before measuring
+    const timer = setTimeout(updatePosition, 100);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [targetRef]);
 
   if (!mounted || !hasWebgl) return null;
 
   return (
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-screen max-w-[100vw] h-[560px] sm:h-[600px] lg:h-[640px] pointer-events-none z-20 overflow-visible flex justify-center">
+    <div
+      style={{ top: `${topOffset}px` }}
+      className="absolute left-1/2 -translate-x-1/2 w-screen max-w-[100vw] h-[480px] sm:h-[520px] lg:h-[640px] pointer-events-none z-20 overflow-visible flex justify-center transition-[top] duration-200"
+    >
       <Lanyard
         frontImage="/images/card-front.png"
         backImage="/images/card-back.png"
@@ -88,10 +120,10 @@ export function LanyardBadge({ targetRef }: { targetRef?: React.RefObject<HTMLEl
         orientation="portrait"
         finish="glossy"
         cornerRadius={0.3}
-        size={0.58}
+        size={isMobile ? 0.52 : 0.58}
         anchor="center"
         anchorRef={targetRef}
-        strapLength={0.26}
+        strapLength={isMobile ? 0.22 : 0.26}
         strapColor="#111111"
         strapWidth={0.65}
         metal="silver"

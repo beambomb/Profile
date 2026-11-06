@@ -57,6 +57,61 @@ export function ProjectsGrid({
 
   const currentProject = visible[currentIndex] || visible[0];
 
+  const renderScreenshot = (project: Project, className = "") => {
+    const primaryScreenshot = project.screenshots?.[0];
+    if (!primaryScreenshot) {
+      return (
+        <div className={`rounded-xl border border-dashed border-border-strong p-8 text-center text-muted text-xs font-mono ${className}`}>
+          No preview screenshot available
+        </div>
+      );
+    }
+
+    return (
+      <div className={`relative group/ss ${className}`}>
+        <button
+          type="button"
+          onClick={() => openPreview(primaryScreenshot)}
+          className="w-full text-left rounded-xl overflow-hidden border border-border-strong bg-[#030303] p-1.5 transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/10 cursor-pointer block focus-visible:outline-accent active:scale-[0.99]"
+          aria-haspopup="dialog"
+          aria-label={`View full screenshot: ${primaryScreenshot.alt}`}
+        >
+          {/* Browser Mockup Header */}
+          <div className="flex items-center justify-between px-3 py-1.5 bg-[#121212] border-b border-border/80 rounded-t-lg mb-1 select-none">
+            <div className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-border-strong" />
+              <span className="size-2 rounded-full bg-border-strong" />
+              <span className="size-2 rounded-full bg-border-strong" />
+            </div>
+            <span className="text-[10px] font-mono text-muted/60 truncate max-w-[140px] sm:max-w-[200px]">
+              {project.slug}.local
+            </span>
+            <span className="text-[10px] font-mono text-accent/80 hover:text-accent">
+              🔍 Zoom
+            </span>
+          </div>
+
+          {/* Screenshot Image Container */}
+          <div className="relative overflow-hidden rounded bg-black aspect-[16/10] flex items-center justify-center">
+            <img
+              src={primaryScreenshot.src}
+              alt={primaryScreenshot.alt}
+              className="w-full h-full object-cover sm:object-contain transition-transform duration-500 group-hover/ss:scale-[1.03]"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Caption */}
+          {primaryScreenshot.caption ? (
+            <p className="mt-2 text-[11px] font-mono text-muted/70 text-center truncate px-2 select-none">
+              {primaryScreenshot.caption}
+            </p>
+          ) : null}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div onKeyDown={handleKeyDown}>
       {/* Accessible Status */}
@@ -82,13 +137,13 @@ export function ProjectsGrid({
         }}
       >
         {/* Top Console Bar: Index Counter, Domain, Period, and Navigation Controls */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
-          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 border-b border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none gap-2">
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
             <span className="font-pixel text-xs sm:text-sm text-accent font-bold tracking-wider shrink-0">
               {String(currentIndex + 1).padStart(2, "0")} / {String(visible.length).padStart(2, "0")}
             </span>
             <span className="text-border-strong text-xs shrink-0">•</span>
-            <span className="px-2.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono tracking-wider uppercase font-semibold bg-surface border border-border-strong text-muted shrink-0">
+            <span className="px-2 sm:px-2.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono tracking-wider uppercase font-semibold bg-surface border border-border-strong text-muted shrink-0">
               {currentProject?.domain}
             </span>
             <span className="text-xs text-muted/60 hidden md:inline truncate">
@@ -96,7 +151,7 @@ export function ProjectsGrid({
             </span>
           </div>
 
-          {/* Navigation Controls: Prev Button, Dot Indicators, Next Button */}
+          {/* Navigation Controls: Prev Button, Dot Indicators (tablet/desktop), Next Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
@@ -107,8 +162,8 @@ export function ProjectsGrid({
               <ArrowLeftIcon className="size-4" />
             </button>
 
-            {/* Pagination Dots (clickable) */}
-            <div className="flex items-center gap-1 sm:gap-1.5 px-1 sm:px-2" role="group" aria-label="Slide indicators">
+            {/* Pagination Dots (visible on sm: screens and up to give mobile full breathing room) */}
+            <div className="hidden sm:flex items-center gap-1 sm:gap-1.5 px-1 sm:px-2" role="group" aria-label="Slide indicators">
               {visible.map((p, idx) => (
                 <button
                   key={p.slug}
@@ -143,8 +198,6 @@ export function ProjectsGrid({
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
             {visible.map((project, i) => {
-              const primaryScreenshot = project.screenshots?.[0];
-
               return (
                 <article
                   key={project.slug}
@@ -176,6 +229,9 @@ export function ProjectsGrid({
                       <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-muted font-normal text-pretty">
                         {project.oneLiner}
                       </p>
+
+                      {/* On Mobile: Featured Screenshot is right under the title & summary for instant visual recognition */}
+                      {renderScreenshot(project, "lg:hidden mt-4 mb-2")}
 
                       {/* Problem & Solution Snapshot Box */}
                       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#111111] border border-border p-3.5 rounded-xl shadow-inner">
@@ -228,60 +284,37 @@ export function ProjectsGrid({
                       </div>
                     </div>
 
-                    {/* Right Column: 1 Featured High-Res Project Screenshot */}
-                    <div className="lg:col-span-5 flex flex-col justify-center">
-                      {primaryScreenshot ? (
-                        <div className="relative group/ss">
-                          <button
-                            type="button"
-                            onClick={() => openPreview(primaryScreenshot)}
-                            className="w-full text-left rounded-xl overflow-hidden border border-border-strong bg-[#030303] p-1.5 transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/10 cursor-pointer block focus-visible:outline-accent active:scale-[0.99]"
-                            aria-haspopup="dialog"
-                            aria-label={`View full screenshot: ${primaryScreenshot.alt}`}
-                          >
-                            {/* Browser Mockup Header */}
-                            <div className="flex items-center justify-between px-3 py-1.5 bg-[#121212] border-b border-border/80 rounded-t-lg mb-1 select-none">
-                              <div className="flex items-center gap-1.5">
-                                <span className="size-2 rounded-full bg-border-strong" />
-                                <span className="size-2 rounded-full bg-border-strong" />
-                                <span className="size-2 rounded-full bg-border-strong" />
-                              </div>
-                              <span className="text-[10px] font-mono text-muted/60 truncate max-w-[140px] sm:max-w-[200px]">
-                                {project.slug}.local
-                              </span>
-                              <span className="text-[10px] font-mono text-accent/80 hover:text-accent">
-                                🔍 Zoom
-                              </span>
-                            </div>
-
-                            {/* Screenshot Image Container */}
-                            <div className="relative overflow-hidden rounded bg-black aspect-[16/10] flex items-center justify-center">
-                              <img
-                                src={primaryScreenshot.src}
-                                alt={primaryScreenshot.alt}
-                                className="w-full h-full object-cover sm:object-contain transition-transform duration-500 group-hover/ss:scale-[1.03]"
-                                loading="lazy"
-                              />
-                            </div>
-
-                            {/* Caption */}
-                            {primaryScreenshot.caption ? (
-                              <p className="mt-2 text-[11px] font-mono text-muted/70 text-center truncate px-2 select-none">
-                                {primaryScreenshot.caption}
-                              </p>
-                            ) : null}
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="rounded-xl border border-dashed border-border-strong p-8 text-center text-muted text-xs font-mono">
-                          No preview screenshot available
-                        </div>
-                      )}
+                    {/* Right Column (Desktop only): Featured Screenshot side-by-side */}
+                    <div className="hidden lg:flex lg:col-span-5 flex-col justify-center">
+                      {renderScreenshot(project)}
                     </div>
                   </div>
                 </article>
               );
             })}
+          </div>
+        </div>
+
+        {/* Mobile Bottom Navigation Bar: Dots Indicator & Swipe Hint */}
+        <div className="sm:hidden flex items-center justify-between px-4 py-2.5 border-t border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
+          <span className="text-[10px] font-mono text-muted/60">
+            Swipe to navigate
+          </span>
+          <div className="flex items-center gap-1.5" role="group" aria-label="Mobile slide indicators">
+            {visible.map((p, idx) => (
+              <button
+                key={p.slug}
+                type="button"
+                onClick={() => setCurrentIndex(idx)}
+                aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                aria-current={idx === currentIndex ? "true" : undefined}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentIndex
+                    ? "w-5 bg-accent"
+                    : "w-1.5 bg-border-strong hover:bg-muted"
+                }`}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -186,24 +186,28 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
       </Reveal>
 
       {/* Neighbor Project Navigation */}
-      <nav aria-label="More projects" className="mt-12 grid gap-4 sm:grid-cols-2">
+      <nav aria-label="More projects" className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-full min-w-0">
         <Link
           href={`/projects/${prev.slug}`}
-          className="pixel-frame flex min-h-11 flex-col rounded-md bg-surface p-5 hover:border-accent transition-all"
+          className="pixel-frame flex min-h-11 min-w-0 max-w-full flex-col rounded-md bg-surface p-4 sm:p-5 hover:border-accent transition-all overflow-hidden"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-muted">
-            <ArrowLeftIcon className="size-3.5" /> Previous project
+            <ArrowLeftIcon className="size-3.5 shrink-0" /> Previous project
           </span>
-          <span className="mt-2 font-pixel text-xs font-bold text-text truncate">{prev.title}</span>
+          <span className="mt-2 font-pixel text-[11px] sm:text-xs font-bold text-text leading-snug break-words line-clamp-2">
+            {prev.title}
+          </span>
         </Link>
         <Link
           href={`/projects/${next.slug}`}
-          className="pixel-frame flex min-h-11 flex-col rounded-md bg-surface p-5 sm:items-end sm:text-right hover:border-accent transition-all"
+          className="pixel-frame flex min-h-11 min-w-0 max-w-full flex-col rounded-md bg-surface p-4 sm:p-5 sm:items-end sm:text-right hover:border-accent transition-all overflow-hidden"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-muted">
-            Next project <ArrowRightIcon className="size-3.5" />
+            Next project <ArrowRightIcon className="size-3.5 shrink-0" />
           </span>
-          <span className="mt-2 font-pixel text-xs font-bold text-text truncate">{next.title}</span>
+          <span className="mt-2 font-pixel text-[11px] sm:text-xs font-bold text-text leading-snug break-words line-clamp-2">
+            {next.title}
+          </span>
         </Link>
       </nav>
     </article>
