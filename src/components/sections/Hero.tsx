@@ -59,7 +59,7 @@ export function Hero() {
   };
 
   return (
-    <section id="profile" className="relative scroll-mt-20 pt-0 pb-8 sm:pb-10 border-b border-border">
+    <section id="profile" className="relative scroll-mt-20 pt-0 pb-8 sm:pb-10 border-b border-border overflow-visible">
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
@@ -70,7 +70,7 @@ export function Hero() {
       <span className="sr-only">{profile.education.school}</span>
 
       {/* Hero Layout: Centered vertical alignment between left narrative and right 3D badge */}
-      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 min-h-[480px]">
+      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 min-h-[480px] overflow-visible">
         {/* Left Column: Centered vertically */}
         <div className="flex-1 min-w-0 py-6 sm:py-8 flex flex-col justify-center">
           <h1
@@ -158,7 +158,7 @@ export function Hero() {
         </div>
 
         {/* Right Column: Elastic Interactive Lanyard Badge (Anchors directly to the top edge) */}
-        <div className="shrink-0 flex justify-center lg:justify-end">
+        <div className="shrink-0 flex justify-center lg:justify-end overflow-visible">
           <LanyardBadge />
         </div>
       </div>

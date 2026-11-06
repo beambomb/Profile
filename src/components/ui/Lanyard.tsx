@@ -260,28 +260,25 @@ const buildCardGeometry = (layout: ReturnType<typeof cardLayout>) => {
   const outline = new THREE.Shape();
   traceRoundedRect(
     outline,
-    -width / 2 + BEVEL,
-    -height / 2 + BEVEL,
-    width - BEVEL * 2,
-    height - BEVEL * 2,
-    Math.max(radius - BEVEL, 0.005)
+    -width / 2,
+    -height / 2,
+    width,
+    height,
+    Math.max(radius, 0.005)
   );
   const hole = new THREE.Path();
   traceRoundedRect(
     hole,
-    -slot.width / 2 - BEVEL,
-    slot.y - slot.height / 2 - BEVEL,
-    slot.width + BEVEL * 2,
-    slot.height + BEVEL * 2,
-    slot.height / 2 + BEVEL
+    -slot.width / 2,
+    slot.y - slot.height / 2,
+    slot.width,
+    slot.height,
+    slot.height / 2
   );
   outline.holes.push(hole);
   const body = new THREE.ExtrudeGeometry(outline, {
     depth: THICKNESS,
-    bevelEnabled: true,
-    bevelThickness: BEVEL,
-    bevelSize: BEVEL,
-    bevelSegments: 5,
+    bevelEnabled: false,
     curveSegments: 24,
   });
   body.translate(0, 0, -THICKNESS / 2);
@@ -907,6 +904,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
     const canvas = renderer.domElement;
     canvas.className = "lanyard-canvas";
     canvas.setAttribute("aria-hidden", "true");
+    canvas.style.pointerEvents = "none";
     container.appendChild(canvas);
 
     const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
@@ -1090,9 +1088,9 @@ export const Lanyard: React.FC<LanyardProps> = ({
         bodyMesh.geometry = geometry.body;
         frontMesh.geometry = geometry.face;
         backMesh.geometry = geometry.face.clone();
-        frontMesh.position.z = THICKNESS / 2 + BEVEL + 0.0006;
+        frontMesh.position.z = THICKNESS / 2 + 0.0006;
         backMesh.rotation.y = Math.PI;
-        backMesh.position.z = -(THICKNESS / 2 + BEVEL + 0.0006);
+        backMesh.position.z = -(THICKNESS / 2 + 0.0006);
         ring.position.set(0, layout.ringY, 0);
         applied.framingKey = "";
       }
@@ -1128,7 +1126,6 @@ export const Lanyard: React.FC<LanyardProps> = ({
       if (s.strapColor !== applied.strapColor) repaintStrap();
 
       const finish = FINISHES[s.finish || "glossy"] || FINISHES.glossy;
-      const card = parseColor(s.cardColor, [1, 1, 1]);
       [frontMaterial, backMaterial].forEach((material) => {
         material.roughness = finish.roughness;
         material.metalness = finish.metalness;
@@ -1138,11 +1135,11 @@ export const Lanyard: React.FC<LanyardProps> = ({
       });
       foilUniforms.foilStrength.value = finish.foil;
       foilUniforms.foilAspect.value = layout.height / layout.width;
-      edgeMaterial.color.setRGB(card[0] * 0.92, card[1] * 0.92, card[2] * 0.92, THREE.SRGBColorSpace);
-      edgeMaterial.roughness = Math.min(finish.roughness, 0.35);
-      edgeMaterial.metalness = finish.metalness;
-      edgeMaterial.clearcoat = 1;
-      edgeMaterial.clearcoatRoughness = 0.08;
+      edgeMaterial.color.setHex(0x0a0a0a);
+      edgeMaterial.roughness = 1.0;
+      edgeMaterial.metalness = 0;
+      edgeMaterial.clearcoat = 0;
+      edgeMaterial.clearcoatRoughness = 1.0;
       const metalLook = METALS[s.metal || "silver"] || METALS.silver;
       metalMaterial.color.set(metalLook.color);
       metalMaterial.roughness = metalLook.roughness;
@@ -1282,12 +1279,25 @@ export const Lanyard: React.FC<LanyardProps> = ({
 
     const pickCard = () => {
       cardGroup.updateMatrixWorld();
-      const hits = raycaster.intersectObjects([bodyMesh, frontMesh, backMesh], false);
+      clampGroup.updateMatrixWorld();
+      const hits = raycaster.intersectObjects([bodyMesh, frontMesh, backMesh, ring, clampMesh, eyelet, band], false);
       return hits[0] || null;
     };
 
     const setCursor = (value: string) => {
       if (canvas.style.cursor !== value) canvas.style.cursor = value;
+    };
+
+    const updatePointerHover = (event: PointerEvent | MouseEvent | Touch) => {
+      if (sim.grab) return;
+      toPointer(event);
+      const hit = pickCard();
+      const isOver = Boolean(hit);
+      if (isOver !== hovering) {
+        hovering = isOver;
+        canvas.style.pointerEvents = hovering ? "auto" : "none";
+        setCursor(hovering ? "grab" : "");
+      }
     };
 
     const flip = (point: THREE.Vector3) => {
@@ -1307,6 +1317,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
       toPointer(event);
       const hit = pickCard();
       if (!hit) return;
+      canvas.style.pointerEvents = "auto";
       sim.grab = {
         local: hit.point.clone().sub(sim.body.position).applyQuaternion(sim.body.quaternion.clone().invert()),
         rotation: sim.body.quaternion.clone(),
@@ -1332,6 +1343,7 @@ export const Lanyard: React.FC<LanyardProps> = ({
       }
       if (event.pointerType === "touch") return;
       hovering = Boolean(pickCard());
+      canvas.style.pointerEvents = hovering ? "auto" : "none";
       setCursor(hovering ? "grab" : "");
     };
 
@@ -1341,14 +1353,32 @@ export const Lanyard: React.FC<LanyardProps> = ({
       if (press && event.type === "pointerup" && performance.now() - press.time < 450) flip(press.point);
       press = null;
       canvas.releasePointerCapture?.(event.pointerId);
-      setCursor(hovering && event.pointerType !== "touch" ? "grab" : "");
+      updatePointerHover(event);
       start();
     };
 
     const onTouchStart = (event: TouchEvent) => {
       if (!settingsRef.current.interactive || event.touches.length !== 1) return;
       toPointer(event.touches[0]);
-      if (pickCard()) event.preventDefault();
+      if (pickCard()) {
+        canvas.style.pointerEvents = "auto";
+        event.preventDefault();
+      }
+    };
+
+    const onWindowPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      updatePointerHover(event);
+    };
+
+    const onWindowPointerDown = (event: PointerEvent) => {
+      if (!settingsRef.current.interactive || event.button > 0) return;
+      toPointer(event);
+      const hit = pickCard();
+      if (hit) {
+        canvas.style.pointerEvents = "auto";
+        onPointerDown(event);
+      }
     };
 
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -1357,6 +1387,8 @@ export const Lanyard: React.FC<LanyardProps> = ({
     canvas.addEventListener("pointercancel", onPointerUp);
     canvas.addEventListener("lostpointercapture", onPointerUp);
     canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    window.addEventListener("pointermove", onWindowPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onWindowPointerDown, { passive: false });
 
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
@@ -1389,6 +1421,8 @@ export const Lanyard: React.FC<LanyardProps> = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pointermove", onWindowPointerMove);
+      window.removeEventListener("pointerdown", onWindowPointerDown);
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
@@ -1408,3 +1442,4 @@ export const Lanyard: React.FC<LanyardProps> = ({
 };
 
 export default Lanyard;
+

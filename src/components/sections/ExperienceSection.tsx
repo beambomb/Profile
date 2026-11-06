@@ -12,8 +12,9 @@ export function ExperienceSection() {
 
       {/* Subsection 1: Organizational and Committee Experience */}
       <div>
-        <h3 className="text-sm sm:text-base font-bold text-text mb-4 uppercase tracking-wider font-mono text-accent">
-          Organizational and Committee Experience
+        <h3 className="flex items-center gap-2.5 text-sm sm:text-base font-bold text-accent mb-4 uppercase tracking-wider font-mono">
+          <span aria-hidden="true" className="text-accent text-base select-none shrink-0 font-bold">▸</span>
+          <span>Organizational and Committee Experience</span>
         </h3>
 
         <div className="divide-y divide-border border-y border-border">
@@ -35,9 +36,12 @@ export function ExperienceSection() {
                 {item.organization}
               </p>
 
-              <ul className="mt-3.5 space-y-2 text-xs sm:text-sm text-muted list-disc pl-5 leading-relaxed">
+              <ul className="mt-3.5 space-y-2 text-xs sm:text-sm text-muted leading-relaxed">
                 {item.points.map((point) => (
-                  <li key={point}>{point}</li>
+                  <li key={point} className="flex items-start gap-2.5">
+                    <span aria-hidden="true" className="text-accent/80 shrink-0 mt-0.5 text-[11px] select-none">▸</span>
+                    <span>{point}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -51,8 +55,9 @@ export function ExperienceSection() {
           {/* Preserves deep link & test target */}
           <span id="competitions" className="sr-only" />
 
-          <h3 className="text-sm sm:text-base font-bold text-text mb-4 uppercase tracking-wider font-mono text-accent">
-            Competitions and Awards
+          <h3 className="flex items-center gap-2.5 text-sm sm:text-base font-bold text-accent mb-4 uppercase tracking-wider font-mono">
+            <span aria-hidden="true" className="text-accent text-base select-none shrink-0 font-bold">▸</span>
+            <span>Competitions and Awards</span>
           </h3>
 
           <div className="divide-y divide-border border-y border-border">

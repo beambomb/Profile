@@ -22,32 +22,34 @@ export function LanyardBadge() {
 
   return (
     <div
-      className="relative flex flex-col items-center select-none pt-0 w-[300px] sm:w-[340px] lg:w-[380px] h-[440px] sm:h-[480px] lg:h-[500px]"
+      className="relative flex flex-col items-center select-none pt-0 w-[300px] sm:w-[340px] lg:w-[380px] h-[440px] sm:h-[480px] lg:h-[500px] z-40 overflow-visible"
       aria-label="Interactive 3D Physics Lanyard Pass"
     >
       {mounted && hasWebgl ? (
-        <Lanyard
-          frontImage="/images/card-front.png"
-          backImage="/images/card-back.png"
-          strapImage="/images/band.png"
-          imageFit="cover"
-          cardColor="#0a0a0a"
-          orientation="portrait"
-          finish="glossy"
-          cornerRadius={0.3}
-          size={0.7}
-          anchor="center"
-          strapLength={0.42}
-          strapColor="#111111"
-          strapWidth={0.65}
-          metal="silver"
-          gravity={1}
-          damping={0.5}
-          elasticity={0.5}
-          breeze={0.3}
-          interactive
-          intro={false}
-        />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] sm:w-[950px] lg:w-[1100px] max-w-[98vw] h-[560px] sm:h-[600px] lg:h-[640px] pointer-events-none z-50 overflow-visible flex justify-center">
+          <Lanyard
+            frontImage="/images/card-front.png"
+            backImage="/images/card-back.png"
+            strapImage="/images/band.png"
+            imageFit="cover"
+            cardColor="#0a0a0a"
+            orientation="portrait"
+            finish="glossy"
+            cornerRadius={0.3}
+            size={0.7}
+            anchor="center"
+            strapLength={0.42}
+            strapColor="#111111"
+            strapWidth={0.65}
+            metal="silver"
+            gravity={1}
+            damping={0.5}
+            elasticity={0.5}
+            breeze={0.3}
+            interactive
+            intro={false}
+          />
+        </div>
       ) : (
         /* Accessible Fallback when WebGL is unavailable (e.g. In jsdom / test suites) */
         <div className="relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl p-4 mt-8 text-center">
