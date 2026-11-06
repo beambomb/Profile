@@ -96,67 +96,67 @@ export function Hero() {
           </h1>
 
           {/* Bio Narrative */}
-          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg leading-relaxed text-muted max-w-xl text-pretty font-normal">
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg md:text-[19px] leading-relaxed text-muted max-w-2xl text-pretty font-normal">
             Information engineering student at Universitas Gadjah Mada, currently focused on software engineering and data engineering. Active in student tech communities as an organizer and mentor.
           </p>
 
           {/* Action Buttons */}
-          <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5">
+          <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4">
             {cv.published ? (
               <a
                 href={cv.path}
                 download={cv.fileName}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cta text-on-cta font-semibold text-xs sm:text-sm hover:bg-cta/90 transition-all shadow-md active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-5.5 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-cta text-on-cta font-semibold text-sm sm:text-base hover:bg-cta/90 transition-all shadow-md active:scale-95 cursor-pointer"
               >
-                <DownloadIcon className="size-4 shrink-0" />
+                <DownloadIcon className="size-4.5 shrink-0" />
                 <span>Download CV</span>
               </a>
             ) : null}
 
             <Link
               href="/#contact"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface border border-border-strong text-text font-medium text-xs sm:text-sm hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-5.5 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-surface border border-border-strong text-text font-medium text-sm sm:text-base hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95 cursor-pointer"
             >
-              <MailIcon className="size-4 text-muted shrink-0" />
+              <MailIcon className="size-4.5 text-muted shrink-0" />
               <span>Contact</span>
             </Link>
 
             <Link
               href="/#projects"
               onClick={scrollToProjects}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm text-muted hover:text-accent transition-colors font-medium group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm sm:text-base text-muted hover:text-accent transition-colors font-medium group cursor-pointer"
             >
               <span>View Projects</span>
-              <ArrowRightIcon className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+              <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
           </div>
 
           {/* Direct Social Links */}
-          <div className="mt-6 flex items-center gap-2.5">
+          <div className="mt-6 sm:mt-7 flex items-center gap-3">
             <a
               href={socials.github}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub Profile"
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+              className="inline-flex size-10 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
             >
-              <GithubIcon className="size-4" />
+              <GithubIcon className="size-[18px]" />
             </a>
             <a
               href={socials.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn Profile"
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+              className="inline-flex size-10 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
             >
-              <LinkedinIcon className="size-4" />
+              <LinkedinIcon className="size-[18px]" />
             </a>
             <a
               href={`mailto:${socials.email}`}
               aria-label="Email Johannes"
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
+              className="inline-flex size-10 items-center justify-center rounded-lg border border-border-strong bg-surface text-muted hover:text-text hover:border-accent transition-all duration-200 active:scale-95"
             >
-              <MailIcon className="size-4" />
+              <MailIcon className="size-[18px]" />
             </a>
           </div>
         </div>

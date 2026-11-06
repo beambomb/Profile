@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Project, ProjectDomain, ProjectScreenshot } from "@content";
 import {
   ArrowLeftIcon,
@@ -11,31 +11,19 @@ import {
 } from "@/components/ui/Icons";
 import { Tag, TagList } from "@/components/ui/Tag";
 
-type Filter = "All" | ProjectDomain;
-
 export function ProjectsGrid({
   projects,
-  domains,
+  domains: _domains,
 }: {
   projects: Project[];
-  domains: ProjectDomain[];
+  domains?: ProjectDomain[];
 }) {
-  const [filter, setFilter] = useState<Filter>("All");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [activeScreenshot, setActiveScreenshot] = useState<ProjectScreenshot | null>(null);
 
-  const visible = useMemo(
-    () => (filter === "All" ? projects : projects.filter((p) => p.domain === filter)),
-    [filter, projects]
-  );
-
-  // Reset to first slide whenever filter changes
-  const handleFilterChange = (newFilter: Filter) => {
-    setFilter(newFilter);
-    setCurrentIndex(0);
-  };
+  const visible = projects;
 
   // Safe slide navigation with cycling
   const prevSlide = () => {
@@ -67,47 +55,13 @@ export function ProjectsGrid({
     setActiveScreenshot(null);
   };
 
-  const filters: Filter[] = ["All", ...domains];
   const currentProject = visible[currentIndex] || visible[0];
 
   return (
     <div onKeyDown={handleKeyDown}>
-      {/* Category Filter Pills & Carousel Hint */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div
-          role="group"
-          aria-label="Filter projects by area"
-          className="flex flex-wrap gap-2 sm:gap-2.5"
-        >
-          {filters.map((name) => {
-            const active = filter === name;
-            return (
-              <button
-                key={name}
-                type="button"
-                aria-pressed={active}
-                onClick={() => handleFilterChange(name)}
-                className={`inline-flex items-center px-3.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all duration-150 ${
-                  active
-                    ? "border-2 border-accent bg-accent/15 text-accent shadow-sm"
-                    : "border border-border-strong bg-surface text-muted hover:border-accent hover:text-accent"
-                }`}
-              >
-                {name}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Swipe / Arrow navigation hint */}
-        <span className="text-[11px] font-mono text-muted/60 hidden sm:inline select-none">
-          Use ← → arrows to navigate
-        </span>
-      </div>
-
       {/* Accessible Status */}
       <p className="sr-only" role="status" aria-live="polite">
-        Showing {visible.length} of {projects.length}
+        Showing project {currentIndex + 1} of {projects.length}: {currentProject?.title}
       </p>
 
       {/* Retro Console Horizontal Carousel Container */}
@@ -154,13 +108,14 @@ export function ProjectsGrid({
             </button>
 
             {/* Pagination Dots (clickable) */}
-            <div className="flex items-center gap-1 sm:gap-1.5 px-1 sm:px-2" aria-hidden="true">
+            <div className="flex items-center gap-1 sm:gap-1.5 px-1 sm:px-2" role="group" aria-label="Slide indicators">
               {visible.map((p, idx) => (
                 <button
                   key={p.slug}
                   type="button"
                   onClick={() => setCurrentIndex(idx)}
                   aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                  aria-current={idx === currentIndex ? "true" : undefined}
                   className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                     idx === currentIndex
                       ? "w-5 sm:w-6 bg-accent"
