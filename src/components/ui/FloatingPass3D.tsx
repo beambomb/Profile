@@ -119,8 +119,6 @@ export function FloatingPass3D({
     frontTex.colorSpace = THREE.SRGBColorSpace;
     const backTex = textureLoader.load(backImage);
     backTex.colorSpace = THREE.SRGBColorSpace;
-    backTex.wrapS = THREE.RepeatWrapping;
-    backTex.repeat.x = -1; // Mirror back image so text reads properly from the back
 
     // Materials
     const edgeMaterial = new THREE.MeshStandardMaterial({
