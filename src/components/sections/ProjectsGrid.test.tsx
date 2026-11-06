@@ -32,4 +32,23 @@ describe("ProjectsGrid", () => {
     const first = screen.getAllByRole("article")[0];
     expect(within(first).getByRole("list", { name: /technologies/i })).toBeInTheDocument();
   });
+
+  it("navigates slides using next and previous buttons", async () => {
+    const user = userEvent.setup();
+    render(<ProjectsGrid projects={projects} domains={domains} />);
+
+    // Initially at slide 01 / 05
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+
+    const nextBtn = screen.getByRole("button", { name: /Next project/i });
+    const prevBtn = screen.getByRole("button", { name: /Previous project/i });
+
+    // Click next -> 02 / 05
+    await user.click(nextBtn);
+    expect(screen.getByText("02 / 05")).toBeInTheDocument();
+
+    // Click prev -> 01 / 05
+    await user.click(prevBtn);
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+  });
 });
