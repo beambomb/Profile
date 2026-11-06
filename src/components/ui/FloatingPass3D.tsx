@@ -63,21 +63,21 @@ export function FloatingPass3D({
     canvas.style.touchAction = "pan-y";
     container.appendChild(canvas);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // Lights - Clean, even studio lighting with directional lights (no harsh point light hotspot)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    keyLight.position.set(3, 4, 5);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(-2, 4, 5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.6);
-    rimLight.position.set(-3, -2, -3);
-    scene.add(rimLight);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    fillLight.position.set(2.5, -1, 4);
+    scene.add(fillLight);
 
-    const movingLight = new THREE.PointLight(0xffffff, 1.8, 8);
-    movingLight.position.set(0, 0, 3);
-    scene.add(movingLight);
+    const backKeyLight = new THREE.DirectionalLight(0xffffff, 1.3);
+    backKeyLight.position.set(0, 3, -5);
+    scene.add(backKeyLight);
 
     // Build Card Geometry (Goldilocks medium size - clear photo & comfortable spacing)
     const cardWidth = 1.52;
@@ -129,14 +129,14 @@ export function FloatingPass3D({
 
     const frontMaterial = new THREE.MeshStandardMaterial({
       map: frontTex,
-      roughness: 0.25,
-      metalness: 0.2,
+      roughness: 0.45,
+      metalness: 0.05,
     });
 
     const backMaterial = new THREE.MeshStandardMaterial({
       map: backTex,
-      roughness: 0.25,
-      metalness: 0.2,
+      roughness: 0.45,
+      metalness: 0.05,
     });
 
     // Create 3D Card Mesh Group
@@ -309,10 +309,6 @@ export function FloatingPass3D({
 
       cardGroup.rotation.y = rotY;
       cardGroup.rotation.x = rotX;
-
-      // Move specular highlight light with card rotation
-      movingLight.position.x = Math.sin(rotY) * 2;
-      movingLight.position.y = -Math.sin(rotX) * 2;
 
       renderer.render(scene, camera);
     };
