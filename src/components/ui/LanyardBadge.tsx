@@ -16,22 +16,31 @@ export function LanyardBadge() {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    // Check WebGL availability (e.g. In jsdom / test runners / older devices)
-    try {
-      const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
-      if (!gl) {
-        setWebglSupported(false);
-        return;
+    // Check WebGL availability safely
+    const isWebGLAvailable = () => {
+      try {
+        const testCanvas = document.createElement("canvas");
+        return Boolean(
+          window.WebGLRenderingContext &&
+            (testCanvas.getContext("webgl2") || testCanvas.getContext("webgl"))
+        );
+      } catch {
+        return false;
       }
-    } catch {
+    };
+
+    if (!isWebGLAvailable()) {
       setWebglSupported(false);
       return;
     }
 
+    const width = container.clientWidth || 330;
+    const height = container.clientHeight || 390;
+
     // --- Scene, Camera, Renderer Setup ---
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(0, 0, 8.5);
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    camera.position.set(0, 0, 8.0);
 
     let renderer: THREE.WebGLRenderer;
     try {
@@ -42,28 +51,27 @@ export function LanyardBadge() {
         powerPreference: "high-performance",
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(container.clientWidth, container.clientHeight, false);
+      renderer.setSize(width, height, false);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.1;
+      renderer.toneMappingExposure = 1.2;
     } catch {
       setWebglSupported(false);
       return;
     }
 
-    // --- Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
+    // --- Studio Lighting Setup ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
-    dirLight1.position.set(4, 6, 5);
-    scene.add(dirLight1);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    keyLight.position.set(4, 5, 5);
+    scene.add(keyLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0x88aacc, 1.0);
-    dirLight2.position.set(-4, -2, -3);
-    scene.add(dirLight2);
+    const rimLight = new THREE.DirectionalLight(0x88b0d0, 1.4);
+    rimLight.position.set(-4, -2, -3);
+    scene.add(rimLight);
 
-    // --- Frustum & Coordinate Alignment ---
-    // Compute exact top edge in world coordinates so strap anchors flush to the top border!
+    // --- Compute Frustum Top Edge (Exact Flush Anchor) ---
     const computeWorldBounds = () => {
       const vFOV = (camera.fov * Math.PI) / 180;
       const visibleHeight = 2 * Math.tan(vFOV / 2) * camera.position.z;
@@ -76,22 +84,21 @@ export function LanyardBadge() {
     };
 
     let bounds = computeWorldBounds();
-    const topAnchorY = bounds.topY; // Sits exactly on the top edge of the canvas
+    const topAnchorY = bounds.topY;
 
     // --- Metallic Top Wall Anchor (T-Bar / Clamp) ---
-    const topAnchorGeom = new THREE.BoxGeometry(0.75, 0.06, 0.09);
+    const topAnchorGeom = new THREE.BoxGeometry(0.85, 0.08, 0.1);
     const metalMat = new THREE.MeshStandardMaterial({
-      color: 0x555555,
-      metalness: 0.85,
-      roughness: 0.25,
+      color: 0x777777,
+      metalness: 0.92,
+      roughness: 0.2,
     });
     const topAnchorMesh = new THREE.Mesh(topAnchorGeom, metalMat);
-    topAnchorMesh.position.set(0, topAnchorY - 0.02, 0);
+    topAnchorMesh.position.set(0, topAnchorY - 0.04, 0);
     scene.add(topAnchorMesh);
 
     // --- Dynamic 3D Ribbon Strap ---
-    // Multi-segment quadratic curve extruded dynamically as a 3D ribbon
-    const RIBBON_SEGMENTS = 26;
+    const RIBBON_SEGMENTS = 28;
     const ribbonGeom = new THREE.BufferGeometry();
     const posArray = new Float32Array((RIBBON_SEGMENTS + 1) * 2 * 3);
     const uvsArray = new Float32Array((RIBBON_SEGMENTS + 1) * 2 * 2);
@@ -119,19 +126,19 @@ export function LanyardBadge() {
     ribbonGeom.setIndex(indexArray);
 
     const ribbonMat = new THREE.MeshStandardMaterial({
-      color: 0x242424,
+      color: 0x2b2b2b,
       roughness: 0.75,
-      metalness: 0.15,
+      metalness: 0.2,
       side: THREE.DoubleSide,
     });
     const ribbonMesh = new THREE.Mesh(ribbonGeom, ribbonMat);
     scene.add(ribbonMesh);
 
-    // --- Badge Card Geometry & Materials ---
-    const cardW = 2.3;
-    const cardH = 3.35;
-    const cardR = 0.16;
-    const cardThick = 0.04;
+    // --- Badge Card Dimensions & Geometry ---
+    const cardW = 2.35;
+    const cardH = 3.4;
+    const cardR = 0.18;
+    const cardThick = 0.045;
 
     // Create 3D Rounded Card Shape
     const shape = new THREE.Shape();
@@ -152,15 +159,26 @@ export function LanyardBadge() {
       bevelEnabled: true,
       bevelSegments: 3,
       steps: 1,
-      bevelSize: 0.015,
-      bevelThickness: 0.015,
+      bevelSize: 0.018,
+      bevelThickness: 0.018,
     });
     cardGeom.center();
 
-    // Create High-Resolution Texture on 2D Canvas for Card Front
+    // Map custom UV coordinates [0, 1] across front and back faces
+    const posAttr = cardGeom.attributes.position;
+    const customUvs = new Float32Array(posAttr.count * 2);
+    for (let i = 0; i < posAttr.count; i++) {
+      const px = posAttr.getX(i);
+      const py = posAttr.getY(i);
+      customUvs[i * 2] = (px + cardW / 2) / cardW;
+      customUvs[i * 2 + 1] = (py + cardH / 2) / cardH;
+    }
+    cardGeom.setAttribute("uv", new THREE.BufferAttribute(customUvs, 2));
+
+    // High-Resolution 2D Canvas Texture for Card Front
     const textureCanvas = document.createElement("canvas");
     textureCanvas.width = 960;
-    textureCanvas.height = 1400;
+    textureCanvas.height = 1420;
     const ctx = textureCanvas.getContext("2d");
 
     const renderCardTexture = (img?: HTMLImageElement) => {
@@ -168,65 +186,66 @@ export function LanyardBadge() {
       const w = textureCanvas.width;
       const h = textureCanvas.height;
 
-      // Base card dark background
-      const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, "#0e0e0e");
-      grad.addColorStop(1, "#070707");
+      // Base card dark gradient with crisp border
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "#181818");
+      grad.addColorStop(0.5, "#101010");
+      grad.addColorStop(1, "#0a0a0a");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
       // Card outer hairline border
-      ctx.strokeStyle = "#383838";
+      ctx.strokeStyle = "#525252";
       ctx.lineWidth = 10;
       ctx.strokeRect(5, 5, w - 10, h - 10);
 
-      // Top Lanyard Punch Hole Pill Cutout
-      const holeW = 180;
-      const holeH = 46;
+      // Top Lanyard Punch Hole Cutout
+      const holeW = 160;
+      const holeH = 42;
       const holeX = (w - holeW) / 2;
-      const holeY = 48;
+      const holeY = 46;
       ctx.fillStyle = "#000000";
       ctx.beginPath();
-      ctx.roundRect(holeX, holeY, holeW, holeH, 23);
+      ctx.roundRect(holeX, holeY, holeW, holeH, 21);
       ctx.fill();
-      ctx.strokeStyle = "#444444";
+      ctx.strokeStyle = "#5a5a5a";
       ctx.lineWidth = 4;
       ctx.stroke();
 
       // "UGM STUDENT PASS" Header Stripe
-      ctx.fillStyle = "#888888";
+      ctx.fillStyle = "#aaaaaa";
       ctx.font = "600 32px 'JetBrains Mono', monospace";
       ctx.textAlign = "center";
       ctx.letterSpacing = "6px";
       ctx.fillText("UGM STUDENT PASS", w / 2, 160);
 
       // Thin separator line
-      ctx.strokeStyle = "#262626";
+      ctx.strokeStyle = "#333333";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(40, 190);
-      ctx.lineTo(w - 40, 190);
+      ctx.moveTo(50, 195);
+      ctx.lineTo(w - 50, 195);
       ctx.stroke();
 
       // Portrait Photo
-      const photoW = 540;
-      const photoH = 620;
+      const photoW = 560;
+      const photoH = 640;
       const photoX = (w - photoW) / 2;
-      const photoY = 240;
+      const photoY = 245;
 
       // Photo frame background & border
-      ctx.fillStyle = "#181818";
+      ctx.fillStyle = "#1e1e1e";
       ctx.beginPath();
-      ctx.roundRect(photoX, photoY, photoW, photoH, 28);
+      ctx.roundRect(photoX, photoY, photoW, photoH, 24);
       ctx.fill();
-      ctx.strokeStyle = "#383838";
+      ctx.strokeStyle = "#444444";
       ctx.lineWidth = 6;
       ctx.stroke();
 
       if (img && img.complete && img.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(photoX + 4, photoY + 4, photoW - 8, photoH - 8, 24);
+        ctx.roundRect(photoX + 4, photoY + 4, photoW - 8, photoH - 8, 20);
         ctx.clip();
         ctx.drawImage(img, photoX + 4, photoY + 4, photoW - 8, photoH - 8);
         ctx.restore();
@@ -238,30 +257,31 @@ export function LanyardBadge() {
 
       // Full Name
       ctx.fillStyle = "#ffffff";
-      ctx.font = "700 46px system-ui, -apple-system, sans-serif";
-      ctx.fillText("Johannes De Deo Dimas Aryobimo", w / 2, 960);
+      ctx.font = "700 48px system-ui, -apple-system, sans-serif";
+      ctx.fillText("Johannes De Deo Dimas Aryobimo", w / 2, 980);
 
       // Department
       ctx.fillStyle = "#d4d4d4";
       ctx.font = "500 38px system-ui, -apple-system, sans-serif";
-      ctx.fillText("Information Engineering", w / 2, 1030);
+      ctx.fillText("Information Engineering", w / 2, 1050);
 
       // School
-      ctx.fillStyle = "#888888";
+      ctx.fillStyle = "#999999";
       ctx.font = "400 34px system-ui, -apple-system, sans-serif";
-      ctx.fillText(profile.education.school || "Universitas Gadjah Mada", w / 2, 1090);
+      ctx.fillText(profile.education.school || "Universitas Gadjah Mada", w / 2, 1110);
 
-      // Subtle bottom accent stripe
-      ctx.fillStyle = "#222222";
-      ctx.fillRect(80, 1220, w - 160, 4);
+      // Subtle bottom decorative stripe
+      ctx.fillStyle = "#262626";
+      ctx.fillRect(100, 1220, w - 200, 4);
     };
 
     renderCardTexture();
     const cardTexture = new THREE.CanvasTexture(textureCanvas);
     cardTexture.colorSpace = THREE.SRGBColorSpace;
-    cardTexture.anisotropy = 8;
+    cardTexture.generateMipmaps = true;
+    cardTexture.minFilter = THREE.LinearMipmapLinearFilter;
 
-    // Load actual profile image and update texture
+    // Load profile photo asynchronously
     const profileImg = new window.Image();
     profileImg.crossOrigin = "anonymous";
     profileImg.src = profile.photo || "/images/profile.jpg";
@@ -270,52 +290,45 @@ export function LanyardBadge() {
       cardTexture.needsUpdate = true;
     };
 
-    // Card Back Texture (Clean dark backplate)
+    // Card Back Texture
     const backCanvas = document.createElement("canvas");
     backCanvas.width = 960;
-    backCanvas.height = 1400;
+    backCanvas.height = 1420;
     const bCtx = backCanvas.getContext("2d");
     if (bCtx) {
-      bCtx.fillStyle = "#0a0a0a";
-      bCtx.fillRect(0, 0, 960, 1400);
-      bCtx.strokeStyle = "#2b2b2b";
+      bCtx.fillStyle = "#121212";
+      bCtx.fillRect(0, 0, 960, 1420);
+      bCtx.strokeStyle = "#383838";
       bCtx.lineWidth = 10;
-      bCtx.strokeRect(5, 5, 950, 1390);
+      bCtx.strokeRect(5, 5, 950, 1410);
 
-      // Subtle geometric crest & university label
-      bCtx.fillStyle = "#333333";
+      bCtx.fillStyle = "#444444";
       bCtx.font = "600 36px 'JetBrains Mono', monospace";
       bCtx.textAlign = "center";
       bCtx.letterSpacing = "4px";
       bCtx.fillText("UNIVERSITAS GADJAH MADA", 480, 680);
       bCtx.font = "400 28px 'JetBrains Mono', monospace";
-      bCtx.fillStyle = "#262626";
+      bCtx.fillStyle = "#333333";
       bCtx.fillText("FACULTY OF ENGINEERING", 480, 740);
     }
     const backTexture = new THREE.CanvasTexture(backCanvas);
     backTexture.colorSpace = THREE.SRGBColorSpace;
 
-    // Card materials: front uses canvas texture, edges/back use satin dark material
+    // Card Materials: front uses cardTexture, sides use dark satin
     const frontMat = new THREE.MeshStandardMaterial({
       map: cardTexture,
       roughness: 0.35,
-      metalness: 0.1,
-    });
-    const backMat = new THREE.MeshStandardMaterial({
-      map: backTexture,
-      roughness: 0.4,
-      metalness: 0.1,
+      metalness: 0.08,
     });
     const sideMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a,
-      roughness: 0.5,
-      metalness: 0.2,
+      color: 0x1c1c1c,
+      roughness: 0.45,
+      metalness: 0.25,
     });
 
-    // Multi-material setup for ExtrudeGeometry (0: front/back, 1: sides)
     const cardMesh = new THREE.Mesh(cardGeom, [frontMat, sideMat]);
 
-    // Card Group (contains card and top snap hook clasp)
+    // Card Group
     const cardGroup = new THREE.Group();
     cardGroup.add(cardMesh);
 
@@ -335,8 +348,9 @@ export function LanyardBadge() {
     cardGroup.add(claspGroup);
     scene.add(cardGroup);
 
-    // --- Physics Simulation Variables ---
-    const restPos = new THREE.Vector3(0, topAnchorY - 2.8, 0);
+    // --- Balanced Resting Position ---
+    // Positions card beautifully parallel with "Hi, I'm Bimo" headline and bio
+    const restPos = new THREE.Vector3(0, topAnchorY - 1.85, 0);
     const cardPos = restPos.clone();
     const cardVel = new THREE.Vector3(0, 0, 0);
     const targetPos = restPos.clone();
@@ -357,20 +371,17 @@ export function LanyardBadge() {
 
     // --- Strap Curve & Mesh Update ---
     const updateStrap = () => {
-      // Anchor top fixed at (0, topAnchorY, 0)
       const p0 = new THREE.Vector3(0, topAnchorY, 0);
-      // Card attachment point at top of clasp
       const p2 = new THREE.Vector3(
         cardPos.x,
         cardPos.y + cardH / 2 + 0.14,
         cardPos.z
       );
 
-      // Midpoint sag & inertia
       const mid = new THREE.Vector3(
-        (p0.x + p2.x) * 0.5 - cardVel.x * 0.04,
-        (p0.y + p2.y) * 0.5 - 0.15 - Math.max(0, -cardVel.y * 0.02),
-        (p0.z + p2.z) * 0.5 - cardVel.z * 0.04
+        (p0.x + p2.x) * 0.5 - cardVel.x * 0.03,
+        (p0.y + p2.y) * 0.5 - 0.1 - Math.max(0, -cardVel.y * 0.02),
+        (p0.z + p2.z) * 0.5 - cardVel.z * 0.03
       );
 
       const positions = ribbonGeom.attributes.position as THREE.BufferAttribute;
@@ -384,24 +395,16 @@ export function LanyardBadge() {
         const normal = new THREE.Vector3(0, 0, 1);
         const binormal = new THREE.Vector3().crossVectors(tangent, normal).normalize();
 
-        const halfWidth = 0.11 * (1 - t * 0.35); // Slight taper towards card
-        const leftX = pt.x - binormal.x * halfWidth;
-        const leftY = pt.y - binormal.y * halfWidth;
-        const leftZ = pt.z - binormal.z * halfWidth;
-
-        const rightX = pt.x + binormal.x * halfWidth;
-        const rightY = pt.y + binormal.y * halfWidth;
-        const rightZ = pt.z + binormal.z * halfWidth;
-
-        positions.setXYZ(i * 2, leftX, leftY, leftZ);
-        positions.setXYZ(i * 2 + 1, rightX, rightY, rightZ);
+        const halfWidth = 0.11 * (1 - t * 0.35);
+        positions.setXYZ(i * 2, pt.x - binormal.x * halfWidth, pt.y - binormal.y * halfWidth, pt.z - binormal.z * halfWidth);
+        positions.setXYZ(i * 2 + 1, pt.x + binormal.x * halfWidth, pt.y + binormal.y * halfWidth, pt.z + binormal.z * halfWidth);
       }
 
       positions.needsUpdate = true;
       ribbonGeom.computeVertexNormals();
     };
 
-    // --- Pointer & Touch Interaction Handlers ---
+    // --- Pointer & Touch Handlers ---
     const updateRaycaster = (clientX: number, clientY: number) => {
       const rect = container.getBoundingClientRect();
       mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
@@ -411,18 +414,15 @@ export function LanyardBadge() {
 
     const onPointerDown = (e: PointerEvent) => {
       updateRaycaster(e.clientX, e.clientY);
-      const intersects = raycaster.intersectObject(cardMesh, false);
-      if (intersects.length > 0 || Math.hypot(e.clientX, e.clientY) > 0) {
-        isDragging = true;
-        setHasInteracted(true);
-        container.style.cursor = "grabbing";
+      isDragging = true;
+      setHasInteracted(true);
+      container.style.cursor = "grabbing";
 
-        dragPlane.setFromNormalAndCoplanarPoint(
-          new THREE.Vector3(0, 0, 1),
-          cardPos
-        );
-        raycaster.ray.intersectPlane(dragPlane, intersectPoint);
-      }
+      dragPlane.setFromNormalAndCoplanarPoint(
+        new THREE.Vector3(0, 0, 1),
+        cardPos
+      );
+      raycaster.ray.intersectPlane(dragPlane, intersectPoint);
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -430,8 +430,7 @@ export function LanyardBadge() {
 
       if (isDragging) {
         if (raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
-          // Clamp target distance so strap cannot be infinitely stretched
-          const maxDist = 3.6;
+          const maxDist = 2.8;
           const delta = intersectPoint.clone().sub(new THREE.Vector3(0, topAnchorY, 0));
           if (delta.length() > maxDist) {
             delta.setLength(maxDist);
@@ -450,7 +449,7 @@ export function LanyardBadge() {
       }
     };
 
-    // Mobile Touch Handlers with non-passive preventDefault so touch drag is 100% reliable
+    // Mobile Touch Handlers
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 0) return;
       e.preventDefault();
@@ -473,7 +472,7 @@ export function LanyardBadge() {
       updateRaycaster(t.clientX, t.clientY);
 
       if (isDragging && raycaster.ray.intersectPlane(dragPlane, intersectPoint)) {
-        const maxDist = 3.6;
+        const maxDist = 2.8;
         const delta = intersectPoint.clone().sub(new THREE.Vector3(0, topAnchorY, 0));
         if (delta.length() > maxDist) {
           delta.setLength(maxDist);
@@ -512,15 +511,15 @@ export function LanyardBadge() {
 
       // Ambient idle swing when not being dragged
       if (!isDragging) {
-        const idleSwingX = Math.sin(timeSec * 2.0) * 0.12;
-        const idleSwingZ = Math.cos(timeSec * 1.5) * 0.04;
+        const idleSwingX = Math.sin(timeSec * 2.0) * 0.09;
+        const idleSwingZ = Math.cos(timeSec * 1.5) * 0.03;
         targetPos.x = restPos.x + idleSwingX;
         targetPos.z = restPos.z + idleSwingZ;
         targetPos.y = restPos.y;
       }
 
       // 3D Spring Physics
-      const springK = isDragging ? 48.0 : 20.0;
+      const springK = isDragging ? 48.0 : 22.0;
       const damping = isDragging ? 0.76 : 0.88;
 
       const force = targetPos.clone().sub(cardPos).multiplyScalar(springK);
@@ -563,10 +562,12 @@ export function LanyardBadge() {
       if (!container || !canvas) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (w === 0 || h === 0) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       bounds = computeWorldBounds();
-      topAnchorMesh.position.y = bounds.topY - 0.02;
+      topAnchorMesh.position.y = bounds.topY - 0.04;
+      restPos.y = bounds.topY - 1.85;
       renderer.setSize(w, h, false);
     };
 
@@ -589,7 +590,6 @@ export function LanyardBadge() {
       ribbonMat.dispose();
       cardGeom.dispose();
       frontMat.dispose();
-      backMat.dispose();
       sideMat.dispose();
       cardTexture.dispose();
       backTexture.dispose();
@@ -604,7 +604,7 @@ export function LanyardBadge() {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col items-center select-none pt-0 cursor-grab active:cursor-grabbing w-[280px] sm:w-[320px] lg:w-[340px] h-[440px] sm:h-[470px] lg:h-[490px]"
+      className="relative flex flex-col items-center select-none pt-0 cursor-grab active:cursor-grabbing w-[270px] sm:w-[300px] lg:w-[320px] h-[350px] sm:h-[370px] lg:h-[390px]"
       style={{ touchAction: "none" }}
       aria-label="3D Interactive Lanyard Student ID Pass"
     >
@@ -617,7 +617,7 @@ export function LanyardBadge() {
         />
       ) : (
         /* Accessible Fallback when WebGL is unavailable (e.g. In jsdom / test suites) */
-        <div className="relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl p-4 mt-16 text-center">
+        <div className="relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl p-4 mt-6 text-center">
           <div className="mx-auto h-3 w-10 rounded-full bg-black border border-border-strong mb-2" />
           <div className="text-[9px] font-mono tracking-widest text-muted uppercase mb-3">
             UGM STUDENT PASS
@@ -652,9 +652,9 @@ export function LanyardBadge() {
         <p>UGM Student Pass</p>
       </div>
 
-      {/* Subtle Interaction Pill Hint */}
+      {/* Subtle Interaction Hint - positioned right under the badge */}
       {!hasInteracted ? (
-        <span className="absolute bottom-1 text-[10px] font-mono tracking-wider text-muted/70 animate-pulse pointer-events-none">
+        <span className="absolute bottom-0 text-[10px] font-mono tracking-wider text-muted/50 animate-pulse pointer-events-none">
           ↕ drag or swing 3d lanyard
         </span>
       ) : null}

@@ -59,7 +59,7 @@ export function Hero() {
   };
 
   return (
-    <section id="profile" className="relative scroll-mt-20 pt-0 pb-12 sm:pb-16 border-b border-border">
+    <section id="profile" className="relative scroll-mt-20 pt-0 pb-8 sm:pb-10 border-b border-border">
       {/* Anchor targets for intro and about to ensure smooth jump from any link */}
       <span id="intro" className="sr-only" />
       <span id="about" className="sr-only" />
