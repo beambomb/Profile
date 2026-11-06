@@ -41,11 +41,11 @@ export function FloatingPass3D({
 
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const width = container.clientWidth || 300;
-    const height = container.clientHeight || 420;
+    const width = container.clientWidth || 240;
+    const height = container.clientHeight || 330;
 
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 0, 3.5);
+    camera.position.set(0, 0, 3.65);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -60,30 +60,30 @@ export function FloatingPass3D({
     const canvas = renderer.domElement;
     canvas.style.width = "100%";
     canvas.style.height = "100%";
-    canvas.style.touchAction = "none";
+    canvas.style.touchAction = "pan-y";
     container.appendChild(canvas);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // Lights - Clean, even studio lighting with directional lights (no harsh point light hotspot)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    keyLight.position.set(3, 4, 5);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(-2, 4, 5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.6);
-    rimLight.position.set(-3, -2, -3);
-    scene.add(rimLight);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    fillLight.position.set(2.5, -1, 4);
+    scene.add(fillLight);
 
-    const movingLight = new THREE.PointLight(0xffffff, 1.8, 8);
-    movingLight.position.set(0, 0, 3);
-    scene.add(movingLight);
+    const backKeyLight = new THREE.DirectionalLight(0xffffff, 1.3);
+    backKeyLight.position.set(0, 3, -5);
+    scene.add(backKeyLight);
 
-    // Build Card Geometry (Enlarged for prominent photo presence)
-    const cardWidth = 1.75;
-    const cardHeight = 2.5;
-    const radius = 0.18;
-    const depth = 0.04;
+    // Build Card Geometry (Goldilocks medium size - clear photo & comfortable spacing)
+    const cardWidth = 1.52;
+    const cardHeight = 2.18;
+    const radius = 0.16;
+    const depth = 0.038;
 
     const shape = new THREE.Shape();
     const x = -cardWidth / 2;
@@ -129,14 +129,14 @@ export function FloatingPass3D({
 
     const frontMaterial = new THREE.MeshStandardMaterial({
       map: frontTex,
-      roughness: 0.25,
-      metalness: 0.2,
+      roughness: 0.45,
+      metalness: 0.05,
     });
 
     const backMaterial = new THREE.MeshStandardMaterial({
       map: backTex,
-      roughness: 0.25,
-      metalness: 0.2,
+      roughness: 0.45,
+      metalness: 0.05,
     });
 
     // Create 3D Card Mesh Group
@@ -162,6 +162,8 @@ export function FloatingPass3D({
 
     // Interaction State
     let isDragging = false;
+    let isTouch = false;
+    let isHorizontalGesture: boolean | null = null;
     let startX = 0;
     let startY = 0;
     let prevX = 0;
@@ -176,8 +178,9 @@ export function FloatingPass3D({
     let velX = 0;
     let time = 0;
 
-    // --- Universal Pointer Events (Touch, Mouse, Pen) ---
+    // --- Desktop Mouse Pointer Events ---
     const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return; // Touch is handled by dedicated touch listeners
       isDragging = true;
       startX = e.clientX;
       startY = e.clientY;
@@ -189,7 +192,7 @@ export function FloatingPass3D({
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || e.pointerType === "touch") return;
       const dx = e.clientX - prevX;
       const dy = e.clientY - prevY;
       prevX = e.clientX;
@@ -204,8 +207,8 @@ export function FloatingPass3D({
       velX = dy * 0.018;
     };
 
-    const onPointerUp = () => {
-      if (!isDragging) return;
+    const onPointerUp = (e: PointerEvent) => {
+      if (!isDragging || e.pointerType === "touch") return;
       isDragging = false;
       if (totalMoved < 8) {
         targetRotY += Math.PI;
@@ -213,17 +216,59 @@ export function FloatingPass3D({
       }
     };
 
-    // --- Prevent mobile page scroll when dragging on canvas ---
+    // --- Mobile Touch Events with Directional Locking ---
+    // Allows completely natural native vertical page scrolling while enabling horizontal 3D card rotation
     const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
-      }
+      if (e.touches.length !== 1) return;
+      isTouch = true;
+      isHorizontalGesture = null;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      prevX = startX;
+      prevY = startY;
+      totalMoved = 0;
+      velY = 0;
+      velX = 0;
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
+      if (!isTouch || e.touches.length !== 1) return;
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const dx = currentX - prevX;
+      const dy = currentY - prevY;
+      totalMoved += Math.abs(dx) + Math.abs(dy);
+
+      // Lock gesture direction after first 6px of motion
+      if (isHorizontalGesture === null) {
+        const distX = Math.abs(currentX - startX);
+        const distY = Math.abs(currentY - startY);
+        if (distX > 6 || distY > 6) {
+          isHorizontalGesture = distX > distY * 1.1;
+        }
       }
+
+      // If user is intentionally rotating horizontally:
+      if (isHorizontalGesture === true) {
+        if (e.cancelable) e.preventDefault(); // Prevent accidental scroll jitter while spinning 3D
+        targetRotY += dx * 0.024;
+        velY = dx * 0.024;
+        prevX = currentX;
+        prevY = currentY;
+      }
+      // If isHorizontalGesture === false (vertical drag):
+      // DO NOT call e.preventDefault() -> Native browser page scroll handles it completely smoothly!
+    };
+
+    const onTouchEnd = () => {
+      if (!isTouch) return;
+      isTouch = false;
+      // Quick tap detected
+      if (totalMoved < 8) {
+        targetRotY += Math.PI;
+        setIsFlipped((prev) => !prev);
+      }
+      isHorizontalGesture = null;
     };
 
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -231,8 +276,10 @@ export function FloatingPass3D({
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("pointercancel", onPointerUp);
 
-    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchstart", onTouchStart, { passive: true });
     canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    canvas.addEventListener("touchend", onTouchEnd);
+    canvas.addEventListener("touchcancel", onTouchEnd);
 
     // Animation Loop
     const animate = () => {
@@ -240,7 +287,7 @@ export function FloatingPass3D({
       raf = requestAnimationFrame(animate);
       time += 0.02;
 
-      if (!isDragging) {
+      if (!isDragging && !isTouch) {
         // Apply inertia decay
         targetRotY += velY;
         targetRotX += velX;
@@ -263,10 +310,6 @@ export function FloatingPass3D({
       cardGroup.rotation.y = rotY;
       cardGroup.rotation.x = rotX;
 
-      // Move specular highlight light with card rotation
-      movingLight.position.x = Math.sin(rotY) * 2;
-      movingLight.position.y = -Math.sin(rotX) * 2;
-
       renderer.render(scene, camera);
     };
 
@@ -275,8 +318,8 @@ export function FloatingPass3D({
     // Resize Handler
     const handleResize = () => {
       if (!container || !alive) return;
-      const newW = container.clientWidth || 300;
-      const newH = container.clientHeight || 420;
+      const newW = container.clientWidth || 240;
+      const newH = container.clientHeight || 330;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
@@ -294,6 +337,8 @@ export function FloatingPass3D({
       window.removeEventListener("pointercancel", onPointerUp);
       canvas.removeEventListener("touchstart", onTouchStart);
       canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
+      canvas.removeEventListener("touchcancel", onTouchEnd);
       geometry.dispose();
       faceGeo.dispose();
       frontTex.dispose();
@@ -308,17 +353,17 @@ export function FloatingPass3D({
 
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`.trim()}>
-      {/* 3D Floating Canvas Container (Enlarged Photo & Card) */}
+      {/* 3D Floating Canvas Container (Balanced medium size with touch-pan-y) */}
       <div
         ref={mountRef}
-        className="relative w-[280px] sm:w-[320px] h-[390px] sm:h-[430px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-none"
-        aria-label="Interactive 3D Floating Student Pass. Drag to rotate 360 degrees or tap to flip."
+        className="relative w-[240px] sm:w-[260px] h-[330px] sm:h-[355px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-pan-y"
+        aria-label="Interactive 3D Floating Student Pass. Drag sideways to rotate 360 degrees or tap to flip."
       />
 
       {/* Dynamic Floor Shadow */}
       <div
         aria-hidden="true"
-        className="w-44 sm:w-52 h-4 rounded-full bg-white/10 blur-lg -mt-3 transition-all duration-300"
+        className="w-40 sm:w-44 h-3.5 rounded-full bg-white/10 blur-md -mt-3 transition-all duration-300"
       />
 
       {/* Screen reader info for assistive tech */}

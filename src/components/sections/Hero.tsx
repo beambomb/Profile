@@ -175,7 +175,7 @@ export function Hero() {
 
           {/* Mobile Position: Floating 3D Pass */}
           {mounted && !isDesktop ? (
-            <div className="mt-8 mb-4 flex justify-center">
+            <div className="mt-6 mb-2 flex justify-center">
               <FloatingPass3D />
             </div>
           ) : null}
