@@ -69,10 +69,10 @@ export function Hero() {
       <p className="sr-only">{profile.tagline}</p>
       <span className="sr-only">{profile.education.school}</span>
 
-      {/* Hero Layout: Lanyard ribbon anchors flush at top-0 of section boundary */}
-      <div className="flex flex-col-reverse lg:flex-row lg:items-start lg:justify-between gap-8 lg:gap-12">
-        {/* Left Column: Refined, Comfortable Typography (No sub-name, title size adjusted) */}
-        <div className="flex-1 min-w-0 pt-6 sm:pt-8">
+      {/* Hero Layout: Centered vertical alignment between left narrative and right 3D badge */}
+      <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12 min-h-[480px]">
+        {/* Left Column: Centered vertically */}
+        <div className="flex-1 min-w-0 py-6 sm:py-8 flex flex-col justify-center">
           <h1
             id="hero-title"
             className="font-pixel text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-text leading-tight sm:leading-snug"
