@@ -295,11 +295,8 @@ export function ProjectsGrid({
           </div>
         </div>
 
-        {/* Mobile Bottom Navigation Bar: Dots Indicator & Swipe Hint */}
-        <div className="sm:hidden flex items-center justify-between px-4 py-2.5 border-t border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
-          <span className="text-[10px] font-mono text-muted/60">
-            Swipe to navigate
-          </span>
+        {/* Mobile Bottom Navigation Bar: Centered Dots Indicator */}
+        <div className="sm:hidden flex items-center justify-center py-2.5 border-t border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
           <div className="flex items-center gap-1.5" role="group" aria-label="Mobile slide indicators">
             {visible.map((p, idx) => (
               <button

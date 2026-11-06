@@ -41,11 +41,11 @@ export function FloatingPass3D({
 
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const width = container.clientWidth || 260;
-    const height = container.clientHeight || 340;
+    const width = container.clientWidth || 300;
+    const height = container.clientHeight || 420;
 
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 0, 4.4);
+    camera.position.set(0, 0, 3.5);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -55,7 +55,7 @@ export function FloatingPass3D({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.15;
 
     const canvas = renderer.domElement;
     canvas.style.width = "100%";
@@ -64,26 +64,26 @@ export function FloatingPass3D({
     container.appendChild(canvas);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
     keyLight.position.set(3, 4, 5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.6);
     rimLight.position.set(-3, -2, -3);
     scene.add(rimLight);
 
-    const movingLight = new THREE.PointLight(0xffffff, 1.5, 8);
+    const movingLight = new THREE.PointLight(0xffffff, 1.8, 8);
     movingLight.position.set(0, 0, 3);
     scene.add(movingLight);
 
-    // Build Card Geometry
-    const cardWidth = 1.6;
-    const cardHeight = 2.3;
-    const radius = 0.16;
-    const depth = 0.035;
+    // Build Card Geometry (Enlarged for prominent photo presence)
+    const cardWidth = 1.75;
+    const cardHeight = 2.5;
+    const radius = 0.18;
+    const depth = 0.04;
 
     const shape = new THREE.Shape();
     const x = -cardWidth / 2;
@@ -106,8 +106,8 @@ export function FloatingPass3D({
       bevelEnabled: true,
       bevelSegments: 4,
       steps: 1,
-      bevelSize: 0.015,
-      bevelThickness: 0.015,
+      bevelSize: 0.018,
+      bevelThickness: 0.018,
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -151,12 +151,12 @@ export function FloatingPass3D({
     // Front Face Plane
     const faceGeo = new THREE.PlaneGeometry(cardWidth, cardHeight);
     const frontFace = new THREE.Mesh(faceGeo, frontMaterial);
-    frontFace.position.z = depth / 2 + 0.016;
+    frontFace.position.z = depth / 2 + 0.019;
     cardGroup.add(frontFace);
 
     // Back Face Plane
     const backFace = new THREE.Mesh(faceGeo, backMaterial);
-    backFace.position.z = -(depth / 2 + 0.016);
+    backFace.position.z = -(depth / 2 + 0.019);
     backFace.rotation.y = Math.PI;
     cardGroup.add(backFace);
 
@@ -178,6 +178,7 @@ export function FloatingPass3D({
     let velX = 0;
     let time = 0;
 
+    // --- Universal Pointer Events (Touch, Mouse, Pen) ---
     const onPointerDown = (e: PointerEvent) => {
       isDragging = true;
       startX = e.clientX;
@@ -187,7 +188,6 @@ export function FloatingPass3D({
       totalMoved = 0;
       velY = 0;
       velX = 0;
-      canvas.setPointerCapture(e.pointerId);
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -198,36 +198,43 @@ export function FloatingPass3D({
       prevY = e.clientY;
       totalMoved += Math.abs(dx) + Math.abs(dy);
 
-      targetRotY += dx * 0.018;
-      targetRotX += dy * 0.015;
-
-      // Limit vertical tilt so card doesn't flip upside down
+      targetRotY += dx * 0.024;
+      targetRotX += dy * 0.018;
       targetRotX = Math.max(-0.65, Math.min(0.65, targetRotX));
 
-      velY = dx * 0.018;
-      velX = dy * 0.015;
+      velY = dx * 0.024;
+      velX = dy * 0.018;
     };
 
-    const onPointerUp = (e: PointerEvent) => {
+    const onPointerUp = () => {
       if (!isDragging) return;
       isDragging = false;
-      try {
-        canvas.releasePointerCapture(e.pointerId);
-      } catch {
-        // ignore
-      }
-
-      // If user tapped without dragging, flip the card 180 degrees
       if (totalMoved < 8) {
         targetRotY += Math.PI;
         setIsFlipped((prev) => !prev);
       }
     };
 
+    // --- Prevent mobile page scroll when dragging on canvas ---
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+      }
+    };
+
     canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
 
     // Animation Loop
     const animate = () => {
@@ -270,8 +277,8 @@ export function FloatingPass3D({
     // Resize Handler
     const handleResize = () => {
       if (!container || !alive) return;
-      const newW = container.clientWidth || 260;
-      const newH = container.clientHeight || 340;
+      const newW = container.clientWidth || 300;
+      const newH = container.clientHeight || 420;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
@@ -284,9 +291,11 @@ export function FloatingPass3D({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", handleResize);
       canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
-      canvas.removeEventListener("pointercancel", onPointerUp);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
       geometry.dispose();
       faceGeo.dispose();
       frontTex.dispose();
@@ -301,24 +310,18 @@ export function FloatingPass3D({
 
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`.trim()}>
-      {/* 3D Floating Canvas Container */}
+      {/* 3D Floating Canvas Container (Enlarged Photo & Card) */}
       <div
         ref={mountRef}
-        className="relative w-[240px] sm:w-[260px] h-[310px] sm:h-[330px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+        className="relative w-[280px] sm:w-[320px] h-[390px] sm:h-[430px] flex items-center justify-center cursor-grab active:cursor-grabbing z-10 touch-none"
         aria-label="Interactive 3D Floating Student Pass. Drag to rotate 360 degrees or tap to flip."
       />
 
       {/* Dynamic Floor Shadow */}
       <div
         aria-hidden="true"
-        className="w-36 sm:w-44 h-3.5 rounded-full bg-white/10 blur-md -mt-4 transition-all duration-300"
+        className="w-44 sm:w-52 h-4 rounded-full bg-white/10 blur-lg -mt-3 transition-all duration-300"
       />
-
-      {/* Interaction Hint */}
-      <p className="mt-2 text-[10px] font-mono text-muted/70 tracking-wide select-none flex items-center gap-1.5">
-        <span className="text-accent">⟲</span>
-        <span>Drag to rotate 3D • Tap to flip</span>
-      </p>
 
       {/* Screen reader info for assistive tech */}
       <div className="sr-only">
@@ -330,3 +333,4 @@ export function FloatingPass3D({
     </div>
   );
 }
+

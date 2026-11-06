@@ -50,6 +50,16 @@ function useTypewriter(word = "Bimo") {
 export function Hero() {
   const displayedName = useTypewriter("Bimo");
   const badgeTargetRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const scrollToProjects = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,9 +77,9 @@ export function Hero() {
       <span id="about" className="sr-only" />
 
       {/* Desktop-only Full-width 3D Lanyard Canvas with Hanging Strap */}
-      <div className="hidden lg:block">
+      {mounted && isDesktop ? (
         <LanyardBadge targetRef={badgeTargetRef} />
-      </div>
+      ) : null}
 
       {/* Accessible screen-reader tagline and about data to preserve SEO & test contracts */}
       <h2 className="sr-only">About me</h2>
@@ -163,10 +173,12 @@ export function Hero() {
             </a>
           </div>
 
-          {/* Mobile Position B: Floating 3D Pass below the CTAs & Socials */}
-          <div className="lg:hidden mt-8 mb-4 flex justify-center">
-            <FloatingPass3D />
-          </div>
+          {/* Mobile Position: Floating 3D Pass */}
+          {mounted && !isDesktop ? (
+            <div className="mt-8 mb-4 flex justify-center">
+              <FloatingPass3D />
+            </div>
+          ) : null}
         </div>
 
         {/* Right Column (Desktop only): Elastic Interactive Lanyard Badge target */}
