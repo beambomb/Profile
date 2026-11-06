@@ -1,6 +1,5 @@
 "use client";
 
-import { ProfileSidebar } from "@/components/layout/ProfileSidebar";
 import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
 import { EducationSection } from "@/components/sections/EducationSection";
@@ -12,13 +11,9 @@ import { Contact } from "@/components/sections/Contact";
 
 export default function Home() {
   return (
-    <div id="top" className="min-h-screen bg-bg text-text flex flex-col lg:flex-row relative selection:bg-accent/30 selection:text-text transition-colors duration-300">
-      {/* Left Sidebar (Desktop Fixed / Sticky, Mobile Top) */}
-      <ProfileSidebar />
-
-      {/* Right Main Scrollable Content */}
-      <main id="main" className="flex-1 max-w-4xl px-6 sm:px-10 lg:px-12 py-4 sm:py-6 lg:py-7 min-w-0">
-        {/* Page Sections */}
+    <div id="top" className="min-h-screen bg-bg text-text relative selection:bg-accent/30 selection:text-text transition-colors duration-300">
+      {/* Centered Single-Column Container */}
+      <main id="main" className="mx-auto w-full max-w-4xl px-5 sm:px-8 lg:px-10 py-6 sm:py-10">
         <Hero />
         <Projects />
         <EducationSection />
