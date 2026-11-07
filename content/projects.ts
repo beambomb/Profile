@@ -70,6 +70,75 @@ export const projects = projectsSchema.parse([
     needsReview: true,
   },
   {
+    slug: "bengawan-solo-flood-forecasting",
+    title: "Bengawan Solo Flood Forecasting",
+    domain: "AI/ML",
+    period: "January 2026 – Present",
+    award: "Sebelas Maret Statistics & Data Science (SSDS) 2026",
+    oneLiner:
+      "A multi-horizon hydrological machine learning system predicting water levels across 30 river stations for the 8-month Bengawan Solo flood season.",
+    problem: [
+      "Forecasting water surface elevation (TMA) along Indonesia's longest river basin across 30 heterogeneous monitoring stations over an 8-month deployment window without future ground-truth water level readings.",
+      "Standard autoregressive models collapse due to recursive error accumulation over 242-day rollouts, while elevation disparities (1 to 144 mdpl) and sensor telemetry anomalies cause severe model bias.",
+    ],
+    solution: [
+      "Developed the V60 Grand Master pipeline, transitioning from isolated station models to a unified Target-Normalized Global Ensemble combining diverse CatBoost and LightGBM models trained on robust Z-score scaled water levels.",
+      "Engineered domain-specific hydrological features: Antecedent Precipitation Index (API) across three half-life soil saturation regimes (12h, 48h, 7 days), effective direct runoff, and topological upstream routing through the HydroRIVERS network with exponential distance decay.",
+      "Employed Huber loss optimization with conservative sample weight damping (0.05) on single-point sensor spikes to preserve true flood peak signals while immunizing against hardware telemetry glitches.",
+    ],
+    results: [
+      "Successfully generated 21,780 multi-horizon target predictions across all 30 stations spanning 242 days (3 daily observation timestamps at 06:00, 12:00, and 18:00 WIB).",
+      "Validated temporal generalization across a 4-fold rolling-origin backtesting framework without data leakage, evaluating global RMSE, macro-station MAE, and worst-station MAE.",
+      "Documented experimental progression across 58 iterative architectures—benchmarking LSTMs, Graph WaveNets, and Temporal Fusion Transformers before perfecting the heterogeneous tree ensemble.",
+    ],
+    role: "Led end-to-end machine learning and hydrological engineering: geospatial reach traversal using HydroRIVERS topology, robust target scaling, 58 iterative model experiments, rolling-origin validation, and final 5-head heterogeneous ensemble deployment.",
+    tags: ["Python", "CatBoost", "LightGBM", "XGBoost", "Hydrology", "HydroRIVERS", "Optuna", "Folium"],
+    stack: [
+      { label: "Modeling & Ensembling", items: ["CatBoost", "LightGBM", "XGBoost", "Heterogeneous 5-Head Ensemble", "Quantile Regressors"] },
+      { label: "Hydrological Feature Engineering", items: ["Antecedent Precipitation Index (API)", "Soil Moisture Saturation", "HydroRIVERS Topology", "Hydraulic Distance Decay"] },
+      { label: "Optimization & Validation", items: ["Optuna", "Huber Loss (delta=1.5)", "Robust Z-Score Scaling", "4-Fold Rolling-Origin CV"] },
+      { label: "Geospatial & Tooling", items: ["Python", "GeoPandas", "Folium (Interactive Stream Paths)", "Shapely"] },
+    ],
+    architecture: {
+      summary: "Multi-horizon river basin forecasting pipeline routing environmental and topological signals through a target-normalized heterogeneous ensemble.",
+      steps: [
+        { label: "Meteorological Ingestion", detail: "Hourly precipitation, soil moisture, and climate indicators across 30 stations." },
+        { label: "Hydrological Modeling", detail: "Computes API soil memory (12h, 48h, 168h) and HydroRIVERS upstream routing." },
+        { label: "Robust Normalization", detail: "Station-wise median and IQR scaling maps disparate elevations (1-144 mdpl) to common z-scores." },
+        { label: "Heterogeneous Ensemble", detail: "5 diverse CatBoost and LightGBM models trained with Huber loss and spike damping." },
+        { label: "Inverse Scaling", detail: "Reconstructs physical water level elevation (meters above sea level) per station." },
+        { label: "Multi-Horizon Forecast", detail: "Generates 21,780 predictions across 242 days with optional quantile uncertainty bounds." },
+      ],
+    },
+    decisions: [
+      {
+        title: "Target-normalized global model over local station models",
+        why: "Individual station models struggled with limited historical variance and overfitting. Normalizing target water levels into station-relative robust z-scores allowed a single global ensemble to learn shared hydrological flood dynamics across all 30 stations.",
+      },
+      {
+        title: "HydroRIVERS topological reach traversal with distance decay",
+        why: "Rather than relying solely on local station weather, upstream rainfall was routed downstream along true river network reaches weighted by exponential hydraulic distance decay.",
+      },
+      {
+        title: "Rolling-origin 4-fold validation over random k-fold",
+        why: "Simulates the exact real-world deployment environment over four 8-month historical forecast horizons, preventing future lookahead leakage in time-series evaluation.",
+      },
+    ],
+    limitations: [
+      "Target observations contain occasional unphysical single-point sensor spikes requiring conservative damping.",
+      "Long-range 8-month weather inputs rely on seasonal forecasts rather than measured precipitation.",
+    ],
+    repoUrl: "https://github.com/beambomb/SSF-SSDS",
+    screenshots: [
+      {
+        src: "/images/projects/SSF-SSDS/bengawan-solo-spatial-map.png",
+        alt: "Bengawan Solo river basin interactive spatial topology map showing 30 monitoring stations and flow paths",
+        caption: "Geographic spatial distribution of all 30 monitoring stations along the Bengawan Solo basin with elevation color gradient",
+      },
+    ],
+    needsReview: true,
+  },
+  {
     slug: "turbofan-predictive-maintenance",
     title: "Turbofan Predictive Maintenance",
     domain: "Data",

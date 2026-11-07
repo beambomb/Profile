@@ -6,7 +6,7 @@ import { projectsSchema } from "./schema";
 describe("content", () => {
   it("has the featured projects with unique slugs", () => {
     expect(projects.map((p) => p.slug).sort()).toEqual(
-      ["aemads", "carikos", "renewly", "turbofan-predictive-maintenance", "vanigrow", "weather-elt-pipeline"].sort(),
+      ["aemads", "bengawan-solo-flood-forecasting", "carikos", "renewly", "turbofan-predictive-maintenance", "vanigrow", "weather-elt-pipeline"].sort(),
     );
   });
 
