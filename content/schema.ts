@@ -32,6 +32,8 @@ export const profileSchema = z.object({
       organization: nonEmpty,
       role: nonEmpty,
       period: nonEmpty,
+      month: z.string().optional(),
+      year: z.number().int().optional(),
       points: z.array(nonEmpty).min(1),
     }),
   ),

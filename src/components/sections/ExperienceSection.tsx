@@ -1,98 +1,143 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useMemo } from "react";
 import { profile } from "@content";
 
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+] as const;
+
+type MonthName = (typeof MONTH_NAMES)[number];
+
+const MONTH_MAP: Record<string, MonthName> = {
+  jan: "Jan", january: "Jan",
+  feb: "Feb", february: "Feb",
+  mar: "Mar", march: "Mar",
+  apr: "Apr", april: "Apr",
+  may: "May",
+  jun: "Jun", june: "Jun",
+  jul: "Jul", july: "Jul",
+  aug: "Aug", august: "Aug",
+  sep: "Sep", september: "Sep",
+  oct: "Oct", october: "Oct",
+  nov: "Nov", november: "Nov",
+  dec: "Dec", december: "Dec",
+};
+
+interface ParsedExperienceItem {
+  organization: string;
+  role: string;
+  period: string;
+  points: string[];
+  year: number;
+  month: MonthName;
+}
+
 export function ExperienceSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
-  const items = profile.experience || [];
+  // Normalize and parse every experience item to an exact year and month
+  const parsedItems: ParsedExperienceItem[] = useMemo(() => {
+    return (profile.experience || []).map((item) => {
+      // 1. Year determination
+      let year = item.year;
+      if (!year) {
+        const yearMatch = item.period.match(/\b(20\d\d)\b/);
+        year = yearMatch ? parseInt(yearMatch[1], 10) : 2026;
+      }
 
-  useEffect(() => {
-    setIsMounted(true);
-    const check = () => setIsDesktop(window.innerWidth >= 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+      // 2. Month determination
+      let monthStr = item.month || "";
+      if (!monthStr) {
+        const monthMatch = item.period.match(
+          /\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\b/i
+        );
+        if (monthMatch) {
+          monthStr = monthMatch[1];
+        }
+      }
+
+      const normalizedMonth = MONTH_MAP[monthStr.toLowerCase()] || "Jan";
+
+      return {
+        ...item,
+        year,
+        month: normalizedMonth,
+      };
+    });
   }, []);
 
-  // On desktop, 2 cards fit side-by-side. On mobile/tablet, 1 card fits.
-  const cardsPerView = isDesktop ? 2 : 1;
-  const maxIndex = Math.max(0, items.length - cardsPerView);
+  // Build the Tree structure:
+  // Evaluates Jan-Dec across 2024–2026 (or any years present),
+  // BUT ONLY includes months that actually have correlated events!
+  const treeData = useMemo(() => {
+    // Collect all unique years in data, plus guaranteed support for 2024..2026
+    const dataYears = parsedItems.map((item) => item.year);
+    const minYear = Math.min(2024, ...dataYears);
+    const maxYear = Math.max(2026, ...dataYears);
 
-  // Keep activeIndex within valid bounds when resizing
-  useEffect(() => {
-    if (activeIndex > maxIndex) {
-      setActiveIndex(maxIndex);
+    const yearsList: number[] = [];
+    for (let y = minYear; y <= maxYear; y++) {
+      yearsList.push(y);
     }
-  }, [maxIndex, activeIndex]);
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prev) => Math.min(maxIndex, prev + 1));
-  };
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      handlePrev();
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      handleNext();
+    if (sortOrder === "desc") {
+      yearsList.sort((a, b) => b - a);
+    } else {
+      yearsList.sort((a, b) => a - b);
     }
-  };
 
-  // Mobile Touch Swipe with Directional Locking (Never interrupts vertical scroll)
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
-  const isHorizontalGesture = useRef<boolean | null>(null);
+    const groups: {
+      year: number;
+      months: {
+        month: MonthName;
+        monthIndex: number;
+        items: ParsedExperienceItem[];
+      }[];
+    }[] = [];
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return;
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-    isHorizontalGesture.current = null;
-  };
+    for (const year of yearsList) {
+      const yearEvents = parsedItems.filter((item) => item.year === year);
+      // If a year has no events yet, skip rendering it until user adds items
+      if (yearEvents.length === 0) continue;
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const dx = e.touches[0].clientX - touchStartX.current;
-    const dy = e.touches[0].clientY - touchStartY.current;
+      // Iterate Jan through Dec
+      const monthGroups: {
+        month: MonthName;
+        monthIndex: number;
+        items: ParsedExperienceItem[];
+      }[] = [];
 
-    if (isHorizontalGesture.current === null) {
-      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
-        isHorizontalGesture.current = Math.abs(dx) > Math.abs(dy);
+      // Sort months either desc (Dec -> Jan) or asc (Jan -> Dec) matching sort order
+      const monthIndices = sortOrder === "desc"
+        ? [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+      for (const idx of monthIndices) {
+        const monthName = MONTH_NAMES[idx];
+        const monthEvents = yearEvents.filter((item) => item.month === monthName);
+
+        // ONLY add if there is at least one correlated event in this month!
+        if (monthEvents.length > 0) {
+          monthGroups.push({
+            month: monthName,
+            monthIndex: idx,
+            items: monthEvents,
+          });
+        }
+      }
+
+      if (monthGroups.length > 0) {
+        groups.push({
+          year,
+          months: monthGroups,
+        });
       }
     }
-    // If vertical gesture, we do NOT call preventDefault so native scroll works smoothly!
-  };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || isHorizontalGesture.current !== true) {
-      touchStartX.current = null;
-      touchStartY.current = null;
-      isHorizontalGesture.current = null;
-      return;
-    }
-    const endX = e.changedTouches[0].clientX;
-    const diff = endX - touchStartX.current;
-    if (Math.abs(diff) > 40) {
-      if (diff < 0) {
-        handleNext();
-      } else {
-        handlePrev();
-      }
-    }
-    touchStartX.current = null;
-    touchStartY.current = null;
-    isHorizontalGesture.current = null;
-  };
+    return groups;
+  }, [parsedItems, sortOrder]);
 
   return (
     <section id="experience" className="scroll-mt-20 py-8 sm:py-12 border-b border-border">
@@ -101,166 +146,109 @@ export function ExperienceSection() {
         Experience
       </h2>
 
-      {/* Subsection 1: Organizational and Committee Experience Carousel */}
-      <div
-        className="outline-none"
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="Organizational and Committee Experience"
-      >
-        {/* Header Controls: Title on Left, Counter & Arrow Controls on Right */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <h3 className="flex items-center gap-2 text-xs sm:text-sm font-bold text-accent uppercase tracking-wider font-mono">
+      {/* Subsection 1: Organizational and Committee Experience (Tree Timeline) */}
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <h3 className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-accent uppercase tracking-wider font-mono">
             <span aria-hidden="true" className="text-accent text-sm select-none shrink-0 font-bold">▸</span>
             <span>Organizational and Committee Experience</span>
           </h3>
 
-          {/* Nav Controls: Prev / Next buttons & Counter */}
-          {items.length > cardsPerView ? (
-            <div className="flex items-center gap-2.5 self-end sm:self-auto select-none">
-              <span className="text-[11px] font-mono text-muted/70 tracking-wider">
-                {String(activeIndex + 1).padStart(2, "0")} / {String(maxIndex + 1).padStart(2, "0")}
-              </span>
-              <div className="flex items-center gap-1.5" role="group" aria-label="Carousel navigation">
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  disabled={activeIndex === 0}
-                  aria-label="Previous organization"
-                  className="size-7 inline-flex items-center justify-center rounded-md border border-border bg-[#101010] text-muted hover:text-text hover:border-border-strong disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 text-xs font-mono"
-                >
-                  ←
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={activeIndex === maxIndex}
-                  aria-label="Next organization"
-                  className="size-7 inline-flex items-center justify-center rounded-md border border-border bg-[#101010] text-muted hover:text-text hover:border-border-strong disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 text-xs font-mono"
-                >
-                  →
-                </button>
+          {/* Minimalist Chronological Order Toggle */}
+          <button
+            type="button"
+            onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border bg-[#0d0d0d] text-[11px] font-mono text-muted hover:text-text hover:border-border-strong transition-all select-none"
+            aria-label={`Toggle timeline sort order. Currently ${sortOrder === "desc" ? "Latest first (2026 → 2024)" : "Oldest first (2024 → 2026)"}`}
+          >
+            <span className="text-accent/80 font-bold">⇅</span>
+            <span>{sortOrder === "desc" ? "2026 → 2024" : "2024 → 2026"}</span>
+          </button>
+        </div>
+
+        {/* Tree Container with Vertical Trunk Line */}
+        <div className="relative pl-6 sm:pl-8 border-l-2 border-border-strong/70 ml-2.5 sm:ml-4 space-y-10">
+          {treeData.map((yearGroup) => (
+            <div key={yearGroup.year} className="relative">
+              {/* Year Trunk Node Point */}
+              <div
+                className="absolute -left-[31px] sm:-left-[39px] top-1 flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <div className="size-3.5 rounded-sm bg-black border-2 border-accent shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+              </div>
+
+              {/* Year Label */}
+              <div className="flex items-center gap-2.5 mb-6">
+                <span className="font-pixel text-base sm:text-lg font-bold text-text tracking-wide">
+                  {yearGroup.year}
+                </span>
+                <span className="font-mono text-[11px] text-muted/60">
+                  // {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0)} {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0) === 1 ? "role" : "roles"}
+                </span>
+              </div>
+
+              {/* Month Branches (Only rendered if an event exists for that month!) */}
+              <div className="space-y-6">
+                {yearGroup.months.map((monthGroup) => (
+                  <div key={monthGroup.month} className="relative pl-5 sm:pl-6">
+                    {/* Horizontal Branch Connector Line from Trunk */}
+                    <div
+                      className="absolute -left-6 sm:-left-8 top-3.5 w-5 sm:w-6 h-px bg-border-strong"
+                      aria-hidden="true"
+                    />
+
+                    {/* Branch Node Point */}
+                    <div
+                      className="absolute -left-1 top-2.5 size-2 rounded-full bg-accent/90"
+                      aria-hidden="true"
+                    />
+
+                    {/* Month Tag */}
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-surface border border-border text-[11px] font-mono font-bold text-accent tracking-wider uppercase mb-3">
+                      <span>{monthGroup.month}</span>
+                      <span className="text-muted/60">/ {yearGroup.year}</span>
+                    </div>
+
+                    {/* Events List on this Branch */}
+                    <div className="space-y-4">
+                      {monthGroup.items.map((item) => (
+                        <div
+                          key={item.organization}
+                          className="rounded-xl border border-border bg-[#0a0a0a] p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                            <h4 className="text-base sm:text-lg font-bold text-text leading-snug">
+                              {item.role}
+                            </h4>
+                            <span className="text-xs font-mono text-accent shrink-0 font-medium">
+                              {item.period}
+                            </span>
+                          </div>
+
+                          <p className="text-xs sm:text-sm font-medium text-muted mt-1">
+                            {item.organization}
+                          </p>
+
+                          <div className="w-full h-px bg-border/60 my-3.5" />
+
+                          <ul className="space-y-2 text-xs sm:text-sm text-text/80 leading-relaxed">
+                            {item.points.map((point) => (
+                              <li key={point} className="flex items-start gap-2.5">
+                                <span aria-hidden="true" className="text-accent shrink-0 mt-0.5 text-xs select-none">▸</span>
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ) : null}
+          ))}
         </div>
-
-        {/* Quick-Jump Organization Pill Rail */}
-        {items.length > 1 ? (
-          <div
-            className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5 mb-4 select-none"
-            role="tablist"
-            aria-label="Organization list tabs"
-          >
-            {items.map((item, idx) => {
-              const isSelected = isDesktop
-                ? idx >= activeIndex && idx < activeIndex + cardsPerView
-                : idx === activeIndex;
-              return (
-                <button
-                  key={item.organization}
-                  role="tab"
-                  type="button"
-                  aria-selected={isSelected}
-                  onClick={() => setActiveIndex(Math.min(idx, maxIndex))}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all duration-200 shrink-0 border ${
-                    isSelected
-                      ? "border-accent/60 bg-accent/10 text-text font-bold shadow-sm"
-                      : "border-border/80 bg-[#0c0c0c] text-muted hover:text-text hover:border-border-strong"
-                  }`}
-                >
-                  <span className="text-accent/80 text-[10px]">0{idx + 1}</span>
-                  <span className="truncate max-w-[200px] sm:max-w-none">{item.organization}</span>
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {/* Carousel Sliding Viewport */}
-        <div
-          className="relative overflow-hidden -mx-1 px-1 touch-pan-y"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div
-            className="flex gap-4 transition-transform duration-300 ease-out"
-            style={{
-              transform: isMounted
-                ? isDesktop
-                  ? `translateX(calc(-${activeIndex} * (50% + 8px)))`
-                  : `translateX(calc(-${activeIndex} * (100% + 16px)))`
-                : "none",
-            }}
-          >
-            {items.map((item, idx) => (
-              <div
-                key={item.organization}
-                className="w-full md:w-[calc(50%-8px)] shrink-0 rounded-xl border border-border bg-[#0a0a0a] hover:border-border-strong/90 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between"
-              >
-                <div>
-                  {/* Top Header Strip: Index badge & Period Pill */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="font-mono text-[11px] font-semibold text-accent/85 tracking-wider uppercase">
-                      #{String(idx + 1).padStart(2, "0")} // LEADERSHIP
-                    </span>
-                    <span className="font-mono text-[11px] font-medium text-accent border border-accent/25 bg-accent/5 px-2.5 py-0.5 rounded-full shrink-0">
-                      {item.period}
-                    </span>
-                  </div>
-
-                  {/* Role Title */}
-                  <h4 className="text-base sm:text-lg font-bold text-text leading-snug">
-                    {item.role}
-                  </h4>
-
-                  {/* Organization Name */}
-                  <p className="text-xs sm:text-sm font-medium text-muted mt-1">
-                    {item.organization}
-                  </p>
-
-                  {/* Hairline Divider */}
-                  <div className="w-full h-px bg-border/60 my-4" />
-
-                  {/* Impact Bullets */}
-                  <ul className="space-y-2.5 text-xs sm:text-sm text-muted leading-relaxed">
-                    {item.points.map((point) => (
-                      <li key={point} className="flex items-start gap-2.5">
-                        <span aria-hidden="true" className="text-accent shrink-0 mt-0.5 text-xs select-none">▸</span>
-                        <span className="text-text/85">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Slide Indicator Dots (when multiple slides exist) */}
-        {items.length > cardsPerView ? (
-          <div
-            className="flex items-center justify-center gap-1.5 mt-4 select-none"
-            role="group"
-            aria-label="Experience slide indicators"
-          >
-            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setActiveIndex(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                aria-current={idx === activeIndex}
-                className={`h-1.5 rounded-full transition-all duration-200 ${
-                  idx === activeIndex ? "w-6 bg-accent" : "w-1.5 bg-border hover:bg-muted"
-                }`}
-              />
-            ))}
-          </div>
-        ) : null}
       </div>
 
       {/* Subsection 2: Competitions and Awards */}

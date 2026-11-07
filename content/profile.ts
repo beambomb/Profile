@@ -21,7 +21,9 @@ export const profile = profileSchema.parse({
     {
       organization: "KMTETI",
       role: "Member of KMTETI Workshop Division",
-      period: "2026 – Present",
+      period: "Jan 2026 – Present",
+      month: "Jan",
+      year: 2026,
       points: [
         "Ran a 6-session Data Science training for 60+ participants and acted as the link between participants and mentors.",
         "Led a 30+ member committee for Bootcamp TETI 2026 (100+ participants): mentor recruitment, timeline planning, and on-site supervision.",
@@ -30,7 +32,9 @@ export const profile = profileSchema.parse({
     {
       organization: "Night Login Data Science Community",
       role: "Deputy Head",
-      period: "2026 – Present",
+      period: "Jan 2026 – Present",
+      month: "Jan",
+      year: 2026,
       points: [
         "Organized hybrid (online and in-person) Data Science trainings and workshops for 50+ members.",
         "Mentored members preparing for national Data Science competitions.",
