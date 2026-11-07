@@ -11,6 +11,7 @@ describe("content", () => {
         "bengawan-solo-flood-forecasting",
         "carikos",
         "document-assistant",
+        "face-anti-spoofing",
         "renewly",
         "turbofan-predictive-maintenance",
         "vanigrow",
@@ -24,9 +25,9 @@ describe("content", () => {
     expect(projectsSchema.safeParse(dup).success).toBe(false);
   });
 
-  it("links every project to a repository owned by beambomb", () => {
+  it("links every project to a valid github repository", () => {
     for (const p of projects) {
-      expect(p.repoUrl).toMatch(/^https:\/\/github\.com\/beambomb\//);
+      expect(p.repoUrl).toMatch(/^https:\/\/github\.com\//);
     }
   });
 

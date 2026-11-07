@@ -220,6 +220,79 @@ export const projects = projectsSchema.parse([
     needsReview: true,
   },
   {
+    slug: "face-anti-spoofing",
+    title: "Face Anti-Spoofing & Liveness Detection",
+    domain: "AI/ML",
+    period: "November 2026",
+    oneLiner:
+      "A zero-server edge AI system classifying 6 real vs. spoof attack modalities (masks, mannequins, screens, photos) using ConvNeXt-Tiny and in-browser ONNX Runtime Web.",
+    problem: [
+      "Presentation Attacks & Biometric Spoofing: Facial verification systems are vulnerable to physical presentation attacks—including printed photos, digital screen replays, 3D silicone masks, and mannequins.",
+      "Heavy Server Infrastructure & Privacy Risks: Streaming live webcam frames to remote GPU servers incurs heavy cloud costs and raises serious biometric data privacy concerns for users.",
+      "Extreme Attack Imbalance: Physical spoof datasets exhibit heavily skewed distributions across attack types, causing standard cross-entropy models to miss subtle 3D mask or mannequin artifacts.",
+    ],
+    solution: [
+      "Trained ConvNeXt-Tiny on 1,474 deduplicated face images across 6 attack classes, freezing the ImageNet backbone to prevent overfitting and fine-tuning a custom Linear(768 -> 6) classification head.",
+      "Optimized hyperparameters using Optuna over Stratified 5-Fold Cross Validation with Weighted Focal Loss (gamma=2.18) and CosineAnnealingLR to aggressively penalize hard spoof misclassifications.",
+      "Exported the best Fold 1 PyTorch checkpoint to ONNX (106 MB) and built a client-side web application powered by ONNX Runtime Web for real-time 384x384 in-browser inference without sending images to a server.",
+      "Engineered dual deployment: a standalone Hugging Face Static Space and a Vercel edge frontend that dynamically fetches model weights with zero server compute overhead.",
+    ],
+    results: [
+      "Achieved a 5-fold cross-validation Macro F1 score of 0.9034 ± 0.0149, with the best Fold 1 model reaching 0.9295 Macro F1 and 93.56% validation accuracy (295 samples).",
+      "Executed 100% private, serverless client-side inference directly inside the visitor's browser—camera frames never leave the local device.",
+      "Real-time multi-class probability breakdown across 6 distinct categories: Real Face, Mask, Mannequin, Screen Replay, Printed Photo, and Unknown Spoof.",
+    ],
+    role: "Machine Learning & Edge Deployment Engineer: Trained ConvNeXt-Tiny with frozen backbone and weighted focal loss in PyTorch, tuned hyperparameters with Optuna over 5-fold CV, exported the Fold 1 model to ONNX, and engineered the in-browser ONNX Runtime Web client.",
+    tags: ["PyTorch", "ConvNeXt", "ONNX", "Computer Vision", "Optuna", "FastAPI", "WebAssembly", "AI/ML"],
+    stack: [
+      { label: "Model & Training", items: ["PyTorch", "ConvNeXt-Tiny", "Weighted Focal Loss (gamma=2.18)", "Optuna", "Stratified 5-Fold CV"] },
+      { label: "Edge Inference & Web", items: ["ONNX Runtime Web", "WebAssembly / WebGL", "JavaScript (ES6+)", "Hugging Face Static Space", "Vercel"] },
+      { label: "Backend & Tooling", items: ["FastAPI", "Uvicorn", "Python 3.11", "Albumentations", "ImageNet Normalization"] },
+    ],
+    architecture: {
+      summary: "End-to-end edge computer vision pipeline from PyTorch ConvNeXt training and Optuna tuning to zero-server in-browser ONNX inference across 6 attack classes.",
+      steps: [
+        { label: "Image Capture & Normalization", detail: "Captures webcam frame or user upload, resizes single RGB image to 384x384, and normalizes using ImageNet mean and standard deviation." },
+        { label: "Client-Side ONNX Session", detail: "Loads the 106 MB Fold 1 ONNX model directly into browser memory via ONNX Runtime Web without uploading biometric data." },
+        { label: "ConvNeXt-Tiny Feature Extraction", detail: "Feeds normalized tensor through the frozen ConvNeXt-Tiny backbone to produce 768-dimensional visual feature embeddings." },
+        { label: "6-Class Classifier Projection", detail: "Linear projection (768 -> 6) and numerical Softmax calculate confidence probabilities for realperson, fake_mask, fake_mannequin, fake_screen, fake_printed, and fake_unknown." },
+        { label: "Verdict & Probability Visualizer", detail: "Displays primary classification decision (Real vs. Spoof detected) alongside individual class distribution progress bars." },
+      ],
+    },
+    decisions: [
+      {
+        title: "In-Browser ONNX Runtime over Remote Cloud GPU API",
+        why: "Running inference locally in the user's browser via ONNX Runtime Web eliminates recurring GPU cloud hosting expenses and guarantees complete biometric privacy since photos never leave the machine.",
+      },
+      {
+        title: "Weighted Focal Loss (gamma=2.18) over Standard Cross-Entropy",
+        why: "Face spoof attack datasets suffer from severe class imbalances. Focal loss dynamically down-weights easy examples and forces the model to learn subtle attack boundaries like mask edges and mannequin textures.",
+      },
+      {
+        title: "Frozen ConvNeXt-Tiny Backbone with Custom Linear Classifier",
+        why: "With ~1,500 training images, unfreezing the full network risks catastrophic overfitting. Freezing pretrained ImageNet weights while tuning only the 768 -> 6 classifier yielded superior generalization (0.9295 Macro F1).",
+      },
+    ],
+    limitations: [
+      "Initial Model Download: The 106 MB ONNX model requires a brief initial load time depending on network connection before the in-browser model status turns ready.",
+      "Single-Frame RGB Detection: Operates on a single 384x384 image without dedicated infrared, structured light depth sensors, or multi-frame temporal video tracking.",
+    ],
+    repoUrl: "https://github.com/afiqchoiruzan/anti-spoofing",
+    screenshots: [
+      {
+        src: "/images/projects/antispoofing/anti-spoofing-demo.png",
+        alt: "Face Anti-Spoofing Web Demo detecting silicone mask attack with multi-class probability breakdown",
+        caption: "In-browser ONNX inference detecting a 3D mask spoof attack with 6-class confidence scores",
+      },
+      {
+        src: "/images/projects/antispoofing/anti-spoofing-hero.png",
+        alt: "Anti-Spoofing overview with 6 detected attack classes and single-frame 384px resolution pipeline",
+        caption: "Overview of detected attack modalities: real human, masks, mannequins, screens, and printouts",
+      },
+    ],
+    needsReview: true,
+  },
+  {
     slug: "turbofan-predictive-maintenance",
     title: "Turbofan Predictive Maintenance",
     domain: "Data",
