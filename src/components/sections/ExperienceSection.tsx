@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { profile } from "@content";
+import { FoldableItem } from "@/components/motion/FoldableItem";
 
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -168,30 +169,37 @@ export function ExperienceSection() {
 
         {/* Tree Container with Vertical Trunk Line */}
         <div className="relative pl-6 sm:pl-8 border-l-2 border-border-strong/70 ml-2.5 sm:ml-4 space-y-10">
-          {treeData.map((yearGroup) => (
+          {treeData.map((yearGroup, yIdx) => (
             <div key={yearGroup.year} className="relative">
-              {/* Year Trunk Node Point */}
-              <div
-                className="absolute -left-[31px] sm:-left-[39px] top-1 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                <div className="size-3.5 rounded-sm bg-black border-2 border-accent shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-              </div>
+              {/* Year Trunk Node Point & Label (Foldable on Scroll) */}
+              <FoldableItem index={yIdx} foldAngle={14} className="relative">
+                {/* Year Trunk Node Point */}
+                <div
+                  className="absolute -left-[31px] sm:-left-[39px] top-1 flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <div className="size-3.5 rounded-sm bg-black border-2 border-accent shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                </div>
 
-              {/* Year Label */}
-              <div className="flex items-center gap-2.5 mb-6">
-                <span className="font-pixel text-base sm:text-lg font-bold text-text tracking-wide">
-                  {yearGroup.year}
-                </span>
-                <span className="font-mono text-[11px] text-muted/60">
-                  // {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0)} {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0) === 1 ? "role" : "roles"}
-                </span>
-              </div>
+                {/* Year Label */}
+                <div className="flex items-center gap-2.5 mb-6">
+                  <span className="font-pixel text-base sm:text-lg font-bold text-text tracking-wide">
+                    {yearGroup.year}
+                  </span>
+                  <span className="font-mono text-[11px] text-muted/60">
+                    // {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0)} {yearGroup.months.reduce((acc, m) => acc + m.items.length, 0) === 1 ? "role" : "roles"}
+                  </span>
+                </div>
+              </FoldableItem>
 
               {/* Month Branches (Only rendered if an event exists for that month!) */}
               <div className="space-y-6">
-                {yearGroup.months.map((monthGroup) => (
-                  <div key={monthGroup.month} className="relative pl-5 sm:pl-6">
+                {yearGroup.months.map((monthGroup, mIdx) => (
+                  <FoldableItem
+                    key={`${yearGroup.year}-${monthGroup.month}`}
+                    index={mIdx}
+                    className="relative pl-5 sm:pl-6"
+                  >
                     {/* Horizontal Branch Connector Line from Trunk */}
                     <div
                       className="absolute -left-6 sm:-left-8 top-3.5 w-5 sm:w-6 h-px bg-border-strong"
@@ -212,45 +220,49 @@ export function ExperienceSection() {
 
                     {/* Events List on this Branch */}
                     <div className="space-y-4">
-                      {monthGroup.items.map((item) => (
-                        <div
+                      {monthGroup.items.map((item, itemIdx) => (
+                        <FoldableItem
                           key={`${item.organization}-${item.role}-${item.year}`}
-                          className="rounded-xl border border-border bg-[#0a0a0a] p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
+                          index={itemIdx}
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                            <h4 className="text-base sm:text-lg font-bold text-text leading-snug">
-                              {item.role}
-                            </h4>
-                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                              <span className="text-xs font-mono text-accent font-medium">
-                                {item.period}
-                              </span>
-                              {item.period.includes("Nov 2025") || item.role.includes("Wisuda") ? (
-                                <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                  1-Year Contract
+                          <div
+                            className="rounded-xl border border-border bg-[#0a0a0a] p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                              <h4 className="text-base sm:text-lg font-bold text-text leading-snug">
+                                {item.role}
+                              </h4>
+                              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                <span className="text-xs font-mono text-accent font-medium">
+                                  {item.period}
                                 </span>
-                              ) : null}
+                                {item.period.includes("Nov 2025") || item.role.includes("Wisuda") ? (
+                                  <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                    1-Year Contract
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
+
+                            <p className="text-xs sm:text-sm font-medium text-muted mt-1">
+                              {item.organization}
+                            </p>
+
+                            <div className="w-full h-px bg-border/60 my-3.5" />
+
+                            <ul className="space-y-2 text-xs sm:text-sm text-text/80 leading-relaxed">
+                              {item.points.map((point) => (
+                                <li key={point} className="flex items-start gap-2.5">
+                                  <span aria-hidden="true" className="text-accent shrink-0 mt-0.5 text-xs select-none">▸</span>
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-
-                          <p className="text-xs sm:text-sm font-medium text-muted mt-1">
-                            {item.organization}
-                          </p>
-
-                          <div className="w-full h-px bg-border/60 my-3.5" />
-
-                          <ul className="space-y-2 text-xs sm:text-sm text-text/80 leading-relaxed">
-                            {item.points.map((point) => (
-                              <li key={point} className="flex items-start gap-2.5">
-                                <span aria-hidden="true" className="text-accent shrink-0 mt-0.5 text-xs select-none">▸</span>
-                                <span>{point}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        </FoldableItem>
                       ))}
                     </div>
-                  </div>
+                  </FoldableItem>
                 ))}
               </div>
             </div>
