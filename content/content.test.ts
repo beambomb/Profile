@@ -4,9 +4,9 @@ import { certificates, cv, findPlaceholders, profile, projects, skills, socials 
 import { projectsSchema } from "./schema";
 
 describe("content", () => {
-  it("has the five featured projects with unique slugs", () => {
+  it("has the featured projects with unique slugs", () => {
     expect(projects.map((p) => p.slug).sort()).toEqual(
-      ["aemads", "carikos", "turbofan-predictive-maintenance", "vanigrow", "weather-elt-pipeline"].sort(),
+      ["aemads", "carikos", "renewly", "turbofan-predictive-maintenance", "vanigrow", "weather-elt-pipeline"].sort(),
     );
   });
 

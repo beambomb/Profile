@@ -5,7 +5,7 @@ import { CaseStudy } from "@/components/sections/CaseStudy";
 
 type Params = { slug: string };
 
-// Unknown slugs return 404 instead of rendering on demand.
+// Slugs are statically generated from content/projects.ts
 export const dynamicParams = false;
 
 export function generateStaticParams(): Params[] {

@@ -136,6 +136,80 @@ export const projects = projectsSchema.parse([
     needsReview: true,
   },
   {
+    slug: "renewly",
+    title: "Renewly",
+    domain: "Web",
+    period: "October 2026 – Present",
+    oneLiner:
+      "A mobile-first personal PWA that tracks subscriptions, recurring purchases, warranties, and savings goals with circular countdown rings and renewal alerts.",
+    problem: [
+      "Tracking recurring subscriptions, routine household purchases, expiring product warranties, and personal savings goals across separate apps or forgotten calendar events often leads to surprise credit card charges and voided warranties from lost receipts.",
+      "Most finance apps demand invasive bank linking or overwhelm users with bloated accounting features instead of offering a fast, glanceable lifecycle timeline.",
+    ],
+    solution: [
+      "Renewly visualizes every commitment as a circular SVG progress ring that gradually drains towards its due date, with four clear urgency states (comfortable, soon, urgent within 3 days, and overdue).",
+      "Organizes life tracking across five distinct sections: Subscriptions (with automatic monthly cost normalization across weekly, monthly, yearly, or custom day cycles), Recurring Purchases, Warranties (with photo receipt uploads and warranty expiry math), Savings Goals (tabungan with deposit and withdrawal ledger), and General Reminders.",
+      "Sends scheduled multi-channel reminders (in-app notifications, Resend email alerts, and Web Push) using customizable advance offsets (7, 3, 1, and 0 days) before renewal dates.",
+    ],
+    results: [
+      "Built and deployed live to production on Vercel with a mobile-first PWA design, supporting full offline installability and WCAG AA accessibility.",
+      "Implemented strict multi-tenant Row-Level Security (RLS) in PostgreSQL, verified with automated SQL integration suites executed locally via ElectricSQL PGlite.",
+      "Achieved complete unit test coverage across date math, circular ring SVG algorithms, minor-unit money arithmetic, and Zod schemas using Vitest.",
+    ],
+    role: "Architected and developed the full-stack PWA from scratch: Next.js 16 App Router frontend with Tailwind CSS design tokens, Supabase backend (Auth magic links, PostgreSQL schema, RLS policies, Storage for receipts), shared Zod schemas, circular ring math, and local PGlite test harnesses.",
+    tags: ["Next.js", "React", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "PWA", "Zod"],
+    stack: [
+      { label: "Frontend", items: ["Next.js 16 (App Router)", "React 19", "TypeScript", "Tailwind CSS v4", "PWA"] },
+      { label: "Backend & Data", items: ["Supabase (PostgreSQL)", "Row-Level Security (RLS)", "Supabase Auth", "Supabase Storage"] },
+      { label: "Logic & Validation", items: ["Zod", "Server Actions", "SVG circular ring math", "Minor-unit currency"] },
+      { label: "Testing & Quality", items: ["Vitest", "@testing-library/react", "ElectricSQL PGlite (local RLS tests)"] },
+    ],
+    architecture: {
+      summary: "A mobile-first server-rendered PWA backed by Supabase with Row-Level Security and scheduled reminder hooks.",
+      steps: [
+        { label: "PWA Client", detail: "Mobile-first UI with SVG countdown rings and one-thumb navigation." },
+        { label: "Next.js App Router", detail: "Server Components and Server Actions validated by shared Zod schemas." },
+        { label: "Supabase Auth", detail: "Passwordless magic link login and secure JWT session handling." },
+        { label: "Postgres + RLS", detail: "Multi-tenant tables protected by Row-Level Security policies tested via PGlite." },
+        { label: "Storage Buckets", detail: "Private storage for warranty receipts and service logos with signed URLs." },
+        { label: "Notification Engine", detail: "Automated cron triggers sending in-app, email, and Web Push alerts." },
+      ],
+    },
+    decisions: [
+      {
+        title: "Local RLS test verification with ElectricSQL PGlite",
+        why: "Running PostgreSQL with Row-Level Security in an in-process WASM engine (PGlite) allows the test suite to verify security policies in milliseconds during local CI without needing a live cloud database.",
+      },
+      {
+        title: "Strict 64-bit minor-unit integer arithmetic for currencies",
+        why: "Storing monetary amounts in minor integer units (such as whole rupiah for IDR or cents for USD) completely eliminates IEEE 754 floating-point rounding errors across recurring calculations.",
+      },
+      {
+        title: "Explicit IANA timezone date calculation",
+        why: "Every billing cycle and reminder calculation takes an explicit timezone and timestamp argument, preventing silent UTC day-shifts and midnight edge cases when traveling.",
+      },
+    ],
+    limitations: [
+      "Focuses on intentional manual tracking rather than automated bank synchronization to protect user financial privacy.",
+      "Web Push notifications require an installed PWA and browser service worker support.",
+    ],
+    repoUrl: "https://github.com/beambomb/Renewly",
+    liveUrl: "https://renewly-five-mauve.vercel.app/",
+    screenshots: [
+      {
+        src: "/images/projects/Renewly/renewly-hero.png",
+        alt: "Renewly landing page hero showing circular countdown rings for subscriptions and warranties",
+        caption: "Landing hero explaining circular ring time-tracking for subscriptions and warranties",
+      },
+      {
+        src: "/images/projects/Renewly/renewly-dashboard.png",
+        alt: "Renewly in-app dashboard list showing upcoming renewals, category filters, and monthly cost",
+        caption: "In-app dashboard with 30-day upcoming renewals, section tabs, and monthly subscription totals",
+      },
+    ],
+    needsReview: true,
+  },
+  {
     slug: "weather-elt-pipeline",
     title: "Weather ELT Pipeline",
     domain: "Data",

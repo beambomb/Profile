@@ -3,7 +3,7 @@ import type { Project } from "@content";
 import { ArchitectureDiagram } from "@/components/diagrams/ArchitectureDiagram";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeftIcon, ArrowRightIcon, GithubIcon } from "@/components/ui/Icons";
+import { ArrowLeftIcon, ArrowRightIcon, ExternalLinkIcon, GithubIcon } from "@/components/ui/Icons";
 import { Tag, TagList } from "@/components/ui/Tag";
 
 function Block({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -177,7 +177,12 @@ export function CaseStudy({ project, prev, next }: { project: Project; prev: Nei
             </>
           ) : null}
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {project.liveUrl && (
+              <Button href={project.liveUrl} variant="primary">
+                <ExternalLinkIcon className="size-4" /> Live Demo <span className="sr-only">(opens in a new tab)</span>
+              </Button>
+            )}
             <Button href={project.repoUrl} variant="secondary">
               <GithubIcon /> View source on GitHub <span className="sr-only">(opens in a new tab)</span>
             </Button>

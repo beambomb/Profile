@@ -121,6 +121,7 @@ export const projectSchema = z.object({
   decisions: z.array(z.object({ title: nonEmpty, why: nonEmpty })).min(1),
   limitations: z.array(nonEmpty).default([]),
   repoUrl: z.url(),
+  liveUrl: z.url().optional(),
   screenshots: z.array(projectScreenshotSchema).optional(),
   needsReview: z.boolean().default(false),
 });
