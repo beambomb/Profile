@@ -22,8 +22,8 @@ export function LanyardFallback() {
     <>
       {!hasWebgl ? (
         /* Accessible Fallback when WebGL is unavailable (e.g. In jsdom / test suites) */
-        <div className="relative w-[210px] rounded-2xl bg-[#0a0a0a] border-2 border-border-strong text-text shadow-2xl p-4 mt-8 text-center">
-          <div className="mx-auto h-3 w-10 rounded-full bg-black border border-border-strong mb-2" />
+        <div className="relative w-[210px] rounded-2xl bg-surface border-2 border-border-strong text-text shadow-2xl p-4 mt-8 text-center">
+          <div className="mx-auto h-3 w-10 rounded-full bg-surface-2 border border-border-strong mb-2" />
           <div className="text-[9px] font-mono tracking-widest text-muted uppercase mb-3">
             UGM STUDENT PASS
           </div>

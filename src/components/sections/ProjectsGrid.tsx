@@ -72,12 +72,12 @@ export function ProjectsGrid({
         <button
           type="button"
           onClick={() => openPreview(primaryScreenshot)}
-          className="w-full text-left rounded-xl overflow-hidden border border-border-strong bg-[#030303] p-1.5 transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/10 cursor-pointer block focus-visible:outline-accent active:scale-[0.99]"
+          className="w-full text-left rounded-xl overflow-hidden border border-border-strong bg-surface-2 p-1.5 transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/10 cursor-pointer block focus-visible:outline-accent active:scale-[0.99]"
           aria-haspopup="dialog"
           aria-label={`View full screenshot: ${primaryScreenshot.alt}`}
         >
           {/* Browser Mockup Header */}
-          <div className="flex items-center justify-between px-3 py-1.5 bg-[#121212] border-b border-border/80 rounded-t-lg mb-1 select-none">
+          <div className="flex items-center justify-between px-3 py-1.5 bg-surface border-b border-border/80 rounded-t-lg mb-1 select-none">
             <div className="flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-border-strong" />
               <span className="size-2 rounded-full bg-border-strong" />
@@ -92,7 +92,7 @@ export function ProjectsGrid({
           </div>
 
           {/* Screenshot Image Container */}
-          <div className="relative overflow-hidden rounded bg-black aspect-[16/10] flex items-center justify-center">
+          <div className="relative overflow-hidden rounded bg-surface-2 aspect-[16/10] flex items-center justify-center">
             <img
               src={primaryScreenshot.src}
               alt={primaryScreenshot.alt}
@@ -121,7 +121,7 @@ export function ProjectsGrid({
 
       {/* Retro Console Horizontal Carousel Container */}
       <div
-        className="relative rounded-2xl border border-border-strong bg-[#090909] overflow-hidden shadow-2xl focus-visible:outline-accent"
+        className="relative rounded-2xl border border-border-strong bg-surface overflow-hidden shadow-2xl focus-visible:outline-accent"
         tabIndex={0}
         role="region"
         aria-roledescription="carousel"
@@ -137,7 +137,7 @@ export function ProjectsGrid({
         }}
       >
         {/* Top Console Bar: Index Counter, Domain, Period, and Navigation Controls */}
-        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 border-b border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none gap-2">
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 border-b border-border bg-surface-2/95 backdrop-blur-sm select-none gap-2">
           <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
             <span className="font-pixel text-xs sm:text-sm text-accent font-bold tracking-wider shrink-0">
               {String(currentIndex + 1).padStart(2, "0")} / {String(visible.length).padStart(2, "0")}
@@ -234,7 +234,7 @@ export function ProjectsGrid({
                       {renderScreenshot(project, "lg:hidden mt-4 mb-2")}
 
                       {/* Problem & Solution Snapshot Box */}
-                      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#111111] border border-border p-3.5 rounded-xl shadow-inner">
+                      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-surface-2 border border-border p-3.5 rounded-xl shadow-inner">
                         <div>
                           <span className="font-mono text-[10px] uppercase font-bold text-accent tracking-wider block mb-1">
                             Problem
@@ -308,7 +308,7 @@ export function ProjectsGrid({
         </div>
 
         {/* Mobile Bottom Navigation Bar: Centered Dots Indicator */}
-        <div className="sm:hidden flex items-center justify-center py-2.5 border-t border-border bg-[#0e0e0e]/95 backdrop-blur-sm select-none">
+        <div className="sm:hidden flex items-center justify-center py-2.5 border-t border-border bg-surface-2/95 backdrop-blur-sm select-none">
           <div className="flex items-center gap-1.5" role="group" aria-label="Mobile slide indicators">
             {visible.map((p, idx) => (
               <button

@@ -165,7 +165,7 @@ export function ExperienceSection() {
           <button
             type="button"
             onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border bg-[#0d0d0d] text-[11px] font-mono text-muted hover:text-text hover:border-border-strong transition-all select-none"
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border bg-surface-2 text-[11px] font-mono text-muted hover:text-text hover:border-border-strong transition-all select-none"
             aria-label={`Toggle timeline sort order. Currently ${sortOrder === "desc" ? "Latest first (2026 → 2024)" : "Oldest first (2024 → 2026)"}`}
           >
             <span className="text-accent/80 font-bold">⇅</span>
@@ -190,7 +190,7 @@ export function ExperienceSection() {
                   className="absolute -left-[31px] sm:-left-[39px] top-1 flex items-center justify-center"
                   aria-hidden="true"
                 >
-                  <div className="size-3.5 rounded-sm bg-black border-2 border-accent shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                  <div className="size-3.5 rounded-sm bg-surface border-2 border-accent shadow-sm" />
                 </div>
 
                 {/* Year Label */}
@@ -220,7 +220,7 @@ export function ExperienceSection() {
 
                     {/* Branch Node Point (Animated pop-in) */}
                     <FoldableBranchDot
-                      className="absolute -left-1 top-2.5 size-2 rounded-full bg-accent/90 shadow-[0_0_6px_rgba(255,255,255,0.4)]"
+                      className="absolute -left-1 top-2.5 size-2 rounded-full bg-accent/90 shadow-sm"
                       delayMs={mIdx * 60 + 90}
                     />
 
@@ -238,7 +238,7 @@ export function ExperienceSection() {
                           index={itemIdx}
                         >
                           <div
-                            className="rounded-xl border border-border bg-[#0a0a0a] p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
+                            className="rounded-xl border border-border bg-surface p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
                               <h4 className="text-base sm:text-lg font-bold text-text leading-snug">

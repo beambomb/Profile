@@ -2,18 +2,18 @@
 
 /* Design tokens: single source of truth (see .kiro/steering/design-system.md) */
 @theme {
-  /* Dark theme: full dark & crisp white border (anti-slop, monochrome editorial, no neon) */
-  --color-bg: #000000;
-  --color-surface: #0a0a0a;
-  --color-surface-2: #141414;
-  --color-border: #262626;
-  --color-border-strong: #4a4a4a;
-  --color-text: #ededed;
-  --color-muted: #8e8e93;
-  --color-accent: #ffffff;
-  --color-cta: #ffffff;
-  --color-gold: #ffffff;
-  --color-on-cta: #000000;
+  /* Default dark theme: soft charcoal slate & silk text (anti-slop, eye-friendly, no halation) */
+  --color-bg: #0d0f14;
+  --color-surface: #161a23;
+  --color-surface-2: #1e2330;
+  --color-border: #272d3a;
+  --color-border-strong: #3e4759;
+  --color-text: #e2e5eb;
+  --color-muted: #8e98a8;
+  --color-accent: #f1f3f7;
+  --color-cta: #f1f3f7;
+  --color-gold: #f1f3f7;
+  --color-on-cta: #0d0f14;
   --color-danger: #ef4444;
 
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -21,24 +21,39 @@
   --font-pixel: var(--font-pixel), ui-monospace, monospace;
 }
 
-/* Light theme: warm arcade parchment & crisp surfaces. */
-:root {
+/* Explicit fallback & dynamic switching */
+:root,
+:root[data-theme="dark"] {
   color-scheme: dark;
+  --color-bg: #0d0f14;
+  --color-surface: #161a23;
+  --color-surface-2: #1e2330;
+  --color-border: #272d3a;
+  --color-border-strong: #3e4759;
+  --color-text: #e2e5eb;
+  --color-muted: #8e98a8;
+  --color-accent: #f1f3f7;
+  --color-cta: #f1f3f7;
+  --color-gold: #f1f3f7;
+  --color-on-cta: #0d0f14;
+  --color-danger: #ef4444;
 }
+
+/* Light theme: crisp editorial slate, clean paper surfaces, deep ink typography. */
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-bg: #f6f1e5;
+  --color-bg: #f8f9fa;
   --color-surface: #ffffff;
-  --color-surface-2: #ede5d3;
-  --color-border: #d2c4a3;
-  --color-border-strong: #7d6b43;
-  --color-text: #1f1b13;
-  --color-muted: #5e533d;
-  --color-accent: #875c06;
-  --color-cta: #d99f24;
-  --color-gold: #875c06;
-  --color-on-cta: #1f1b13;
-  --color-danger: #be123c;
+  --color-surface-2: #f1f3f5;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-accent: #0f172a;
+  --color-cta: #0f172a;
+  --color-gold: #b45309;
+  --color-on-cta: #ffffff;
+  --color-danger: #dc2626;
 }
 
 /* Theme toggle icons: pure CSS so they are right before JavaScript runs. */
