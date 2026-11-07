@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { profile } from "@content";
-import { FoldableItem } from "@/components/motion/FoldableItem";
+import {
+  FoldableItem,
+  FoldableBranchLine,
+  FoldableBranchDot,
+} from "@/components/motion/FoldableItem";
+import { TreeTrunkLine } from "@/components/motion/TreeTrunkLine";
 
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -37,6 +42,7 @@ interface ParsedExperienceItem {
 
 export function ExperienceSection() {
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const treeContainerRef = useRef<HTMLDivElement>(null);
 
   // Normalize and parse every experience item to an exact year and month
   const parsedItems: ParsedExperienceItem[] = useMemo(() => {
@@ -167,8 +173,14 @@ export function ExperienceSection() {
           </button>
         </div>
 
-        {/* Tree Container with Vertical Trunk Line */}
-        <div className="relative pl-6 sm:pl-8 border-l-2 border-border-strong/70 ml-2.5 sm:ml-4 space-y-10">
+        {/* Tree Container with Dynamic Vertical Trunk Line */}
+        <div
+          ref={treeContainerRef}
+          className="relative pl-6 sm:pl-8 border-l-2 border-transparent ml-2.5 sm:ml-4 space-y-10"
+        >
+          {/* Vertical Trunk Line (Animated Scroll Drawing & Retraction) */}
+          <TreeTrunkLine containerRef={treeContainerRef} />
+
           {treeData.map((yearGroup, yIdx) => (
             <div key={yearGroup.year} className="relative">
               {/* Year Trunk Node Point & Label (Foldable on Scroll) */}
@@ -200,16 +212,16 @@ export function ExperienceSection() {
                     index={mIdx}
                     className="relative pl-5 sm:pl-6"
                   >
-                    {/* Horizontal Branch Connector Line from Trunk */}
-                    <div
-                      className="absolute -left-6 sm:-left-8 top-3.5 w-5 sm:w-6 h-px bg-border-strong"
-                      aria-hidden="true"
+                    {/* Horizontal Branch Connector Line from Trunk (Animated) */}
+                    <FoldableBranchLine
+                      className="absolute -left-6 sm:-left-8 top-3.5 w-5 sm:w-6 h-[1.5px] bg-border-strong/90"
+                      delayMs={mIdx * 60 + 50}
                     />
 
-                    {/* Branch Node Point */}
-                    <div
-                      className="absolute -left-1 top-2.5 size-2 rounded-full bg-accent/90"
-                      aria-hidden="true"
+                    {/* Branch Node Point (Animated pop-in) */}
+                    <FoldableBranchDot
+                      className="absolute -left-1 top-2.5 size-2 rounded-full bg-accent/90 shadow-[0_0_6px_rgba(255,255,255,0.4)]"
+                      delayMs={mIdx * 60 + 90}
                     />
 
                     {/* Month Tag */}
