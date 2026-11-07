@@ -5,8 +5,8 @@ import { CaseStudy } from "@/components/sections/CaseStudy";
 
 type Params = { slug: string };
 
-// Unknown slugs return 404 instead of rendering on demand.
-export const dynamicParams = false;
+// Allow on-demand resolution in dev, while pre-rendering all slugs at build time
+export const dynamicParams = true;
 
 export function generateStaticParams(): Params[] {
   return projects.map((p) => ({ slug: p.slug }));

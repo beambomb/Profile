@@ -70,6 +70,75 @@ export const projects = projectsSchema.parse([
     needsReview: true,
   },
   {
+    slug: "bengawan-solo-flood-forecasting",
+    title: "Bengawan Solo Flood Forecasting",
+    domain: "AI/ML",
+    period: "January 2026 – Present",
+    award: "Sebelas Maret Statistics & Data Science (SSDS) 2026",
+    oneLiner:
+      "A multi-horizon hydrological machine learning system predicting water levels across 30 river stations for the 8-month Bengawan Solo flood season.",
+    problem: [
+      "Forecasting water surface elevation (TMA) along Indonesia's longest river basin across 30 heterogeneous monitoring stations over an 8-month deployment window without future ground-truth water level readings.",
+      "Standard autoregressive models collapse due to recursive error accumulation over 242-day rollouts, while elevation disparities (1 to 144 mdpl) and sensor telemetry anomalies cause severe model bias.",
+    ],
+    solution: [
+      "Developed the V60 Grand Master pipeline, transitioning from isolated station models to a unified Target-Normalized Global Ensemble combining diverse CatBoost and LightGBM models trained on robust Z-score scaled water levels.",
+      "Engineered domain-specific hydrological features: Antecedent Precipitation Index (API) across three half-life soil saturation regimes (12h, 48h, 7 days), effective direct runoff, and topological upstream routing through the HydroRIVERS network with exponential distance decay.",
+      "Employed Huber loss optimization with conservative sample weight damping (0.05) on single-point sensor spikes to preserve true flood peak signals while immunizing against hardware telemetry glitches.",
+    ],
+    results: [
+      "Successfully generated 21,780 multi-horizon target predictions across all 30 stations spanning 242 days (3 daily observation timestamps at 06:00, 12:00, and 18:00 WIB).",
+      "Validated temporal generalization across a 4-fold rolling-origin backtesting framework without data leakage, evaluating global RMSE, macro-station MAE, and worst-station MAE.",
+      "Documented experimental progression across 58 iterative architectures—benchmarking LSTMs, Graph WaveNets, and Temporal Fusion Transformers before perfecting the heterogeneous tree ensemble.",
+    ],
+    role: "Led end-to-end machine learning and hydrological engineering: geospatial reach traversal using HydroRIVERS topology, robust target scaling, 58 iterative model experiments, rolling-origin validation, and final 5-head heterogeneous ensemble deployment.",
+    tags: ["Python", "CatBoost", "LightGBM", "XGBoost", "Hydrology", "HydroRIVERS", "Optuna", "Folium"],
+    stack: [
+      { label: "Modeling & Ensembling", items: ["CatBoost", "LightGBM", "XGBoost", "Heterogeneous 5-Head Ensemble", "Quantile Regressors"] },
+      { label: "Hydrological Feature Engineering", items: ["Antecedent Precipitation Index (API)", "Soil Moisture Saturation", "HydroRIVERS Topology", "Hydraulic Distance Decay"] },
+      { label: "Optimization & Validation", items: ["Optuna", "Huber Loss (delta=1.5)", "Robust Z-Score Scaling", "4-Fold Rolling-Origin CV"] },
+      { label: "Geospatial & Tooling", items: ["Python", "GeoPandas", "Folium (Interactive Stream Paths)", "Shapely"] },
+    ],
+    architecture: {
+      summary: "Multi-horizon river basin forecasting pipeline routing environmental and topological signals through a target-normalized heterogeneous ensemble.",
+      steps: [
+        { label: "Meteorological Ingestion", detail: "Hourly precipitation, soil moisture, and climate indicators across 30 stations." },
+        { label: "Hydrological Modeling", detail: "Computes API soil memory (12h, 48h, 168h) and HydroRIVERS upstream routing." },
+        { label: "Robust Normalization", detail: "Station-wise median and IQR scaling maps disparate elevations (1-144 mdpl) to common z-scores." },
+        { label: "Heterogeneous Ensemble", detail: "5 diverse CatBoost and LightGBM models trained with Huber loss and spike damping." },
+        { label: "Inverse Scaling", detail: "Reconstructs physical water level elevation (meters above sea level) per station." },
+        { label: "Multi-Horizon Forecast", detail: "Generates 21,780 predictions across 242 days with optional quantile uncertainty bounds." },
+      ],
+    },
+    decisions: [
+      {
+        title: "Target-normalized global model over local station models",
+        why: "Individual station models struggled with limited historical variance and overfitting. Normalizing target water levels into station-relative robust z-scores allowed a single global ensemble to learn shared hydrological flood dynamics across all 30 stations.",
+      },
+      {
+        title: "HydroRIVERS topological reach traversal with distance decay",
+        why: "Rather than relying solely on local station weather, upstream rainfall was routed downstream along true river network reaches weighted by exponential hydraulic distance decay.",
+      },
+      {
+        title: "Rolling-origin 4-fold validation over random k-fold",
+        why: "Simulates the exact real-world deployment environment over four 8-month historical forecast horizons, preventing future lookahead leakage in time-series evaluation.",
+      },
+    ],
+    limitations: [
+      "Target observations contain occasional unphysical single-point sensor spikes requiring conservative damping.",
+      "Long-range 8-month weather inputs rely on seasonal forecasts rather than measured precipitation.",
+    ],
+    repoUrl: "https://github.com/beambomb/SSF-SSDS",
+    screenshots: [
+      {
+        src: "/images/projects/SSF-SSDS/bengawan-solo-spatial-map.png",
+        alt: "Bengawan Solo river basin interactive spatial topology map showing 30 monitoring stations and flow paths",
+        caption: "Geographic spatial distribution of all 30 monitoring stations along the Bengawan Solo basin with elevation color gradient",
+      },
+    ],
+    needsReview: true,
+  },
+  {
     slug: "turbofan-predictive-maintenance",
     title: "Turbofan Predictive Maintenance",
     domain: "Data",
@@ -131,6 +200,80 @@ export const projects = projectsSchema.parse([
       {
         src: "/images/projects/turbofan-predictive-maintenance/turbofan-fleet-intelligence.png",
         alt: "NASA Turbofan Fleet Intelligence Platform showing fleet risk and health distribution",
+      },
+    ],
+    needsReview: true,
+  },
+  {
+    slug: "renewly",
+    title: "Renewly",
+    domain: "Web",
+    period: "October 2026 – Present",
+    oneLiner:
+      "A mobile-first personal PWA that tracks subscriptions, recurring purchases, warranties, and savings goals with circular countdown rings and renewal alerts.",
+    problem: [
+      "Tracking recurring subscriptions, routine household purchases, expiring product warranties, and personal savings goals across separate apps or forgotten calendar events often leads to surprise credit card charges and voided warranties from lost receipts.",
+      "Most finance apps demand invasive bank linking or overwhelm users with bloated accounting features instead of offering a fast, glanceable lifecycle timeline.",
+    ],
+    solution: [
+      "Renewly visualizes every commitment as a circular SVG progress ring that gradually drains towards its due date, with four clear urgency states (comfortable, soon, urgent within 3 days, and overdue).",
+      "Organizes life tracking across five distinct sections: Subscriptions (with automatic monthly cost normalization across weekly, monthly, yearly, or custom day cycles), Recurring Purchases, Warranties (with photo receipt uploads and warranty expiry math), Savings Goals (tabungan with deposit and withdrawal ledger), and General Reminders.",
+      "Sends scheduled multi-channel reminders (in-app notifications, Resend email alerts, and Web Push) using customizable advance offsets (7, 3, 1, and 0 days) before renewal dates.",
+    ],
+    results: [
+      "Built and deployed live to production on Vercel with a mobile-first PWA design, supporting full offline installability and WCAG AA accessibility.",
+      "Implemented strict multi-tenant Row-Level Security (RLS) in PostgreSQL, verified with automated SQL integration suites executed locally via ElectricSQL PGlite.",
+      "Achieved complete unit test coverage across date math, circular ring SVG algorithms, minor-unit money arithmetic, and Zod schemas using Vitest.",
+    ],
+    role: "Architected and developed the full-stack PWA from scratch: Next.js 16 App Router frontend with Tailwind CSS design tokens, Supabase backend (Auth magic links, PostgreSQL schema, RLS policies, Storage for receipts), shared Zod schemas, circular ring math, and local PGlite test harnesses.",
+    tags: ["Next.js", "React", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "PWA", "Zod"],
+    stack: [
+      { label: "Frontend", items: ["Next.js 16 (App Router)", "React 19", "TypeScript", "Tailwind CSS v4", "PWA"] },
+      { label: "Backend & Data", items: ["Supabase (PostgreSQL)", "Row-Level Security (RLS)", "Supabase Auth", "Supabase Storage"] },
+      { label: "Logic & Validation", items: ["Zod", "Server Actions", "SVG circular ring math", "Minor-unit currency"] },
+      { label: "Testing & Quality", items: ["Vitest", "@testing-library/react", "ElectricSQL PGlite (local RLS tests)"] },
+    ],
+    architecture: {
+      summary: "A mobile-first server-rendered PWA backed by Supabase with Row-Level Security and scheduled reminder hooks.",
+      steps: [
+        { label: "PWA Client", detail: "Mobile-first UI with SVG countdown rings and one-thumb navigation." },
+        { label: "Next.js App Router", detail: "Server Components and Server Actions validated by shared Zod schemas." },
+        { label: "Supabase Auth", detail: "Passwordless magic link login and secure JWT session handling." },
+        { label: "Postgres + RLS", detail: "Multi-tenant tables protected by Row-Level Security policies tested via PGlite." },
+        { label: "Storage Buckets", detail: "Private storage for warranty receipts and service logos with signed URLs." },
+        { label: "Notification Engine", detail: "Automated cron triggers sending in-app, email, and Web Push alerts." },
+      ],
+    },
+    decisions: [
+      {
+        title: "Local RLS test verification with ElectricSQL PGlite",
+        why: "Running PostgreSQL with Row-Level Security in an in-process WASM engine (PGlite) allows the test suite to verify security policies in milliseconds during local CI without needing a live cloud database.",
+      },
+      {
+        title: "Strict 64-bit minor-unit integer arithmetic for currencies",
+        why: "Storing monetary amounts in minor integer units (such as whole rupiah for IDR or cents for USD) completely eliminates IEEE 754 floating-point rounding errors across recurring calculations.",
+      },
+      {
+        title: "Explicit IANA timezone date calculation",
+        why: "Every billing cycle and reminder calculation takes an explicit timezone and timestamp argument, preventing silent UTC day-shifts and midnight edge cases when traveling.",
+      },
+    ],
+    limitations: [
+      "Focuses on intentional manual tracking rather than automated bank synchronization to protect user financial privacy.",
+      "Web Push notifications require an installed PWA and browser service worker support.",
+    ],
+    repoUrl: "https://github.com/beambomb/Renewly",
+    liveUrl: "https://renewly-five-mauve.vercel.app/",
+    screenshots: [
+      {
+        src: "/images/projects/Renewly/renewly-hero.png",
+        alt: "Renewly landing page hero showing circular countdown rings for subscriptions and warranties",
+        caption: "Landing hero explaining circular ring time-tracking for subscriptions and warranties",
+      },
+      {
+        src: "/images/projects/Renewly/renewly-dashboard.png",
+        alt: "Renewly in-app dashboard list showing upcoming renewals, category filters, and monthly cost",
+        caption: "In-app dashboard with 30-day upcoming renewals, section tabs, and monthly subscription totals",
       },
     ],
     needsReview: true,

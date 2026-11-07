@@ -17,10 +17,11 @@ describe("ProjectsGrid", () => {
     const user = userEvent.setup();
     render(<ProjectsGrid projects={projects} domains={domains} />);
 
-    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+    const totalStr = String(projects.length).padStart(2, "0");
+    expect(screen.getByText(`01 / ${totalStr}`)).toBeInTheDocument();
     const secondDot = screen.getAllByRole("button", { name: new RegExp(projects[1].title, "i") })[0];
     await user.click(secondDot);
-    expect(screen.getByText("02 / 05")).toBeInTheDocument();
+    expect(screen.getByText(`02 / ${totalStr}`)).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(`Showing project 2 of ${projects.length}: ${projects[1].title}`);
   });
 
@@ -34,18 +35,19 @@ describe("ProjectsGrid", () => {
     const user = userEvent.setup();
     render(<ProjectsGrid projects={projects} domains={domains} />);
 
-    // Initially at slide 01 / 05
-    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+    const totalStr = String(projects.length).padStart(2, "0");
+    // Initially at slide 01 / total
+    expect(screen.getByText(`01 / ${totalStr}`)).toBeInTheDocument();
 
     const nextBtn = screen.getByRole("button", { name: /Next project/i });
     const prevBtn = screen.getByRole("button", { name: /Previous project/i });
 
-    // Click next -> 02 / 05
+    // Click next -> 02 / total
     await user.click(nextBtn);
-    expect(screen.getByText("02 / 05")).toBeInTheDocument();
+    expect(screen.getByText(`02 / ${totalStr}`)).toBeInTheDocument();
 
-    // Click prev -> 01 / 05
+    // Click prev -> 01 / total
     await user.click(prevBtn);
-    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+    expect(screen.getByText(`01 / ${totalStr}`)).toBeInTheDocument();
   });
 });

@@ -272,6 +272,18 @@ export function ProjectsGrid({
                           <ArrowRightIcon className="size-4" />
                         </Link>
 
+                        {project.liveUrl && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface border border-border-strong text-text font-medium text-xs sm:text-sm hover:border-accent hover:text-accent transition-all shadow-sm active:scale-95 cursor-pointer"
+                          >
+                            <span>Live Demo</span>
+                            <ExternalLinkIcon className="size-4 text-muted" />
+                          </a>
+                        )}
+
                         <a
                           href={project.repoUrl}
                           target="_blank"

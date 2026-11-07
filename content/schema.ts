@@ -10,7 +10,7 @@ export const PLACEHOLDER_MARKER = "TODO(user):";
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slug must be lowercase-kebab-case");
 const nonEmpty = z.string().trim().min(1);
 
-export const projectDomains = ["Data", "Mobile", "Web", "IoT"] as const;
+export const projectDomains = ["Data", "Mobile", "Web", "IoT", "AI/ML"] as const;
 export type ProjectDomain = (typeof projectDomains)[number];
 
 export const profileSchema = z.object({
@@ -121,6 +121,7 @@ export const projectSchema = z.object({
   decisions: z.array(z.object({ title: nonEmpty, why: nonEmpty })).min(1),
   limitations: z.array(nonEmpty).default([]),
   repoUrl: z.url(),
+  liveUrl: z.url().optional(),
   screenshots: z.array(projectScreenshotSchema).optional(),
   needsReview: z.boolean().default(false),
 });
