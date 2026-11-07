@@ -254,3 +254,25 @@ p {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-strong);
 }
+
+/* Certificate Spotlight Carousel: Center card + left/right sneak peeks */
+.cert-carousel-track {
+  --slide-w: clamp(235px, 64vw, 275px);
+  --slide-gap: 12px;
+}
+@media (min-width: 640px) {
+  .cert-carousel-track {
+    --slide-w: 460px;
+    --slide-gap: 20px;
+  }
+}
+@media (min-width: 1024px) {
+  .cert-carousel-track {
+    --slide-w: 520px;
+    --slide-gap: 24px;
+  }
+}
+
+.cert-slide {
+  width: var(--slide-w);
+}
