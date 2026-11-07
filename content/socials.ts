@@ -28,6 +28,17 @@ export const certificates = certificatesSchema.parse([
       "DataCamp statement of accomplishment for Associate Data Engineer in SQL, awarded to Johannes De Deo Dimas Aryobimo, completed October 18, 2026",
   },
   {
+    id: "datacamp-deep-learning-in-python",
+    name: "Deep Learning in Python",
+    issuer: "DataCamp",
+    year: 2026,
+    verifyUrl:
+      "https://www.datacamp.com/completed/statement-of-accomplishment/track/91c01c079d6fb2a4ac07ac41bc5df4104aff7ed3",
+    image: "/images/certificates/datacamp-deep-learning-in-python.png",
+    imageAlt:
+      "DataCamp statement of accomplishment for Deep Learning in Python, awarded to Johannes De Deo Dimas Aryobimo, completed May 05, 2026",
+  },
+  {
     id: "freecodecamp-back-end-apis",
     name: "Back-End Development and APIs",
     issuer: "freeCodeCamp",
