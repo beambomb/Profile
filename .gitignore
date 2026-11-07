@@ -26,3 +26,7 @@ npm-debug.log*
 .agents/
 .taste-skill/
 .impeccable/
+
+# Local scratchpad and presentation directory
+portofolio/
+scratch/

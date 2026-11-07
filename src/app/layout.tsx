@@ -26,13 +26,13 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-// Theme toggle is hidden: enforce retro game dark theme on initial paint
-const themeScript = `(function(){try{document.documentElement.dataset.theme="dark";}catch(e){}})();`;
+// Inline script to prevent theme flash (FOUC) by syncing dataset.theme before paint
+const themeScript = `(function(){try{var s=localStorage.getItem("theme");var m=window.matchMedia("(prefers-color-scheme: light)").matches;var t=s?s:(m?"light":"dark");document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#000000" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0f14" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f9fa" },
   ],
   width: "device-width",
   initialScale: 1,

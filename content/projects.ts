@@ -139,6 +139,87 @@ export const projects = projectsSchema.parse([
     needsReview: true,
   },
   {
+    slug: "document-assistant",
+    title: "Enterprise Document Assistant",
+    domain: "AI/ML",
+    period: "October 2026",
+    oneLiner:
+      "A grounded enterprise RAG system with Role-Based Access Control (RBAC) pre-filtering, adversarial red-teaming, and quantitative evaluation.",
+    problem: [
+      "Access Leakage & Privilege Escalation: In enterprise knowledge bases, standard RAG setups leak confidential files (like C-level payroll or security keys) when filtering is handled post-retrieval or via prompt instructions alone.",
+      "Hallucination & Fabricated Citations: Language models often hallucinate plausible-sounding answers and invent non-existent citation passages when queries fall outside the corpus.",
+      "Lack of Empirical Verification: Deployments often lack automated quantitative regression tests for retrieval accuracy, refusal behavior, and prompt jailbreaks.",
+    ],
+    solution: [
+      "Enforced security at the database retrieval layer via ACL Pre-Filtering so unauthorized document chunks never reach the prompt context.",
+      "Engineered a Dual-Index retrieval engine combining Okapi BM25 (exact SOP and policy alphanumeric codes) and Dense Vector embeddings (multilingual semantic search) merged via Reciprocal Rank Fusion (RRF) and Cross-Encoder Reranking.",
+      "Implemented a calibrated Confidence Gate (score >= 0.35) for deterministic abstention when evidence is insufficient, accompanied by regex-based ground-truth citation verification.",
+      "Built an automated quantitative evaluation harness and a 49-test suite benchmarking Recall@k, MRR, nDCG, 0.00% ACL leakage, and 100% trap rejection.",
+    ],
+    results: [
+      "Passed all 49 automated unit, integration, and security tests with 100% success rate across adversarial penetration and retrieval flows.",
+      "Maintained 0.00% ACL leakage on confidential documents and 100% trap rejection against prompt injection attacks.",
+      "Supported offline local CPU inference (Qwen 2.5 0.5B GGUF at 3-5s latency, $0 cost) and cloud AI (OpenRouter at 1-2s latency) with an interactive Streamlit workbench.",
+    ],
+    role: "Architected and implemented the end-to-end RAG system: dual-index retrieval pipeline (BM25 + Dense RRF + Cross-Encoder), ACL pre-filter engine, quantitative evaluation harness, and Streamlit workbench.",
+    tags: ["Python", "FastAPI", "RAG", "BM25", "Streamlit", "PyTest", "LLM", "RBAC"],
+    stack: [
+      { label: "Core & Retrieval", items: ["Python 3.10+", "Okapi BM25", "Dense Vector Search", "Reciprocal Rank Fusion", "Cross-Encoder Reranker"] },
+      { label: "LLM & Security", items: ["Local GGUF (Qwen 2.5)", "OpenRouter Cloud", "RBAC Pre-Filtering", "Adversarial Red-Teaming", "Citation Verifier"] },
+      { label: "Interface & Testing", items: ["Streamlit", "FastAPI", "PyTest (49 Tests)", "Evaluation Harness (Recall, MRR, nDCG)"] },
+    ],
+    architecture: {
+      summary: "Grounded enterprise RAG architecture where access permissions are strictly pre-filtered before candidate chunks are queried from dual lexical and vector indexes.",
+      steps: [
+        { label: "User Query & RBAC Authentication", detail: "Maps query to active user roles (e.g. Tamu, Karyawan, Keuangan, Direksi, Admin) to establish cryptographic access boundaries." },
+        { label: "ACL Pre-Filter Engine", detail: "Filters out unauthorized document chunks at the metadata layer before search execution, making privilege escalation impossible." },
+        { label: "Dual-Index Hybrid Retrieval", detail: "Queries permitted documents simultaneously using Okapi BM25 for exact alphanumeric SOP codes and Dense Vector embeddings for semantic context." },
+        { label: "Reciprocal Rank Fusion & Reranking", detail: "Merges ranked candidate chunks via RRF and refines relevance ordering using a Cross-Encoder Reranker." },
+        { label: "Confidence Gate & Abstention", detail: "Checks reranker score against a 0.35 threshold; returns deterministic refusal if evidence is out-of-scope or context is empty." },
+        { label: "Prompt Guardrails & Generation", detail: "Constrains model formatting and streams response using Local CPU GGUF or Cloud AI." },
+        { label: "Citation Verifier & Telemetry", detail: "Validates bracketed citations against retrieved chunk IDs and outputs execution latency breakdown." },
+      ],
+    },
+    decisions: [
+      {
+        title: "Pre-Retrieval ACL Filtering over Post-Retrieval Prompt Filtering",
+        why: "Filtering after retrieval or instructing LLMs via prompt instructions to ignore confidential records consistently fails against adversarial jailbreaks. Pre-filtering at the index level guarantees unauthorized data never enters memory or model context.",
+      },
+      {
+        title: "Hybrid BM25 + Dense RRF over Dense-Only Retrieval",
+        why: "Corporate documents are dense with alphanumeric identifiers (e.g. SOP-IT-001, KEB-SEC-005). Dense vector embeddings frequently fail on exact code lookups that lexical BM25 solves effortlessly, while dense search captures semantic intent.",
+      },
+      {
+        title: "Deterministic Confidence Gating",
+        why: "To eliminate fabricated answers, the pipeline explicitly abstains when the top reranked score falls below 0.35, preventing false confidence in mission-critical corporate policies.",
+      },
+    ],
+    limitations: [
+      "Synthetic Document Dataset: Initial evaluation is performed on structured Markdown SOPs; real-world messy corporate scans require specialized OCR extraction pipelines.",
+      "Metadata-level RBAC: Access roles currently operate on document metadata; production enterprise deployment should bind directly to SSO, Active Directory, or OAuth2/OIDC providers.",
+      "Small Local CPU Model Constraints: Local CPU Qwen 2.5 0.5B requires repetition penalties (1.22) to avoid phrasing loops compared to larger cloud reasoning models.",
+    ],
+    repoUrl: "https://github.com/beambomb/Document-Assistant",
+    screenshots: [
+      {
+        src: "/images/projects/Document-Assistant/chat-interface.png",
+        alt: "Document Assistant Streamlit Chat Interface with RBAC Role Selector and Model Controls",
+        caption: "Grounded chat interface with active role switching (Karyawan, Keuangan, Direksi) and SOP citations",
+      },
+      {
+        src: "/images/projects/Document-Assistant/benchmark-table.png",
+        alt: "Empirical Retrieval and Security Benchmark Evaluation Table",
+        caption: "Quantitative evaluation benchmark comparing BM25, Dense Vector, Hybrid RRF, and Cross-Reranker with 0% ACL leakage",
+      },
+      {
+        src: "/images/projects/Document-Assistant/document-acl-modal.png",
+        alt: "Official Document Ingestion and Access Control Classification Modal",
+        caption: "Document upload interface with division assignment and access classification tags",
+      },
+    ],
+    needsReview: true,
+  },
+  {
     slug: "turbofan-predictive-maintenance",
     title: "Turbofan Predictive Maintenance",
     domain: "Data",

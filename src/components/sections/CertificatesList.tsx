@@ -72,7 +72,7 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
             type="button"
             onClick={prevSlide}
             aria-label="Previous certificate"
-            className="absolute left-2 sm:left-4 md:left-6 top-[40%] -translate-y-1/2 z-30 inline-flex size-10 sm:size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-black/90 text-text backdrop-blur transition-all hover:border-accent hover:bg-black hover:scale-105 active:scale-95 shadow-xl shadow-black/80"
+            className="absolute left-2 sm:left-4 md:left-6 top-[40%] -translate-y-1/2 z-30 inline-flex size-10 sm:size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface/90 text-text backdrop-blur transition-all hover:border-accent hover:bg-surface hover:scale-105 active:scale-95 shadow-xl shadow-black/30"
           >
             <ArrowLeftIcon className="size-5" />
           </button>
@@ -84,7 +84,7 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
             type="button"
             onClick={nextSlide}
             aria-label="Next certificate"
-            className="absolute right-2 sm:right-4 md:right-6 top-[40%] -translate-y-1/2 z-30 inline-flex size-10 sm:size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-black/90 text-text backdrop-blur transition-all hover:border-accent hover:bg-black hover:scale-105 active:scale-95 shadow-xl shadow-black/80"
+            className="absolute right-2 sm:right-4 md:right-6 top-[40%] -translate-y-1/2 z-30 inline-flex size-10 sm:size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface/90 text-text backdrop-blur transition-all hover:border-accent hover:bg-surface hover:scale-105 active:scale-95 shadow-xl shadow-black/30"
           >
             <ArrowRightIcon className="size-5" />
           </button>
@@ -139,7 +139,7 @@ export function CertificatesList({ certificates }: { certificates: Certificate[]
                       type="button"
                       onClick={() => isActive && open(cert)}
                       disabled={!isActive}
-                      className={`group relative block aspect-[16/10] w-full overflow-hidden bg-[#050505] border-b border-border ${
+                      className={`group relative block aspect-[16/10] w-full overflow-hidden bg-surface-2 border-b border-border ${
                         isActive ? "cursor-pointer" : "cursor-pointer pointer-events-none"
                       }`}
                       aria-label={`View certificate image: ${cert.name}`}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/ui/Icons";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useActiveSection } from "@/components/motion/useActiveSection";
 import { navItems } from "./nav";
 
@@ -98,6 +99,8 @@ export function Header({ name }: { name: string }) {
               })}
             </ul>
           </nav>
+
+          <ThemeToggle />
 
           <button
             ref={toggleRef}
