@@ -12,7 +12,6 @@ describe("content", () => {
         "carikos",
         "document-assistant",
         "face-anti-spoofing",
-        "renewly",
         "turbofan-predictive-maintenance",
         "vanigrow",
         "weather-elt-pipeline",
