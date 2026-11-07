@@ -214,16 +214,23 @@ export function ExperienceSection() {
                     <div className="space-y-4">
                       {monthGroup.items.map((item) => (
                         <div
-                          key={item.organization}
+                          key={`${item.organization}-${item.role}-${item.year}`}
                           className="rounded-xl border border-border bg-[#0a0a0a] p-4 sm:p-5 hover:border-border-strong transition-colors duration-200"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
                             <h4 className="text-base sm:text-lg font-bold text-text leading-snug">
                               {item.role}
                             </h4>
-                            <span className="text-xs font-mono text-accent shrink-0 font-medium">
-                              {item.period}
-                            </span>
+                            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                              <span className="text-xs font-mono text-accent font-medium">
+                                {item.period}
+                              </span>
+                              {item.period.includes("Nov 2025") || item.role.includes("Wisuda") ? (
+                                <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                  1-Year Contract
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
 
                           <p className="text-xs sm:text-sm font-medium text-muted mt-1">
